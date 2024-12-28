@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontSize: {
-        'fluid': 'clamp(1.5rem, 5vw, 4rem)',
+        'fluid': 'clamp(1.5rem, 5vw, 7rem)',
       },
       width: {
         'responsive': 'clamp(10rem, 25vw, 45rem)',

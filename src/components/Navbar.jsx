@@ -1,7 +1,7 @@
 
 const Navbar = () => {
   return (
-    <div className="navbar bg-transparent z-10 relative px-9">
+    <div className="navbar bg-transparent relative z-10 h-16">
   <div className="navbar-start">
     <div className="dropdown">
       <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -32,13 +32,18 @@ const Navbar = () => {
         <li><a>Item 3</a></li>
       </ul>
     </div>
-    <a className="text-3xl font-bold text-yellow-500">CIRTDAN</a>
+    <a className=" text-white text-3xl font-bold">Cirtdan</a>
   </div>
- 
-  <div className="navbar-end flex gap-4">
-    <a className="btn rounded-full">Button</a>
-    <a className="btn rounded-full">Log in</a>
-    <a className="btn btn-ghost">Sign up</a>
+  <div className="navbar-center hidden lg:flex text-white ">
+    <ul className="menu menu-horizontal px-1">
+      <li className="text-2xl"><a>Home</a></li>
+     
+      <li className="text-2xl"><a>About Us</a></li>
+      <li className="text-2xl"><a>Contact Us</a></li>
+    </ul>
+  </div>
+  <div className="navbar-end">
+    <a className="btn">Log in</a>
   </div>
 </div>
   )
