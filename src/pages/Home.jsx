@@ -1,8 +1,9 @@
 
 import Navbar from './../components/Navbar';
 import HeroSection from './../components/HeroSection';
-import dagimage from '../assets/dag.png';
+import dagimage from '../assets/dag3.png';
 import InfoSection from '../components/InfoSection';
+import { motion } from 'framer-motion';
 const App = () => {
   return (
     <div
@@ -17,12 +18,14 @@ const App = () => {
         opacity: 0.9, /* Adjust the opacity of the entire background if needed */
       }}
     >
-        <div
-    className="absolute w-full h-full bg-cover bg-center z-10 opacity-25 "
+        <motion.div
+    className="absolute w-full h-full bg-cover bg-center z-10  opacity-50  "
+      Loading = "lazy"
     style={{
       backgroundImage: `url(${dagimage})`, 
     }}
-  ></div>
+   
+  ></motion.div>
         <div
     className="absolute inset-0"
     style={{
@@ -31,7 +34,7 @@ const App = () => {
     }}
   ></div>
         
-      <Navbar/>
+      <Navbar/><div className='absolute bottom-0 w-full h-1 bg-yellow-700 z-10'></div>
       <HeroSection />
       <InfoSection />
     </div>

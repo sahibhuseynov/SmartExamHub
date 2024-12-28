@@ -8,7 +8,7 @@ const HeroSection = () => {
   return (
     <section className="text-center overflow-hidden relative z-10 max-w-6xl mx-auto" style={{ minHeight: 'calc(100vh - 4rem)' }}>
         {/* Üst Kısım */}
-           
+        
         <motion.img
       src={starImage}
       alt="Star"
