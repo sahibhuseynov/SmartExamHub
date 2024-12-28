@@ -5,7 +5,7 @@ import HeroSection from './../components/HeroSection';
 const App = () => {
   return (
     <div
-    className="h-screen bg-cover bg-center"
+    className="h-screen bg-cover bg-center "
     style={{
         backgroundImage: `
           linear-gradient(rgba(255, 255, 255, 0.5) 1.7px, transparent 1.7px), 
@@ -23,6 +23,7 @@ const App = () => {
       zIndex: 1, /* Üstte olmasını sağlar */
     }}
   ></div>
+        
       <Navbar/>
       <HeroSection />
     </div>

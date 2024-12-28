@@ -5,7 +5,14 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontSize: {
+        'fluid': 'clamp(1.5rem, 5vw, 4rem)',
+      },
+      width: {
+        'responsive': 'clamp(10rem, 25vw, 45rem)',
+      },
+    },
     fontFamily: {
       sans: ['Poppins', 'sans-serif'], // Varsayılan sans-serif ailesi olarak Poppins
     },
