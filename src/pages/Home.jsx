@@ -4,6 +4,7 @@ import HeroSection from './../components/HeroSection';
 import dagimage from '../assets/dag3.png';
 import InfoSection from '../components/InfoSection';
 import { motion } from 'framer-motion';
+import  ContactSection  from '../components/ContactSection';
 const App = () => {
   return (
     <div
@@ -34,9 +35,12 @@ const App = () => {
     }}
   ></div>
         
-      <Navbar/><div className='absolute bottom-0 w-full h-1 bg-yellow-700 z-10'></div>
+      <Navbar/><div className='absolute bottom-0 w-full h-1 bg-white z-10'></div>
       <HeroSection />
+      
+
       <InfoSection />
+      <ContactSection />
     </div>
   );
 };

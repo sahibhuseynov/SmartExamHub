@@ -6,6 +6,16 @@ module.exports = {
   ],
   theme: {
     extend: {
+      translate: {
+        '-35': '-35%',
+      },
+      backgroundImage: {
+        'custom-pattern':
+          'radial-gradient(circle at center center, #444cf7, #e5e5f7), repeating-radial-gradient(circle at center center, #444cf7, #444cf7 18px, transparent 36px, transparent 18px)',
+      },
+      backgroundBlendMode: {
+        multiply: 'multiply',
+      },
       fontSize: {
         'fluid': 'clamp(1.5rem, 5vw, 7rem)',
       },
