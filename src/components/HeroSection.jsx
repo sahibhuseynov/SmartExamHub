@@ -122,7 +122,7 @@ transition={{
       {/* Alt Kısım */}
       <div className="bg-gradient-to-b from-violet-600 to-violet-600 absolute w-2/5 bottom-0 left-1/2 transform -translate-x-1/2 border-x-4 border-t-4 border-white bg-white rounded-t-3xl shadow-lg p-6 flex flex-col items-center ">
         {/* Orta Buton */}
-        <button className="absolute -top-6 bg-blue-500 border-4 border-white text-white text-lg font-bold px-12 py-3 rounded-full shadow-md hover:scale-105 hover:border-green-500 transition-all ease-in ">
+        <button className=" absolute -top-6 bg-blue-500 border-4 border-white text-white text-lg font-bold px-12 py-3 rounded-full shadow-md hover:scale-105 hover:border-green-500 transition-all ease-in ">
           İNDİ BAŞLA 
         </button>
 

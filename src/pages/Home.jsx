@@ -4,7 +4,8 @@ import HeroSection from './../components/HeroSection';
 import dagimage from '../assets/dag3.png';
 import InfoSection from '../components/InfoSection';
 import { motion } from 'framer-motion';
-import  ContactSection  from '../components/ContactSection';
+// import  ContactSection  from '../components/ContactSection';
+import ChatWithUs from '../components/ChatWithUs';
 const App = () => {
   return (
     <div
@@ -16,7 +17,7 @@ const App = () => {
           linear-gradient(to bottom, #2837ae, #36dbe3)`, /* Tailwind colors for from-blue-800 and to-indigo-900 */
           backgroundSize: '24px 24px, 24px 24px, cover',
         backgroundBlendMode: 'normal',
-        opacity: 0.9, /* Adjust the opacity of the entire background if needed */
+        // opacity: 0.9, /* Adjust the opacity of the entire background if needed */
       }}
     >
         <motion.div
@@ -34,13 +35,13 @@ const App = () => {
       zIndex: 1, /* Üstte olmasını sağlar */
     }}
   ></div>
-        
-      <Navbar/><div className='absolute bottom-0 w-full h-1 bg-white z-10'></div>
+      <ChatWithUs />
+      <Navbar/><div className='absolute bottom-0  w-full h-1 bg-white z-10'></div>
       <HeroSection />
       
 
       <InfoSection />
-      <ContactSection />
+      {/* <ContactSection /> */}
     </div>
   );
 };
