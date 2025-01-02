@@ -30,8 +30,15 @@ const InfoSection = () => {
         <div className="text-center ">
           <h2 className="text-4xl font-extrabold text-white mb-4">Niyə Bizi Seçməlisiniz?</h2>
           <p className="text-lg text-white">
-            Cırtdan uşaqlara həm öyrənməyi, həm də əylənməyi təklif edir! <br />
-            Uşaqlar üçün nəzərdə tutulmuş viktorinaları, testləri və interaktiv oyunları kəşf edin.
+          Cırtdan uşaqlar üçün öyrənməyi daha əyləncəli edir! <br />
+Ayda 2 dəfə keçirilən viktorinalar, testlər və interaktiv oyunlarla uşaqlar həm öyrənir, həm də əylənir!
+
+
+
+
+
+
+
           </p>
         </div>
   
