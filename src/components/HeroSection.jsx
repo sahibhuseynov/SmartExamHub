@@ -4,6 +4,7 @@ import starImage from '../assets/star.png';
 import pencilImage from  '../assets/pencil.png';
 import pencilImage2 from  '../assets/pencil2.png';
 import rullerImage from  '../assets/ruller.png';
+import { Link } from 'react-router-dom';
 const HeroSection = () => {
   return (
     <section className="text-center overflow-hidden relative z-10 max-w-6xl mx-auto" style={{ minHeight: 'calc(100vh - 4rem)' }}>
@@ -120,12 +121,14 @@ transition={{
 
 
       {/* Alt Kısım */}
-      <div className="bg-gradient-to-b from-violet-600 to-violet-600 absolute w-2/5 bottom-0 left-1/2 transform -translate-x-1/2 border-x-4 border-t-4 border-white bg-white rounded-t-3xl shadow-lg p-6 flex flex-col items-center ">
+      <div className="bg-gradient-to-b from-violet-700 to-violet-700 absolute w-2/5 bottom-0 left-1/2 transform -translate-x-1/2 border-x-4 border-t-4 border-white bg-white rounded-t-3xl shadow-lg p-6 flex flex-col items-center ">
         {/* Orta Buton */}
-        <button className=" absolute -top-6 bg-blue-500 border-4 border-white text-white text-lg font-bold px-12 py-3 rounded-full shadow-md hover:scale-105 hover:border-green-500 transition-all ease-in ">
-          İNDİ BAŞLA 
-        </button>
-
+        <Link to="/categories" className='absolute -top-6 bg-blue-500 border-4 border-white text-white text-lg font-bold px-12 py-3 rounded-full shadow-md hover:scale-105 hover:border-green-500 transition-all ease-in' >
+          <button className="  ">
+            Bilet Al
+          </button>
+  
+        </Link>
         {/* Kırmızı Noktalar */}
         <div className="flex justify-center space-x-6 mt-8  ">
           <div className="h-4 w-4 bg-red-500 rounded-full"></div>

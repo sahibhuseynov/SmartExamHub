@@ -20,7 +20,7 @@ module.exports = {
         'fluid': 'clamp(1.5rem, 5vw, 7rem)',
       },
       width: {
-        'responsive': 'clamp(10rem, 25vw, 45rem)',
+        'responsive': 'clamp(10rem, 25vw, 100%)',
       },
     },
     fontFamily: {

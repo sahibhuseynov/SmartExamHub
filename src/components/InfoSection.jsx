@@ -25,7 +25,7 @@ const hoverEffect = {
 const InfoSection = () => {
   return (
     <section className="py-12 relative  mx-auto">
-   <div className="bg-gradient-to-b from-violet-600 to-indigo-600 absolute inset-0"></div>
+   <div className="bg-gradient-to-b from-violet-700 to-indigo-600 absolute inset-0"></div>
       <div className="max-w-6xl mx-auto relative ">
         <div className="text-center ">
           <h2 className="text-4xl font-extrabold text-white mb-4">Niyə Bizi Seçməlisiniz?</h2>
