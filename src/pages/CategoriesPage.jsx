@@ -1,77 +1,85 @@
-import  { useState } from 'react';
-import { FaCalendar, FaClock, FaListAlt, FaTicketAlt } from 'react-icons/fa'; 
+import { useState, useEffect } from 'react';
+import { FaCalendar, FaClock, FaListAlt, FaTicketAlt } from 'react-icons/fa';
 
 const CategoriesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedExam, setSelectedExam] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [closestExams, setClosestExams] = useState([]);
 
-  const categories = ['İbtidai Siniflər', 'Ortaokul', 'Yüksekokul', 'Gənc Tələbələr'];
-  
+  const categories = ['İbtidai Siniflər', 'Orta məktəb', 'Yüksək məktəb', 'Gənc Tələbələr'];
+
   const exams = [
     {
       id: 1,
-      title: 'Matematik Sınavı',
-      date: '2025-01-15',
-      duration: '45 dakika',
+      title: 'Riyaziyyat İmtahanı',
+      date: '2025-01-03',
+      duration: '45 dəqiqə',
       totalTests: 20,
       category: 'İbtidai Siniflər',
       price: '30 AZN',
     },
     {
       id: 2,
-      title: 'Türkçe Sınavı',
-      date: '2025-01-20',
-      duration: '30 dakika',
+      title: 'Azərbaycan Dili İmtahanı',
+      date: '2025-01-05',
+      duration: '30 dəqiqə',
       totalTests: 25,
-      category: 'Ortaokul',
+      category: 'Orta məktəb',
       price: '40 AZN',
     },
     {
       id: 3,
-      title: 'Fen Bilgisi Sınavı',
-      date: '2025-01-25',
-      duration: '40 dakika',
+      title: 'Təbiət Elmləri İmtahanı',
+      date: '2025-01-10',
+      duration: '40 dəqiqə',
       totalTests: 15,
       category: 'İbtidai Siniflər',
       price: '25 AZN',
     },
     {
       id: 4,
-      title: 'Matematik ve Geometri Sınavı',
-      date: '2025-01-18',
-      duration: '60 dakika',
+      title: 'Həndəsə İmtahanı',
+      date: '2025-01-07',
+      duration: '60 dəqiqə',
       totalTests: 30,
-      category: 'Yüksekokul',
+      category: 'Yüksək məktəb',
       price: '50 AZN',
     },
   ];
 
-  // Kategoriye tıklama işlemi
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const futureExams = exams
+      .filter((exam) => exam.date >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    setClosestExams(futureExams);
+  }, [selectedCategory]);
+
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
   };
 
-  // Modal açma
   const openModal = (exam) => {
     setSelectedExam(exam);
     setIsModalOpen(true);
   };
 
-  // Modal kapama
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedExam(null);
   };
 
-  // Kategoriye göre sınavları filtreleme
-  const filteredExams = exams.filter((exam) => exam.category === selectedCategory);
+  const filteredExams = closestExams.filter(
+    (exam) => exam.category === selectedCategory
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-violet-600 to-indigo-600 py-8 px-4 text-white flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-8">Sınav Kategorileri</h1>
+      <h1 className="text-3xl font-bold mb-8">İmtahan Kateqoriyaları</h1>
 
-      {/* Kategoriler */}
+      {/* Kateqoriyalar */}
       <div className="flex space-x-6 mb-8">
         {categories.map((category) => (
           <button
@@ -86,20 +94,24 @@ const CategoriesPage = () => {
         ))}
       </div>
 
-      {/* Sınavlar */}
-      <h2 className="text-2xl font-bold mb-6">Seçilen Kategori: {selectedCategory}</h2>
+      {/* İmtahanlar */}
+      <h2 className="text-2xl font-bold mb-6">
+        {filteredExams.length > 0
+          ? `Ən Yaxın İmtahanlar (${filteredExams[0]?.date})`
+          : 'Seçilən Kateqoriyada İmtahan Tapılmadı'}
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredExams.map((exam) => (
           <div
             key={exam.id}
-            className="bg-white p-6 rounded-xl shadow-xl cursor-pointer hover:bg-blue-100 transition"
+            className="bg-white p-6 rounded-xl shadow-xl cursor-pointer transition"
             onClick={() => openModal(exam)}
           >
-            <h3 className="font-bold text-lg">{exam.title}</h3>
-            <p className="text-gray-600">Tarih: {exam.date}</p>
-            <p className="text-gray-600">Süre: {exam.duration}</p>
-            <p className="text-gray-600">Toplam Test: {exam.totalTests}</p>
-            <p className="text-gray-600">Fiyat: {exam.price}</p>
+            <h3 className="font-bold text-lg text-black">{exam.title}</h3>
+            <p className="text-gray-600">Tarix: {exam.date}</p>
+            <p className="text-gray-600">Müddət: {exam.duration}</p>
+            <p className="text-gray-600">Ümumi Testlər: {exam.totalTests}</p>
+            <p className="text-gray-600">Qiymət: {exam.price}</p>
           </div>
         ))}
       </div>
@@ -107,41 +119,39 @@ const CategoriesPage = () => {
       {/* Modal */}
       {isModalOpen && selectedExam && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded-xl w-[700px] shadow-2xl text-black">
-            <div className="flex justify-between items-center mb-6">
-              <button
-                className="bg-blue-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-blue-600 transition"
-                onClick={closeModal}
-              >
-                Kapat
-              </button>
-              <h2 className="text-2xl font-bold">{selectedExam.title}</h2>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              {/* Sınav Detayları */}
+          <div className="bg-white p-6 rounded-xl w-[400px] shadow-2xl text-black">
+            <h2 className="text-xl font-bold mb-4">{selectedExam.title}</h2>
+            <div className="space-y-3 mb-6">
               <div className="flex items-center space-x-2">
                 <FaCalendar className="text-blue-500" />
-                <p><strong>Sınav Tarixi:</strong> {selectedExam.date}</p>
+                <p><strong>İmtahan Tarixi:</strong> {selectedExam.date}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <FaClock className="text-orange-500" />
-                <p><strong>Sınav Müddəti:</strong> {selectedExam.duration}</p>
+                <p><strong>Müddət:</strong> {selectedExam.duration}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <FaListAlt className="text-green-500" />
-                <p><strong>Cəmi Test Sayısı:</strong> {selectedExam.totalTests}</p>
+                <p><strong>Ümumi Test Sayı:</strong> {selectedExam.totalTests}</p>
               </div>
-
-              <div className="flex items-center space-x-2 mt-4">
+              <div className="flex items-center space-x-2">
                 <FaTicketAlt className="text-red-500" />
                 <p><strong>Qiymət:</strong> {selectedExam.price}</p>
               </div>
             </div>
 
-            {/* Bilet Al Butonu */}
-            <div className="flex justify-center">
-              <button className="bg-green-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-green-600 transition">
+            {/* Düymələr */}
+            <div className="flex justify-between">
+              <button
+                className="bg-gray-300 text-black py-2 px-4 rounded-lg hover:bg-gray-400 transition"
+                onClick={closeModal}
+              >
+                Bağla
+              </button>
+              <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
+                Ön Baxış
+              </button>
+              <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition">
                 Bilet Al
               </button>
             </div>
