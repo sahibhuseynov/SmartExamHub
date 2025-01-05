@@ -5,8 +5,9 @@ import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import Home from "./pages/Home";
 import Dashboard from './pages/Dashboard';
-import CategoriesPage from './pages/CategoriesPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminPanel from './components/adminPanel/AdminPanel';
+import ExamsPage from './pages/ExamsPage';
 
 const App = () => {
   return (
@@ -16,8 +17,9 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/exams/:categoryId/:examId" element={<ExamsPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<AdminPanel/>} />
           </Routes>
         </AnimatePresence>
       </Router>

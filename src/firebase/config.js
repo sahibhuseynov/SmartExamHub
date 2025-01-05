@@ -1,6 +1,6 @@
-// firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore"; // Firestore fonksiyonları eklendi
 
 // Firebase config
 const firebaseConfig = {
@@ -15,11 +15,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app); // Firestore başlatma
 
-// Google Auth Provider
 const provider = new GoogleAuthProvider();
 
-// Giriş işlemi
+// Google ile Giriş
 const googleSignIn = () => {
   signInWithPopup(auth, provider)
     .then((result) => {
@@ -31,7 +31,7 @@ const googleSignIn = () => {
     });
 };
 
-// Çıkış işlemi
+// Çıkış Yap
 const googleSignOut = () => {
   signOut(auth)
     .then(() => {
@@ -42,4 +42,32 @@ const googleSignOut = () => {
     });
 };
 
-export { auth, googleSignIn, googleSignOut };
+// ✅ GÜNCELLENMİŞ: Sınav ve alt koleksiyonları ekleyen fonksiyon
+const createExam = async (title, category, questions) => {
+  try {
+      const examRef = await addDoc(collection(db, "Exams"), {
+          title: title,
+          categoryId: category,
+          createdBy: auth.currentUser?.uid || "admin", // Kullanıcı kimliği ekliyoruz
+          status: "active",
+          createdAt: serverTimestamp()
+      });
+
+      // ✅ Questions alt koleksiyonunu ekliyoruz
+      for (const question of questions) {
+          await addDoc(collection(db, `Exams/${examRef.id}/Questions`), {
+              questionText: question.questionText,
+              options: question.options,
+              correctAnswer: question.correctAnswer
+          });
+      }
+
+      console.log("Exam and Questions created successfully!");
+      alert("Sınav ve sorular başarıyla oluşturuldu!");
+  } catch (error) {
+      console.error("Error creating exam: ", error);
+      alert("Sınav oluşturulurken hata oluştu.");
+  }
+};
+
+export { auth, googleSignIn, googleSignOut, db, createExam }; // Yeni fonksiyon export edildi.
