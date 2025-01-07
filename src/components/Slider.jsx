@@ -27,8 +27,8 @@ const PrevArrow = ({ onClick }) => (
 
 const Carousel = () => {
   const slides = [
-    { image: sliderimg1, text: "Discover the Beauty of Nature" },
-    { image: sliderimg2, text: "Explore the World with Us" },
+    { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.  ", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan.Cırtdan, istifadəçiləri üçün canlı yarışlar təşkil edərək əyləncə imkanı yaradır." },
+    { image: sliderimg2, text: "Hər gün yeni onlayn imtahanlar, testlər və suallar ilə biliyini inkişaf etdir. " , text2: "Online təhsil platformasındakı kurslar və müəllimlərin təqdim etdiyi yeni imtahanlar, minlərlə sual və geniş test bazası ilə öz bilik səviyyəni ölç!" },
     { image: sliderimg3, text: "Adventure Awaits You" }
   ];
 
@@ -43,32 +43,33 @@ const Carousel = () => {
     // autoplay: true, 
     autoplaySpeed: 3000,
     pauseOnHover: true,
-    appendDots: dots => (
-      <div className="absolute bottom-4 w-full flex justify-center">
-        <ul className="flex space-x-3 justify-center">{dots}</ul>
-      </div>
-    ),
-    customPaging: () => (
-      <div className="w-4 h-4 flex items-center justify-center">
-        <div 
-          className="w-3 h-3 rounded-full border border-blue-500 transition-all duration-300 ease-in-out"
-        />
-      </div>
-    ),
+    // appendDots: dots => (
+    //   <div className="absolute bottom-4 w-full flex justify-center">
+    //     <ul className="flex space-x-3 justify-center">{dots}</ul>
+    //   </div>
+    // ),
+    // customPaging: () => (
+    //   <div className="w-4 h-4 flex items-center justify-center">
+    //     <div 
+    //       className="w-3 h-3 rounded-full border border-blue-500 transition-all duration-300 ease-in-out"
+    //     />
+    //   </div>
+    // ),
   };
 
   return (
-    <div className="carousel-container  w-full h-[270px] relative group bg-gray-900 text-white p-8 ">
+    <div className="carousel-container   w-full h-[300px] relative group bg-gradient-to-b from-pink-500 to-purple-600 text-white p-8 ">
       <Slider {...settings}>
         {slides.map((slide, index) => (
-          <div key={index} className="!flex items-center justify-center h-[200px]">
+          <div key={index} className="!flex items-center justify-center h-[230px]">
             {/* Sol taraf - Resim */}
             <div className="w-64 h-full">
               <img src={slide.image} alt={`Slide ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
             </div>
             {/* Sağ taraf - Metin */}
-            <div className="w-1/2 flex items-center justify-center p-8 text-center">
+            <div className="w-1/2 flex flex-col gap-4 items-center justify-center p-8 text-center">
               <h2 className="text-4xl font-bold">{slide.text}</h2>
+              <p>{slide.text2}</p>
             </div>
           </div>
         ))}

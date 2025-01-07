@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore"; // Firestore fonksiyonları eklendi
+import { getFirestore } from "firebase/firestore"; // Firestore başlatma
 
 // Firebase config
 const firebaseConfig = {
@@ -20,54 +20,23 @@ const db = getFirestore(app); // Firestore başlatma
 const provider = new GoogleAuthProvider();
 
 // Google ile Giriş
-const googleSignIn = () => {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const user = result.user;
-      console.log("User Signed In: ", user);
-    })
-    .catch((error) => {
-      console.error("Error during sign in: ", error.message);
-    });
-};
-
-// Çıkış Yap
-const googleSignOut = () => {
-  signOut(auth)
-    .then(() => {
-      console.log("User Signed Out");
-    })
-    .catch((error) => {
-      console.error("Error during sign out: ", error.message);
-    });
-};
-
-// ✅ GÜNCELLENMİŞ: Sınav ve alt koleksiyonları ekleyen fonksiyon
-const createExam = async (title, category, questions) => {
+const googleSignIn = async () => {
   try {
-      const examRef = await addDoc(collection(db, "Exams"), {
-          title: title,
-          categoryId: category,
-          createdBy: auth.currentUser?.uid || "admin", // Kullanıcı kimliği ekliyoruz
-          status: "active",
-          createdAt: serverTimestamp()
-      });
-
-      // ✅ Questions alt koleksiyonunu ekliyoruz
-      for (const question of questions) {
-          await addDoc(collection(db, `Exams/${examRef.id}/Questions`), {
-              questionText: question.questionText,
-              options: question.options,
-              correctAnswer: question.correctAnswer
-          });
-      }
-
-      console.log("Exam and Questions created successfully!");
-      alert("Sınav ve sorular başarıyla oluşturuldu!");
+    const result = await signInWithPopup(auth, provider);
+    console.log("User Signed In: ", result.user);
   } catch (error) {
-      console.error("Error creating exam: ", error);
-      alert("Sınav oluşturulurken hata oluştu.");
+    console.error("Error during sign in: ", error.message);
   }
 };
 
-export { auth, googleSignIn, googleSignOut, db, createExam }; // Yeni fonksiyon export edildi.
+// Çıkış Yap
+const googleSignOut = async () => {
+  try {
+    await signOut(auth);
+    console.log("User Signed Out");
+  } catch (error) {
+    console.error("Error during sign out: ", error.message);
+  }
+};
+
+export { auth, db, googleSignIn, googleSignOut };

@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import RegisterPage from './pages/RegisterPage';
 import AdminPanel from './components/adminPanel/AdminPanel';
 import ExamsPage from './pages/ExamsPage';
+import ClassExamsPage from './pages/ClassExamsPage';
+import ExamDetailsPage from './pages/ExamDetailsPage';
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/exams/:categoryId/:examId" element={<ExamsPage />} />
+            <Route path="/category/:categoryId/class/:classId" element={<ClassExamsPage />} />
+            <Route path="/category/:categoryId/class/:classId/exam/:examId/details" element={<ExamDetailsPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<AdminPanel/>} />
           </Routes>

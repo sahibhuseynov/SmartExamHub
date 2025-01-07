@@ -27,7 +27,7 @@ const Navbar = () => {
 
   return (
     <div
-      className={`navbar ${isAuthenticated ? 'bg-blue-500' : 'bg-transparent'} relative z-10 h-16 px-2 sm:px-16`}>
+      className={`navbar ${isAuthenticated ? 'bg-white text-black ' : 'bg-transparent text-white'}  relative z-10 h-16 px-2 sm:px-16`}>
       <div className="navbar-start">
         <div className="dropdown hidden sm:relative">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -58,11 +58,11 @@ const Navbar = () => {
             <li><a>Item 3</a></li>
           </ul>
         </div>
-        <a className="text-white text-3xl font-bold">Cirtdan</a>
+        <a className=" text-3xl font-bold">Cirtdan</a>
       </div>
 
       {/* Menü kısmı */}
-      <div className="navbar-center hidden lg:flex text-white">
+      <div className="navbar-center hidden lg:flex ">
         <ul className="menu menu-horizontal px-1">
           <li className="text-2xl"><a>Home</a></li>
           <li className="text-2xl"><a>About Us</a></li>
@@ -77,7 +77,7 @@ const Navbar = () => {
         )}
         {isAuthenticated && (
           <>
-            <button className="btn btn-ghost text-white mr-4">
+            <button className="btn btn-ghost  mr-4">
               <FaBell className="text-xl" /> {/* Bildirim ikonu */}
             </button>
             <div className="dropdown dropdown-end">

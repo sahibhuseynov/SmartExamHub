@@ -1,30 +1,49 @@
 import { useState, useEffect } from 'react';
-import { createExam, db } from '../../firebase/config';
-import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
+import { collection, doc, setDoc, getDocs,  addDoc } from 'firebase/firestore';
 
 const AdminPanel = () => {
     const [title, setTitle] = useState("");
     const [category, setCategory] = useState("");
-    const [classType, setClassType] = useState("");  
+    const [classType, setClassType] = useState("");
+    const [price, setPrice] = useState("");
+    const [description, setDescription] = useState("");
+    const [examDate, setExamDate] = useState("");
     const [questions, setQuestions] = useState([{ questionText: "", options: ["", "", ""], correctAnswer: "" }]);
-    const [existingCategories, setExistingCategories] = useState([]);
+    const [categoriesWithExams, setCategoriesWithExams] = useState([]);
+    const [isExamFormVisible, setIsExamFormVisible] = useState(false);
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchCategoriesWithExams = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, "Exams"));
-                const categories = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    title: doc.data().title,
-                    categoryId: doc.data().categoryId,
-                    classTypes: doc.data().classTypes || []  // ✅ Sınıf listesi
-                }));
-                setExistingCategories(categories);
+                const categories = [];
+
+                for (const categoryDoc of querySnapshot.docs) {
+                    const categoryId = categoryDoc.id;
+                    const classesSnapshot = await getDocs(collection(db, "Exams", categoryId, "Classes"));
+                    const exams = [];
+
+                    for (const classDoc of classesSnapshot.docs) {
+                        const examsSnapshot = await getDocs(collection(db, "Exams", categoryId, "Classes", classDoc.id, "Exams"));
+                        exams.push(...examsSnapshot.docs.map(exam => ({
+                            id: exam.id,
+                            className: classDoc.id,
+                            description: exam.data().description || "Açıklama yok",
+                            examDate: exam.data().examDate || "Tarih belirtilmemiş"
+                        })));
+                    }
+
+                    categories.push({ id: categoryId, exams });
+                }
+
+                setCategoriesWithExams(categories);
             } catch (error) {
-                console.error("Kategoriler alınırken hata oluştu: ", error);
+                console.error("Veriler alınırken hata oluştu: ", error);
             }
         };
-        fetchCategories();
+
+        fetchCategoriesWithExams();
     }, []);
 
     const handleAddQuestion = () => {
@@ -39,94 +58,153 @@ const AdminPanel = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
+            const categoryRef = doc(db, "Exams", category);
+            await setDoc(categoryRef, {}, { merge: true });
 
-        const existingCategory = existingCategories.find(cat => cat.categoryId === category);
+            const classRef = doc(collection(categoryRef, "Classes"), classType);
+            await setDoc(classRef, { classType }, { merge: true });
 
-        if (existingCategory) {
-            if (!existingCategory.classTypes.includes(classType)) {
-                // ✅ Yeni sınıfı mevcut kategoriye ekle
-                await updateDoc(doc(db, "Exams", existingCategory.id), {
-                    classTypes: [...existingCategory.classTypes, classType]
+            const examRef = doc(collection(classRef, "Exams"), title);
+            await setDoc(examRef, { 
+                title, 
+                price: parseFloat(price), 
+                description, 
+                examDate, 
+                createdAt: new Date() 
+            });
+
+            const questionsRef = collection(examRef, "Questions");
+            for (const question of questions) {
+                await addDoc(questionsRef, {
+                    questionText: question.questionText,
+                    options: question.options,
+                    correctAnswer: question.correctAnswer
                 });
-                alert(`${category} kategorisine yeni sınıf eklendi: ${classType}`);
-            } else {
-                alert("Bu sınıf zaten mevcut!");
             }
-        } else {
-            // ✅ Yeni kategori oluştur
-            await createExam(title, category, classType, questions);
-            alert("Yeni kategori oluşturuldu ve sınav eklendi!");
+
+            alert("Sınav ve sorular başarıyla eklendi!");
+            setIsExamFormVisible(false);
+        } catch (error) {
+            console.error("Sınav eklenirken hata oluştu: ", error);
         }
     };
 
     return (
-        <div>
-            <h2>Admin Panel - Yeni Sınav Oluştur</h2>
+        <div className="min-h-screen bg-gray-100 p-10">
+            <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <h2 className="text-3xl font-bold mb-6 text-center">Admin Panel</h2>
 
-            {/* ✅ Mevcut Kategorileri Listele */}
-            <h3>Mevcut Kategoriler:</h3>
-            <ul>
-                {existingCategories.map(cat => (
-                    <li key={cat.id}>
-                        {cat.title} ({cat.categoryId}) - Sınıflar: {cat.classTypes.join(", ")}
-                    </li>
-                ))}
-            </ul>
+                <button
+                    onClick={() => setIsExamFormVisible(!isExamFormVisible)}
+                    className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all mb-6"
+                >
+                    {isExamFormVisible ? "Sınav Formunu Kapat" : "Yeni Sınav Oluştur"}
+                </button>
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Sınav Başlığı"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Kategori ID"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                />
-
-                <select value={classType} onChange={(e) => setClassType(e.target.value)}>
-                    <option value="">Sınıf Seç</option>
-                    <option value="1stGrade">1. Sınıf</option>
-                    <option value="2ndGrade">2. Sınıf</option>
-                    <option value="3rdGrade">3. Sınıf</option>
-                </select>
-
-                {questions.map((q, index) => (
-                    <div key={index}>
+                {isExamFormVisible && (
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <input
                             type="text"
-                            placeholder="Soru Metni"
-                            value={q.questionText}
-                            onChange={(e) => handleChange(index, "questionText", e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Kategori ID"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
                         />
-                        {q.options.map((option, i) => (
-                            <input
-                                key={i}
-                                type="text"
-                                placeholder={`Seçenek ${i + 1}`}
-                                value={option}
-                                onChange={(e) => {
-                                    const updatedOptions = [...q.options];
-                                    updatedOptions[i] = e.target.value;
-                                    handleChange(index, "options", updatedOptions);
-                                }}
-                            />
+                        <input
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Sınıf Adı"
+                            value={classType}
+                            onChange={(e) => setClassType(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Sınav Başlığı"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Sınav Açıklaması"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                        <input
+                            type="date"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Sınav Tarihi"
+                            value={examDate}
+                            onChange={(e) => setExamDate(e.target.value)}
+                        />
+                        <input
+                            type="number"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Fiyat (AZN)"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                        />
+                        <h3 className="text-xl font-semibold mt-6">Sorular:</h3>
+                        {questions.map((q, index) => (
+                            <div key={index} className="p-4 border rounded-lg bg-gray-50 mb-4">
+                                <input
+                                    type="text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg mb-2"
+                                    placeholder="Soru Metni"
+                                    value={q.questionText}
+                                    onChange={(e) => handleChange(index, "questionText", e.target.value)}
+                                />
+                                {q.options.map((option, i) => (
+                                    <input
+                                        key={i}
+                                        type="text"
+                                        className="w-full p-2 border border-gray-300 rounded-lg mb-2"
+                                        placeholder={`Seçenek ${i + 1}`}
+                                        value={option}
+                                        onChange={(e) => {
+                                            const updatedOptions = [...q.options];
+                                            updatedOptions[i] = e.target.value;
+                                            handleChange(index, "options", updatedOptions);
+                                        }}
+                                    />
+                                ))}
+                                <input
+                                    type="text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                    placeholder="Doğru Cevap"
+                                    value={q.correctAnswer}
+                                    onChange={(e) => handleChange(index, "correctAnswer", e.target.value)}
+                                />
+                            </div>
                         ))}
-                        <input
-                            type="text"
-                            placeholder="Doğru Cevap"
-                            value={q.correctAnswer}
-                            onChange={(e) => handleChange(index, "correctAnswer", e.target.value)}
-                        />
+                        <button
+                            type="button"
+                            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all"
+                            onClick={handleAddQuestion}
+                        >
+                            Soru Ekle
+                        </button>
+                        <button
+                            type="submit"
+                            className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all"
+                        >
+                            Sınavı Kaydet
+                        </button>
+                    </form>
+                )}
+
+                <h3 className="text-2xl font-bold mt-8">Mevcut Kategoriler ve Sınavlar:</h3>
+                {categoriesWithExams.map((cat) => (
+                    <div key={cat.id} className="p-4 border rounded-lg bg-blue-50">
+                        <h4 className="text-lg font-semibold">{cat.id}</h4>
+                        {cat.exams.map((exam) => (
+                            <p key={exam.id}>{exam.className} - {exam.id} | {exam.description} | Tarih: {exam.examDate}</p>
+                        ))}
                     </div>
                 ))}
-
-                <button type="button" onClick={handleAddQuestion}>Soru Ekle</button>
-                <button type="submit">Sınavı Kaydet</button>
-            </form>
+            </div>
         </div>
     );
 };
