@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -10,6 +10,7 @@ const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();  
     const [exam, setExam] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchExamDetails = async () => {
@@ -34,23 +35,26 @@ const ExamDetailsPage = () => {
 
     const formatDate = (timestamp) => {
         if (typeof timestamp === "string") {
-            // ISO formatındaki string tarihleri dönüştür
             const date = new Date(timestamp);
             return date.toLocaleDateString("tr-TR");
         }
         if (timestamp?.seconds) {
-            // Firestore Timestamp formatında tarih dönüştürme
             const date = new Date(timestamp.seconds * 1000);
             return date.toLocaleDateString("tr-TR");
         }
         return "Bilinmiyor";
     };
+
+    const handleStartExam = () => {
+        navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+    };
+
     return (
         <div>
             <Navbar />
 
-            {/* Header Bölümü */}
-            <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center">
+            {/* ✅ Header Bölümü (Sınava Başla Butonu Burada) */}
+            <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
                 <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
@@ -63,14 +67,20 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
                 </div>
+
+                {/* ✅ Sınava Başla Butonu */}
+                <button
+                    onClick={handleStartExam}
+                    className="absolute bottom-8 px-8 py-4 bg-green-500 text-white text-xl font-semibold rounded-lg hover:bg-green-600 transition duration-300"
+                >
+                    Sınava Başla 🚀
+                </button>
             </div>
 
-            {/* Detaylar Bölümü - Yan Yana Kartlar */}
+            {/* Detaylar Bölümü */}
             <div className="max-w-6xl mx-auto p-8 space-y-8">
                 <div className="flex justify-between">
-
-                    {/* 📅 Sınav Tarihi */}
-                    <div className="p-6  text-black text-center">
+                    <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">📅 Sınav Tarihi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
@@ -79,8 +89,7 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
 
-                    {/* 📆 Oluşturulma Tarihi */}
-                    <div className="p-6   text-black text-center">
+                    <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">📆 Oluşturulma Tarihi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
@@ -89,8 +98,7 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
 
-                    {/* 💰 Fiyat Bilgisi */}
-                    <div className="p-6  text-black text-center">
+                    <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">💰 Fiyat</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
@@ -101,7 +109,7 @@ const ExamDetailsPage = () => {
                 </div>
 
                 {/* 💬 Yorumlar */}
-                <div className="p-6 bg-white shadow-lg rounded-lg text-black">
+                <div className="p-6 bg-white shadow-lg rounded-lg text-black mt-8">
                     <h3 className="text-2xl font-bold mb-4">💬 Yorumlar</h3>
                     {loading ? (
                         <Skeleton count={3} height={30} />

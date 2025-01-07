@@ -48,7 +48,7 @@ const Dashboard = () => {
           {loading ? (
             // Modern ve şık Skeleton'lar, 4 tane kategori olacak şekilde ayarladık
             [...Array(4)].map((_, index) => (
-              <li key={index} className="p-4  bg-gradient-to-r from-blue-400 to-purple-600 text-white shadow-lg rounded-lg w-40 h-20">
+              <li key={index} className="p-4  bg-gradient-to-r from-blue-400 to-purple-600 text-white shadow-lg rounded-lg w-45 h-30">
                 <Skeleton height={30} width="80%" className="mb-2 rounded-lg " />
                 <Skeleton height={20} width="60%" className="rounded-lg" />
               </li>
@@ -57,7 +57,7 @@ const Dashboard = () => {
             exams.map((exam) => (
               <li
                 key={exam.id}
-                className="p-4 bg-blue-500 text-white shadow-md rounded-lg cursor-pointer hover:bg-blue-600 transition duration-300 w-40 h-20 flex items-center text-center justify-center"
+                className="p-4 bg-blue-500 text-white shadow-md rounded-lg cursor-pointer hover:bg-blue-600 transition duration-300 w-45 h-30 flex items-center text-center justify-center"
                 onClick={() => handleExamClick(exam.id, exam.categoryId)} // Kategori ID'si ile yönlendirme
               >
                 {exam.categoryId}
