@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../firebase/config';
-import { collection, doc, setDoc, getDocs,  addDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
 
 const AdminPanel = () => {
     const [title, setTitle] = useState("");
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState(""); // Kategori ID
+    const [categoryDescription, setCategoryDescription] = useState(""); // Kategori açıklaması
     const [classType, setClassType] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
@@ -46,6 +47,28 @@ const AdminPanel = () => {
         fetchCategoriesWithExams();
     }, []);
 
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            const categoryRef = doc(db, "Exams", categoryId);
+            const classesSnapshot = await getDocs(collection(categoryRef, "Classes"));
+
+            for (const classDoc of classesSnapshot.docs) {
+                const examsSnapshot = await getDocs(collection(categoryRef, "Classes", classDoc.id, "Exams"));
+                for (const examDoc of examsSnapshot.docs) {
+                    await deleteDoc(doc(categoryRef, "Classes", classDoc.id, "Exams", examDoc.id));
+                }
+                await deleteDoc(doc(categoryRef, "Classes", classDoc.id));
+            }
+
+            await deleteDoc(categoryRef);
+
+            alert(`Kategori '${categoryId}' başarıyla silindi!`);
+            setCategoriesWithExams(categoriesWithExams.filter(cat => cat.id !== categoryId));
+        } catch (error) {
+            console.error("Kategori silinirken hata oluştu: ", error);
+        }
+    };
+
     const handleAddQuestion = () => {
         setQuestions([...questions, { questionText: "", options: ["", "", ""], correctAnswer: "" }]);
     };
@@ -59,8 +82,12 @@ const AdminPanel = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Kategori ID ve açıklamayı Firestore'a ekleyin
             const categoryRef = doc(db, "Exams", category);
-            await setDoc(categoryRef, {}, { merge: true });
+            await setDoc(categoryRef, { 
+                categoryId: category, // Kategori ID'si
+                description: categoryDescription // Kategori açıklaması
+            }, { merge: true });
 
             const classRef = doc(collection(categoryRef, "Classes"), classType);
             await setDoc(classRef, { classType }, { merge: true });
@@ -110,6 +137,13 @@ const AdminPanel = () => {
                             placeholder="Kategori ID"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            className="w-full p-3 border border-gray-300 rounded-lg"
+                            placeholder="Kategori Açıklaması"
+                            value={categoryDescription}
+                            onChange={(e) => setCategoryDescription(e.target.value)} // Kategori açıklaması alanı
                         />
                         <input
                             type="text"
@@ -202,6 +236,12 @@ const AdminPanel = () => {
                         {cat.exams.map((exam) => (
                             <p key={exam.id}>{exam.className} - {exam.id} | {exam.description} | Tarih: {exam.examDate}</p>
                         ))}
+                        <button
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="mt-2 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
+                        >
+                            Kategoriyi Sil
+                        </button>
                     </div>
                 ))}
             </div>

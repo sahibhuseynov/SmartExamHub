@@ -64,9 +64,9 @@ const Navbar = () => {
       {/* Menü kısmı */}
       <div className="navbar-center hidden lg:flex ">
         <ul className="menu menu-horizontal px-1">
-          <li className="text-2xl"><a>Home</a></li>
-          <li className="text-2xl"><a>About Us</a></li>
-          <li className="text-2xl"><a>Contact Us</a></li>
+          <li className="text-xl"><Link to={'/dashboard'}>Ana Səhifə</Link></li>
+          <li className="text-xl"><Link to={'/aboutUs'}>Haqqımızda</Link></li>
+          <li className="text-xl"><Link>Əlaqə</Link></li>
         </ul>
       </div>
 

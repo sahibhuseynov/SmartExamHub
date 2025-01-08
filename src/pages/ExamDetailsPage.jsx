@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
+import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
 
 const ExamDetailsPage = () => {
-    const { categoryId, classId, examId } = useParams();  
+    const { categoryId, classId, examId } = useParams();
     const [exam, setExam] = useState(null);
+    const [comments, setComments] = useState([]); // Yorumlar durumu
     const [loading, setLoading] = useState(true);
+    const [averageRating, setAverageRating] = useState(0); // Ortalama rating
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,20 +21,38 @@ const ExamDetailsPage = () => {
             try {
                 const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
                 const examSnap = await getDoc(examRef);
-                
+
                 if (examSnap.exists()) {
                     setExam(examSnap.data());
                 } else {
-                    console.error("Sınav bulunamadı.");
+                    console.error("İmtahan tapılmadı.");
                 }
             } catch (error) {
-                console.error("Veriler alınırken hata:", error);
+                console.error("Veriler alınarkən xəta:", error);
+            }
+        };
+
+        const fetchComments = async () => {
+            try {
+                const commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
+                const commentsSnapshot = await getDocs(commentsRef);
+                const commentsList = commentsSnapshot.docs.map(doc => doc.data());
+                setComments(commentsList);
+
+                // Ortalama puanı hesablama
+                if (commentsList.length > 0) {
+                    const totalRating = commentsList.reduce((acc, comment) => acc + comment.rating, 0);
+                    setAverageRating(totalRating / commentsList.length); // Ortalama hesabı
+                }
+            } catch (error) {
+                console.error("Yorumlar alınarkən xəta:", error);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchExamDetails();
+        fetchComments();
     }, [categoryId, classId, examId]);
 
     const formatDate = (timestamp) => {
@@ -42,10 +64,11 @@ const ExamDetailsPage = () => {
             const date = new Date(timestamp.seconds * 1000);
             return date.toLocaleDateString("tr-TR");
         }
-        return "Bilinmiyor";
+        return "Bilinmir";
     };
 
     const handleStartExam = () => {
+        handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanıb olaraq qeyd et
         navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
     };
 
@@ -53,7 +76,7 @@ const ExamDetailsPage = () => {
         <div>
             <Navbar />
 
-            {/* ✅ Header Bölümü (Sınava Başla Butonu Burada) */}
+            {/* ✅ Header Bölməsi (İmtahana Başla Butonu Burada) */}
             <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
                 <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
@@ -63,25 +86,40 @@ const ExamDetailsPage = () => {
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-lg font-semibold">{exam?.description || "Açıklama bulunmamaktadır."}</p>
+                            <p className="text-lg font-semibold">{exam?.description || "Açıqlama yoxdur."}</p>
                         )}
                     </div>
                 </div>
 
-                {/* ✅ Sınava Başla Butonu */}
+                {/* ✅ İmtahanın Yıldız Puanı və Ortalama Puan */}
+                <div className="absolute top-8 right-8 flex items-center space-x-2">
+                    <p className="text-lg font-semibold">Rating:</p>
+                    <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <FaStar
+                                key={star}
+                                size={20}
+                                color={averageRating >= star ? "#FFD700" : "#D3D3D3"}
+                            />
+                        ))}
+                    </div>
+                    <p className="text-lg font-semibold ml-2">({averageRating.toFixed(1)} / 5)</p>
+                </div>
+
+                {/* ✅ İmtahana Başla Butonu */}
                 <button
                     onClick={handleStartExam}
                     className="absolute bottom-8 px-8 py-4 bg-green-500 text-white text-xl font-semibold rounded-lg hover:bg-green-600 transition duration-300"
                 >
-                    Sınava Başla 🚀
+                    İmtahana Başla 🚀
                 </button>
             </div>
 
-            {/* Detaylar Bölümü */}
+            {/* Detallar Bölməsi */}
             <div className="max-w-6xl mx-auto p-8 space-y-8">
                 <div className="flex justify-between">
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📅 Sınav Tarihi</h3>
+                        <h3 className="text-2xl font-bold mb-4">📅 İmtahan Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -90,7 +128,7 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📆 Oluşturulma Tarihi</h3>
+                        <h3 className="text-2xl font-bold mb-4">📆 Yaradılma Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -99,28 +137,54 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">💰 Fiyat</h3>
+                        <h3 className="text-2xl font-bold mb-4">💰 Qiymət</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : "Belirtilmemiş"}</p>
+                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : "Göstərilməyib"}</p>
                         )}
                     </div>
                 </div>
 
                 {/* 💬 Yorumlar */}
                 <div className="p-6 bg-white shadow-lg rounded-lg text-black mt-8">
-                    <h3 className="text-2xl font-bold mb-4">💬 Yorumlar</h3>
-                    {loading ? (
-                        <Skeleton count={3} height={30} />
-                    ) : (
-                        <>
-                            <p><strong>Ahmet:</strong> Çok başarılı bir sınav.</p>
-                            <p><strong>Elif:</strong> Sorular çok kaliteli.</p>
-                            <p><strong>Murat:</strong> Tavsiye ederim!</p>
-                        </>
-                    )}
-                </div>
+  <h3 className="text-2xl font-bold mb-4">💬 Rəylər</h3>
+
+  {/* Yorumları 3 sütunlu grid içindeki skeletonları da 3 sütunlu göstereceğiz */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {loading ? (
+      // Skeletonları grid içerisinde hizalayarak göstereceğiz
+      [...Array(3)].map((_, index) => (
+        <div key={index} className="p-4 border rounded-lg shadow-sm">
+          <Skeleton height={100} width="100%" />
+          <Skeleton height={20} width="80%" className="mt-4" />
+          <Skeleton height={20} width="50%" className="mt-2" />
+        </div>
+      ))
+    ) : (
+      comments.length > 0 ? (
+        comments.map((comment, index) => (
+          <div key={index} className="p-4 border rounded-lg shadow-sm">
+            <p><strong>{comment.userName}:</strong></p>
+            <p>{comment.comment}</p>
+            <div className="flex items-center space-x-1 mt-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FaStar
+                  key={star}
+                  size={20}
+                  color={comment.rating >= star ? "#FFD700" : "#D3D3D3"}
+                />
+              ))}
+            </div>
+            <p className="text-sm mt-1">⭐ {comment.rating} / 5</p>
+          </div>
+        ))
+      ) : (
+        <p>Hələ şərh yoxdur.</p>
+      )
+    )}
+  </div>
+</div>
             </div>
         </div>
     );
