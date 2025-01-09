@@ -19,6 +19,7 @@ const ExamViewPage = () => {
     const [rating, setRating] = useState(0); // Yıldız puanı
     const [showResults, setShowResults] = useState(false);
     const [comments, setComments] = useState([]); // Yorumları tutacak state
+    const [averageRating, setAverageRating] = useState(0); // Ortalama puan
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,6 +39,11 @@ const ExamViewPage = () => {
                     const commentsSnapshot = await getDocs(commentsRef);
                     const fetchedComments = commentsSnapshot.docs.map(doc => doc.data());
                     setComments(fetchedComments);
+
+                    // Ortalama puanı da çekiyoruz
+                    const averageRating = examSnap.data().averageRating || 0;
+                    setAverageRating(averageRating);
+
                 } else {
                     console.error("Sınav bulunamadı.");
                 }
@@ -92,7 +98,12 @@ const ExamViewPage = () => {
                     rating: rating,             // Yıldız puanı
                     createdAt: new Date()       // Yorum tarihi
                 });
+
                 alert("Yorumunuz kaydedildi!");
+
+                // Yorum kaydedildikten sonra ortalama puanı güncelle
+                await updateAverageRating();
+
                 // Yorum kaydedildikten sonra tekrar yorumları çek
                 fetchComments();
             } catch (error) {
@@ -101,6 +112,28 @@ const ExamViewPage = () => {
             }
         } else {
             alert("Yorum yapabilmek için giriş yapmanız gerekir.");
+        }
+    };
+
+    const updateAverageRating = async () => {
+        try {
+            // Yorumları çek
+            const commentsRef = collection(db, "Exams", categoryId, "Classes", classId, "Exams", examId, "Comments");
+            const commentsSnapshot = await getDocs(commentsRef);
+            const comments = commentsSnapshot.docs.map(doc => doc.data());
+
+            // Puanları topla
+            const totalRatings = comments.reduce((acc, comment) => acc + comment.rating, 0);
+            const averageRating = totalRatings / comments.length;
+
+            // Sınavın ortalama puanını güncelle
+            const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
+            await setDoc(examRef, { averageRating }, { merge: true });
+
+            console.log("Ortalama puan başarıyla güncellendi!");
+            setAverageRating(averageRating);
+        } catch (error) {
+            console.error("Ortalama puan güncellenirken hata oluştu:", error);
         }
     };
 
@@ -189,6 +222,7 @@ const ExamViewPage = () => {
                         <p className="text-lg text-gray-600">Başarı Oranı: {(correctAnswers / totalQuestions) * 100}%</p>
 
                         <div className="mt-6">
+                            <h4 className="text-2xl font-semibold text-gray-800">Ortalama Puan: {averageRating ? averageRating.toFixed(2) : "Henüz yorum yapılmamış."}</h4>
                             <h4 className="text-2xl font-semibold text-gray-800">Sınavınızı Değerlendirin:</h4>
                             <div className="flex justify-center items-center space-x-2 mt-2">
                                 {[1, 2, 3, 4, 5].map((star) => (

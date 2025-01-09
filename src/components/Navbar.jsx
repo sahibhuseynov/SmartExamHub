@@ -58,7 +58,7 @@ const Navbar = () => {
             <li><a>Item 3</a></li>
           </ul>
         </div>
-        <a className=" text-3xl font-bold">Cirtdan</a>
+        <Link to={'/dashboard'} className=" text-3xl font-bold">Cirtdan</Link>
       </div>
 
       {/* Menü kısmı */}

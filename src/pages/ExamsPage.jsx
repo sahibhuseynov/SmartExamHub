@@ -137,11 +137,11 @@ const ExamsPage = () => {
       </div>
 
       {/* Sınavlar */}
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6 h-screen">
         {examsLoading ? (
           <div className="flex flex-wrap gap-4 ">
             {[...Array(3)].map((_, index) => (
-              <Skeleton key={index} height={200} width={300} className="rounded-lg" />
+              <Skeleton key={index} height={100} width={300} className="rounded-lg" />
             ))}
           </div>
         ) : exams.length > 0 ? (
