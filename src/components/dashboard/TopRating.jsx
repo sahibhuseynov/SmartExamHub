@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaCertificate } from "react-icons/fa"; // Sertifika ikonu
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -82,8 +82,13 @@ const TopRating = () => {
           topExams.map((exam, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300"
+              className="bg-white shadow-md rounded-lg transform hover:scale-105 transition-all duration-300 relative"
             >
+              {/* Sertifika İkonu */}
+              {exam?.isCertified && (
+                <FaCertificate className="text-yellow-500 text-4xl absolute top-2 right-2" />
+              )}
+
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 text-blue-600">{exam.id}</h3>
                 <p className="text-gray-500 mb-4">{exam.categoryId} / {exam.classId}</p>
@@ -91,6 +96,7 @@ const TopRating = () => {
                   <FaStar className="text-yellow-400 mr-2" />
                   <span className="text-gray-700 font-medium">{exam.averageRating.toFixed(2)} / 5</span>
                 </div>
+
                 <button
                   onClick={() => goToExam(exam.categoryId, exam.classId, exam.id)}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-600 transition-all"

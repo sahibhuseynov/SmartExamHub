@@ -5,7 +5,7 @@ import { db } from "../firebase/config";
 import { FaStar } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { auth } from "../firebase/config"; // Firebase Authentication importu
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -16,10 +16,10 @@ const ExamViewPage = () => {
     const [incorrectAnswers, setIncorrectAnswers] = useState(0);
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [comment, setComment] = useState('');
-    const [rating, setRating] = useState(0); // Yıldız puanı
+    const [rating, setRating] = useState(0); 
     const [showResults, setShowResults] = useState(false);
-    const [comments, setComments] = useState([]); // Yorumları tutacak state
-    const [averageRating, setAverageRating] = useState(0); // Ortalama puan
+    const [comments, setComments] = useState([]);
+    const [averageRating, setAverageRating] = useState(0); 
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,13 +34,11 @@ const ExamViewPage = () => {
                     setQuestions(fetchedQuestions);
                     setTotalQuestions(fetchedQuestions.length);
 
-                    // Yorumları da çekiyoruz
                     const commentsRef = collection(examRef, "Comments");
                     const commentsSnapshot = await getDocs(commentsRef);
                     const fetchedComments = commentsSnapshot.docs.map(doc => doc.data());
                     setComments(fetchedComments);
 
-                    // Ortalama puanı da çekiyoruz
                     const averageRating = examSnap.data().averageRating || 0;
                     setAverageRating(averageRating);
 
@@ -90,21 +88,16 @@ const ExamViewPage = () => {
         const user = auth.currentUser;
         if (user) {
             try {
-                // Firestore'da sınavın altında yorumlar koleksiyonu
                 const commentRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId, "Comments", user.uid);
                 await setDoc(commentRef, {
-                    userName: user.displayName, // Kullanıcı adı
-                    comment: comment,           // Yorum
-                    rating: rating,             // Yıldız puanı
-                    createdAt: new Date()       // Yorum tarihi
+                    userName: user.displayName, 
+                    comment: comment,           
+                    rating: rating,             
+                    createdAt: new Date()       
                 });
 
                 alert("Yorumunuz kaydedildi!");
-
-                // Yorum kaydedildikten sonra ortalama puanı güncelle
                 await updateAverageRating();
-
-                // Yorum kaydedildikten sonra tekrar yorumları çek
                 fetchComments();
             } catch (error) {
                 console.error("Yorum kaydedilirken hata oluştu:", error);
@@ -117,16 +110,12 @@ const ExamViewPage = () => {
 
     const updateAverageRating = async () => {
         try {
-            // Yorumları çek
             const commentsRef = collection(db, "Exams", categoryId, "Classes", classId, "Exams", examId, "Comments");
             const commentsSnapshot = await getDocs(commentsRef);
             const comments = commentsSnapshot.docs.map(doc => doc.data());
-
-            // Puanları topla
             const totalRatings = comments.reduce((acc, comment) => acc + comment.rating, 0);
             const averageRating = totalRatings / comments.length;
 
-            // Sınavın ortalama puanını güncelle
             const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
             await setDoc(examRef, { averageRating }, { merge: true });
 
@@ -158,7 +147,7 @@ const ExamViewPage = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen">
-            <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg ">
+            <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg">
                 {!showResults ? (
                     <>
                         <h2 className="text-4xl font-extrabold text-center text-blue-600">{examId} Sınavı</h2>
@@ -173,6 +162,15 @@ const ExamViewPage = () => {
                                 questions.map((question, index) => (
                                     <div key={index} className="p-6 border rounded-lg shadow-xl bg-gray-50 mt-4 hover:shadow-2xl transition-all">
                                         <p className="text-xl font-semibold text-gray-800">{`Soru ${index + 1}: ${question.questionText}`}</p>
+                                        {question.image && (
+                                            <div className="mt-4">
+                                                <img
+                                                    src={question.image}
+                                                    alt={`Soru ${index + 1} için resim`}
+                                                    className="w-full h-auto rounded-lg shadow-md"
+                                                />
+                                            </div>
+                                        )}
                                         <ul className="mt-4 space-y-3">
                                             {question.options.map((option, i) => (
                                                 <li key={i} className="flex items-center space-x-2">
@@ -205,7 +203,6 @@ const ExamViewPage = () => {
                 ) : (
                     <>
                         <h3 className="text-3xl font-semibold text-green-600">Sonuçlar</h3>
-
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" fill="#8884d8" label>
@@ -217,7 +214,6 @@ const ExamViewPage = () => {
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>
-
                         <p className="text-xl text-gray-700">Doğru: {correctAnswers} | Yanlış: {incorrectAnswers}</p>
                         <p className="text-lg text-gray-600">Başarı Oranı: {(correctAnswers / totalQuestions) * 100}%</p>
 

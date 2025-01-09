@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc, getDocs, addDoc, deleteDoc } from "firebase/firestore";
+import { uploadImageToCloudinary } from "../../utils/cloudinary"; // Assuming the Cloudinary upload function is in a separate file
 
 const AdminPanel = () => {
   const [title, setTitle] = useState("");
@@ -11,7 +12,7 @@ const AdminPanel = () => {
   const [description, setDescription] = useState("");
   const [examDate, setExamDate] = useState("");
   const [isCertified, setIsCertified] = useState(false); // Sertifikalı sınav seçimi
-  const [questions, setQuestions] = useState([{ questionText: "", options: ["", "", ""], correctAnswer: "" }]);
+  const [questions, setQuestions] = useState([{ questionText: "", options: ["", "", ""], correctAnswer: "", image: null }]);
   const [categoriesWithExams, setCategoriesWithExams] = useState([]);
   const [isExamFormVisible, setIsExamFormVisible] = useState(false);
 
@@ -74,13 +75,27 @@ const AdminPanel = () => {
   };
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { questionText: "", options: ["", "", ""], correctAnswer: "" }]);
+    setQuestions([...questions, { questionText: "", options: ["", "", ""], correctAnswer: "", image: null }]);
   };
 
   const handleChange = (index, field, value) => {
     const updatedQuestions = [...questions];
     updatedQuestions[index][field] = value;
     setQuestions(updatedQuestions);
+  };
+
+  const handleImageUpload = async (index, event) => {
+    const imageFile = event.target.files[0];
+    if (imageFile) {
+      try {
+        const imageUrl = await uploadImageToCloudinary(imageFile);
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].image = imageUrl;
+        setQuestions(updatedQuestions);
+      } catch (error) {
+        console.error("Resim yüklenirken hata oluştu:", error);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -115,6 +130,7 @@ const AdminPanel = () => {
           questionText: question.questionText,
           options: question.options,
           correctAnswer: question.correctAnswer,
+          image: question.image, // Store image URL
         });
       }
 
@@ -228,6 +244,12 @@ const AdminPanel = () => {
                   value={q.correctAnswer}
                   onChange={(e) => handleChange(index, "correctAnswer", e.target.value)}
                 />
+                <input
+                  type="file"
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  onChange={(e) => handleImageUpload(index, e)}
+                />
+                {q.image && <img src={q.image} alt="Soru Resmi" className="mt-2 w-32" />}
               </div>
             ))}
             <button

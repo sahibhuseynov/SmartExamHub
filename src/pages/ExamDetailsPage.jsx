@@ -5,8 +5,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { FaStar, FaCertificate } from "react-icons/fa"; // Sertifika ikonu eklendi
+import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
+import certificationIcon from '../assets/certificat.png'; // Sertifika ikonu
 import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
+import { motion } from 'framer-motion';
 
 const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -78,17 +80,41 @@ const ExamDetailsPage = () => {
 
             {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
             <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
+               
+
                 <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
-                    <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
+                    <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
+                     {/* Sertifika İkonu */} 
+{exam?.isCertified && (
+  <motion.img
+    src={certificationIcon}
+    alt="Sertifika"
+    className="absolute -top-8 -left-12 w-36 h-36"
+    initial={{ opacity: 0, scale: 0.8 }}  // Başlangıç durumu: Opaklık 0, küçük boyut
+    animate={{ opacity: 1, scale: 1 }}  // Animasyon: Opaklık 1, normal boyut
+    transition={{ 
+      duration: 0.6,   // Animasyon süresi
+      type: "spring",  // Sıçrama efekti
+      stiffness: 100,  // Sertlik (sıçramanın gücü)
+      damping: 10,     // Damping (sıçramanın yumuşaklığı)
+    }}
+  />
+)}
                     </div>
+                    
                     <div className="text-center flex justify-center items-center col-span-2">
+                        
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-lg font-semibold">{exam?.description || "Açıklama yok."}</p>
+                            <p className="text-lg font-semibold"> {exam?.isCertified && (
+                              <h2 className="font-bold text-2xl">RƏQƏMSAL SERTİFİKAT qazan!</h2>
+                            )}{exam?.description || "Açıklama yok."}</p>
                         )}
+                        
                     </div>
+                    
                 </div>
 
                 {/* ✅ İmtahanın Yıldız Puanı ve Ortalama Puan */}
@@ -105,14 +131,6 @@ const ExamDetailsPage = () => {
                     </div>
                     <p className="text-lg font-semibold ml-2">({averageRating.toFixed(1)} / 5)</p>
                 </div>
-
-                {/* ✅ Sertifika Bilgisi (Sertifikalıysa Görünür) */}
-                {exam?.isCertified && (
-                    <div className="absolute top-24 right-8 flex items-center space-x-2 text-xl font-semibold text-white">
-                        <FaCertificate size={24} className="text-green-500" />
-                        <p>Bu imtahan sonunda sertifika verilir!</p>
-                    </div>
-                )}
 
                 {/* ✅ İmtahana Başla Butonu */}
                 <button

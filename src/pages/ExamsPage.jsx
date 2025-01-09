@@ -154,7 +154,7 @@ const ExamsPage = () => {
                 </p>
                 {exam.isCertified && (
                   <div className="absolute top-4 right-4">
-                    <FaCertificate className="text-green-500" size={24} title="Sertifikalı Sınav" />
+                    <FaCertificate className="text-yellow-500 text-2xl "  title="Sertifikalı Sınav" />
                   </div>
                 )}
               </div>
