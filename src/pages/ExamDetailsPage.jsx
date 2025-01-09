@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
+import { FaStar, FaCertificate } from "react-icons/fa"; // Sertifika ikonu eklendi
 import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
 
 const ExamDetailsPage = () => {
@@ -13,7 +13,7 @@ const ExamDetailsPage = () => {
     const [exam, setExam] = useState(null);
     const [comments, setComments] = useState([]); // Yorumlar durumu
     const [loading, setLoading] = useState(true);
-    const [averageRating, setAverageRating] = useState(0); // Ortalama rating
+    const [averageRating, setAverageRating] = useState(0); // Ortalama puan
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,10 +25,10 @@ const ExamDetailsPage = () => {
                 if (examSnap.exists()) {
                     setExam(examSnap.data());
                 } else {
-                    console.error("İmtahan tapılmadı.");
+                    console.error("İmtahan bulunamadı.");
                 }
             } catch (error) {
-                console.error("Veriler alınarkən xəta:", error);
+                console.error("Veri alınırken hata:", error);
             }
         };
 
@@ -39,13 +39,13 @@ const ExamDetailsPage = () => {
                 const commentsList = commentsSnapshot.docs.map(doc => doc.data());
                 setComments(commentsList);
 
-                // Ortalama puanı hesablama
+                // Ortalama puanı hesaplama
                 if (commentsList.length > 0) {
                     const totalRating = commentsList.reduce((acc, comment) => acc + comment.rating, 0);
-                    setAverageRating(totalRating / commentsList.length); // Ortalama hesabı
+                    setAverageRating(totalRating / commentsList.length); // Ortalama hesaplama
                 }
             } catch (error) {
-                console.error("Yorumlar alınarkən xəta:", error);
+                console.error("Yorumlar alınırken hata:", error);
             } finally {
                 setLoading(false);
             }
@@ -64,11 +64,11 @@ const ExamDetailsPage = () => {
             const date = new Date(timestamp.seconds * 1000);
             return date.toLocaleDateString("tr-TR");
         }
-        return "Bilinmir";
+        return "Bilinmiyor";
     };
 
     const handleStartExam = () => {
-        handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanıb olaraq qeyd et
+        handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanmış olarak işaretle
         navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
     };
 
@@ -76,7 +76,7 @@ const ExamDetailsPage = () => {
         <div>
             <Navbar />
 
-            {/* ✅ Header Bölməsi (İmtahana Başla Butonu Burada) */}
+            {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
             <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
                 <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
@@ -86,12 +86,12 @@ const ExamDetailsPage = () => {
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-lg font-semibold">{exam?.description || "Açıqlama yoxdur."}</p>
+                            <p className="text-lg font-semibold">{exam?.description || "Açıklama yok."}</p>
                         )}
                     </div>
                 </div>
 
-                {/* ✅ İmtahanın Yıldız Puanı və Ortalama Puan */}
+                {/* ✅ İmtahanın Yıldız Puanı ve Ortalama Puan */}
                 <div className="absolute top-8 right-8 flex items-center space-x-2">
                     <p className="text-lg font-semibold">Rating:</p>
                     <div className="flex items-center">
@@ -106,6 +106,14 @@ const ExamDetailsPage = () => {
                     <p className="text-lg font-semibold ml-2">({averageRating.toFixed(1)} / 5)</p>
                 </div>
 
+                {/* ✅ Sertifika Bilgisi (Sertifikalıysa Görünür) */}
+                {exam?.isCertified && (
+                    <div className="absolute top-24 right-8 flex items-center space-x-2 text-xl font-semibold text-white">
+                        <FaCertificate size={24} className="text-green-500" />
+                        <p>Bu imtahan sonunda sertifika verilir!</p>
+                    </div>
+                )}
+
                 {/* ✅ İmtahana Başla Butonu */}
                 <button
                     onClick={handleStartExam}
@@ -115,11 +123,11 @@ const ExamDetailsPage = () => {
                 </button>
             </div>
 
-            {/* Detallar Bölməsi */}
+            {/* Detaylar Bölümü */}
             <div className="max-w-6xl mx-auto p-8 space-y-8">
                 <div className="flex justify-between">
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📅 İmtahan Tarixi</h3>
+                        <h3 className="text-2xl font-bold mb-4">📅 İmtahan Tarihi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -128,7 +136,7 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📆 Yaradılma Tarixi</h3>
+                        <h3 className="text-2xl font-bold mb-4">📆 Yaratılma Tarihi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -137,54 +145,54 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">💰 Qiymət</h3>
+                        <h3 className="text-2xl font-bold mb-4">💰 Fiyat</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : "Göstərilməyib"}</p>
+                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : "Gösterilmedi"}</p>
                         )}
                     </div>
                 </div>
 
                 {/* 💬 Yorumlar */}
                 <div className="p-6 bg-white shadow-lg rounded-lg text-black mt-8">
-  <h3 className="text-2xl font-bold mb-4">💬 Rəylər</h3>
+                    <h3 className="text-2xl font-bold mb-4">💬 Yorumlar</h3>
 
-  {/* Yorumları 3 sütunlu grid içindeki skeletonları da 3 sütunlu göstereceğiz */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-    {loading ? (
-      // Skeletonları grid içerisinde hizalayarak göstereceğiz
-      [...Array(3)].map((_, index) => (
-        <div key={index} className="p-4 border rounded-lg shadow-sm">
-          <Skeleton height={100} width="100%" />
-          <Skeleton height={20} width="80%" className="mt-4" />
-          <Skeleton height={20} width="50%" className="mt-2" />
-        </div>
-      ))
-    ) : (
-      comments.length > 0 ? (
-        comments.map((comment, index) => (
-          <div key={index} className="p-4 border rounded-lg shadow-sm">
-            <p><strong>{comment.userName}:</strong></p>
-            <p>{comment.comment}</p>
-            <div className="flex items-center space-x-1 mt-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar
-                  key={star}
-                  size={20}
-                  color={comment.rating >= star ? "#FFD700" : "#D3D3D3"}
-                />
-              ))}
-            </div>
-            <p className="text-sm mt-1">⭐ {comment.rating} / 5</p>
-          </div>
-        ))
-      ) : (
-        <p>Hələ şərh yoxdur.</p>
-      )
-    )}
-  </div>
-</div>
+                    {/* Yorumları 3 sütunlu grid içinde göstereceğiz */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {loading ? (
+                            // Skeletonları grid içinde hizalayarak göstereceğiz
+                            [...Array(3)].map((_, index) => (
+                                <div key={index} className="p-4 border rounded-lg shadow-sm">
+                                    <Skeleton height={100} width="100%" />
+                                    <Skeleton height={20} width="80%" className="mt-4" />
+                                    <Skeleton height={20} width="50%" className="mt-2" />
+                                </div>
+                            ))
+                        ) : (
+                            comments.length > 0 ? (
+                                comments.map((comment, index) => (
+                                    <div key={index} className="p-4 border rounded-lg shadow-sm">
+                                        <p><strong>{comment.userName}:</strong></p>
+                                        <p>{comment.comment}</p>
+                                        <div className="flex items-center space-x-1 mt-2">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <FaStar
+                                                    key={star}
+                                                    size={20}
+                                                    color={comment.rating >= star ? "#FFD700" : "#D3D3D3"}
+                                                />
+                                            ))}
+                                        </div>
+                                        <p className="text-sm mt-1">⭐ {comment.rating} / 5</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>Henüz yorum yok.</p>
+                            )
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

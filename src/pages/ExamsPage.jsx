@@ -7,6 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
 import { setClasses } from "../redux/classSlice";
+import { FaCertificate } from "react-icons/fa"; // Sertifika simgesi
 
 const ExamsPage = () => {
   const { categoryId } = useParams();
@@ -22,7 +23,6 @@ const ExamsPage = () => {
   const [exams, setExams] = useState([]);
   const navigate = useNavigate();
 
-  // Kategori verilerini al ve ilk sınıfı seç
   useEffect(() => {
     const fetchCategoryData = async () => {
       if (!reduxCategoryDescription) {
@@ -33,8 +33,6 @@ const ExamsPage = () => {
           if (categorySnap.exists()) {
             const categoryData = categorySnap.data();
             setDescription(categoryData.description || "Açıklama bulunmamaktadır.");
-            
-            // Kategorinin sınıflarını al
             const categoryClassesRef = collection(db, `Exams/${categoryId}/Classes`);
             const querySnapshot = await getDocs(categoryClassesRef);
             const classesData = querySnapshot.docs.map(doc => ({
@@ -42,9 +40,9 @@ const ExamsPage = () => {
               ...doc.data(),
               categoryId: categoryId
             }));
-            dispatch(setClasses(classesData)); // Redux'a kaydet
+            dispatch(setClasses(classesData));
             if (classesData.length > 0) {
-              setSelectedClass(classesData[0].id); // İlk sınıfı otomatik seç
+              setSelectedClass(classesData[0].id);
             }
           } else {
             setDescription("Kategori bulunamadı.");
@@ -60,10 +58,9 @@ const ExamsPage = () => {
     fetchCategoryData();
   }, [categoryId, reduxCategoryDescription, dispatch]);
 
-  // Seçilen sınıfa ait sınavları al
   useEffect(() => {
     const fetchExams = async () => {
-      if (!selectedClass) return; // Sınıf yoksa sınavları çekme
+      if (!selectedClass) return;
       setExamsLoading(true);
       try {
         const examsRef = collection(db, `Exams/${categoryId}/Classes/${selectedClass}/Exams`);
@@ -83,9 +80,8 @@ const ExamsPage = () => {
     fetchExams();
   }, [selectedClass, categoryId]);
 
-  // Sınıf butonuna tıklandığında sınıfı seç
   const handleClassClick = (classId) => {
-    setSelectedClass(classId);  // Sınıfı değiştir
+    setSelectedClass(classId);
   };
 
   const handleExamClick = (examId) => {
@@ -94,10 +90,9 @@ const ExamsPage = () => {
 
   const displayedClasses = reduxClasses.filter(cls => cls.categoryId === categoryId);
 
-  // Eğer ilk sınıf seçilmediyse ve sınıflar mevcutsa, ilk sınıfı seç
   useEffect(() => {
     if (displayedClasses.length > 0 && !selectedClass) {
-      setSelectedClass(displayedClasses[0].id); // İlk sınıfı otomatik seç
+      setSelectedClass(displayedClasses[0].id);
     }
   }, [displayedClasses, selectedClass]);
 
@@ -119,7 +114,6 @@ const ExamsPage = () => {
         </div>
       </div>
 
-      {/* Sınıf Seçimi */}
       <div className="max-w-6xl mx-auto p-6 flex flex-wrap gap-4 justify-center">
         {examsLoading && displayedClasses.length === 0 ? (
           <Skeleton count={3} height={40} width={150} />
@@ -136,7 +130,6 @@ const ExamsPage = () => {
         )}
       </div>
 
-      {/* Sınavlar */}
       <div className="max-w-6xl mx-auto p-6 h-screen">
         {examsLoading ? (
           <div className="flex flex-wrap gap-4 ">
@@ -149,14 +142,21 @@ const ExamsPage = () => {
             {exams.map(exam => (
               <div
                 key={exam.id}
-                className="border border-gray-300 shadow-lg rounded-lg p-6 cursor-pointer hover:shadow-xl transition-all"
+                className="border border-gray-300 shadow-lg rounded-lg p-6 cursor-pointer hover:shadow-xl transition-all relative"
                 onClick={() => handleExamClick(exam.id)}
               >
                 <h3 className="text-xl font-bold">{exam.id}</h3>
-                <p className="text-gray-600">{exam.description || "Açıklama bulunmamaktadır."}</p>
+                <p className="text-gray-600">
+                  {exam.description ? exam.description.slice(0, 11) : "Açıklama bulunmamaktadır."}
+                </p>
                 <p className="mt-2 text-lg font-semibold">
                   {exam.price ? `${exam.price} AZN` : "Ücretsiz"}
                 </p>
+                {exam.isCertified && (
+                  <div className="absolute top-4 right-4">
+                    <FaCertificate className="text-green-500" size={24} title="Sertifikalı Sınav" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

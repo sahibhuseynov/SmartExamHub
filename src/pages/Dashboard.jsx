@@ -10,7 +10,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setCategories, updateCategoryDescription } from "../redux/categorySlice";
 import { setClasses } from "../redux/classSlice";
-import CompletedExams from "../components/dashboard/CompletedExams";
+// import CompletedExams from "../components/dashboard/CompletedExams";
 import TopRating from './../components/dashboard/TopRating';
 
 const Dashboard = () => {
