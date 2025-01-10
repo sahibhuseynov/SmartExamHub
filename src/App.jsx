@@ -29,6 +29,7 @@ const App = () => {
               <Route path="/exam/:categoryId/:classId/:examId/view" element={<ExamViewPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/admin" element={<AdminPanel />} />
+              
             </Routes>
           </AnimatePresence>
         </Router>

@@ -173,7 +173,7 @@ const ExamDetailsPage = () => {
                 </div>
 
                 {/* 💬 Yorumlar */}
-                <div className="p-6 bg-white shadow-lg rounded-lg text-black mt-8">
+                <div className="p-6 bg-white  text-black mt-8">
                     <h3 className="text-2xl font-bold mb-4">💬 Yorumlar</h3>
 
                     {/* Yorumları 3 sütunlu grid içinde göstereceğiz */}

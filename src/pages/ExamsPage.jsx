@@ -161,7 +161,7 @@ const ExamsPage = () => {
             ))}
           </div>
         ) : (
-          <p className="text-center text-lg">Bu sınıfta henüz sınav bulunmamaktadır.</p>
+          <p className="text-center text-lg">Bu sinifdə hələ imtahan mövcud deyil..</p>
         )}
       </div>
     </div>
