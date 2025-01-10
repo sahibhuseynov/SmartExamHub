@@ -12,6 +12,8 @@ import { setCategories, updateCategoryDescription } from "../redux/categorySlice
 import { setClasses } from "../redux/classSlice";
 // import CompletedExams from "../components/dashboard/CompletedExams";
 import TopRating from './../components/dashboard/TopRating';
+import TopUsersLeaderboard from './../components/dashboard/TopUsersLeaderboard';
+import Footer from './../components/Footer';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -68,7 +70,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       <ChatWithUs />
       <Navbar />
       <Slider />
@@ -102,10 +104,13 @@ const Dashboard = () => {
           )}
         </ul>
       </div>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mb-12">
         <TopRating />
         {/* <CompletedExams /> */}
+        <TopUsersLeaderboard />
       </div>
+      
+      <Footer />
     </div>
   );
 };

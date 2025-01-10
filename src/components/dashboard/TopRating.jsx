@@ -54,9 +54,9 @@ const TopRating = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 mb-4">
       {/* Başlık her zaman görünecek */}
-      <h2 className="text-2xl font-bold text-center mb-6">Ən Yaxşılar</h2>
+      <h2 className="text-3xl font-bold  mb-6">Ən Yaxşılar</h2>
 
       {/* Eğer veriler yükleniyorsa skeleton gösterilecek */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, collection, getDocs, setDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, setDoc,arrayUnion  } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { FaStar } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { auth } from "../firebase/config"; // Firebase Authentication importu
 import { useNavigate } from "react-router-dom";
+import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
+import { FaCertificate } from "react-icons/fa";
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -20,6 +22,8 @@ const ExamViewPage = () => {
     const [showResults, setShowResults] = useState(false);
     const [comments, setComments] = useState([]);
     const [averageRating, setAverageRating] = useState(0); 
+    const [showModal, setShowModal] = useState(true);  // State for modal visibility
+    const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,6 +46,8 @@ const ExamViewPage = () => {
                     const averageRating = examSnap.data().averageRating || 0;
                     setAverageRating(averageRating);
 
+                    // Check if the exam is certified
+                    setIsCertifiedExam(examSnap.data().isCertified || false);  // Assuming isCertified is a boolean field
                 } else {
                     console.error("Sınav bulunamadı.");
                 }
@@ -62,7 +68,7 @@ const ExamViewPage = () => {
         }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         let correct = 0;
         let incorrect = 0;
         questions.forEach((question, index) => {
@@ -75,7 +81,38 @@ const ExamViewPage = () => {
         setCorrectAnswers(correct);
         setIncorrectAnswers(incorrect);
         setShowResults(true);
+
+        // Save the user's answers (correct and incorrect counts) and success rate
+        await saveExamResultsToUser(correct, incorrect);
     };
+
+    // Save the results to the User document in Firestore
+    const saveExamResultsToUser = async (correct, incorrect) => {
+        const user = auth.currentUser;
+        if (user) {
+          try {
+            const successRate = (correct / totalQuestions) * 100;
+            const userRef = doc(db, "Users", user.uid);
+      
+            await setDoc(userRef, {
+              name: user.displayName || 'Bilinmeyen Kullanıcı',
+              exams: arrayUnion({
+                examId: examId,
+                correctAnswers: correct,
+                incorrectAnswers: incorrect,
+                totalQuestions: totalQuestions,
+                successRate: successRate,
+                completedAt: new Date(),
+              })
+            }, { merge: true });
+      
+            console.log("Sınav sonucu başarıyla kaydedildi.");
+          } catch (error) {
+            console.error("Sonuçlar kaydedilirken hata oluştu:", error);
+          }
+        }
+      };
+      
 
     const chartData = [
         { name: 'Doğru', value: correctAnswers },
@@ -145,8 +182,43 @@ const ExamViewPage = () => {
         navigate('/dashboard');
     };
 
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
     return (
         <div className="bg-gray-100 min-h-screen">
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 overflow-hidden">
+                    <div className="bg-white p-8 rounded-lg max-w-md w-full">
+                        <h2 className="text-2xl  text-center font-semibold mb-4">İmtahan Qaydaları</h2>
+                        <ul className="list-disc pl-5 mb-4">
+                            <li>İmtahanı bitirdikdən sonra nəticəni görə bilərsiniz.</li>
+                            <li>Cavab verməyə istədiyiniz sualdan başlaya bilərsiniz.</li>
+                            <li>Yanlış cavablar doğru cavablara təsir göstərmir.</li>
+                            <li>Hər doğru cavab 1 bal ilə qiymətləndirilir.</li>
+
+                            {/* Add other rules here */}
+                        </ul>
+                        {isCertifiedExam && (
+                          <div className="flex gap-3">
+                                <FaCertificate  size={32} className="text-yellow-400"/>
+                                <p className="text-lg  text-gray-800 mb-4">
+                                    Bu sınav sonunda başarı oranınıza göre bir sertifika verilecektir.
+                                </p>
+                          </div>
+                        )}
+                        <div className="flex justify-center">
+                            <button 
+                                onClick={closeModal}
+                                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">
+                                Qaydaları Oxudum, Davam Et
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg">
                 {!showResults ? (
                     <>
@@ -221,53 +293,49 @@ const ExamViewPage = () => {
                             <h4 className="text-2xl font-semibold text-gray-800">Ortalama Puan: {averageRating ? averageRating.toFixed(2) : "Henüz yorum yapılmamış."}</h4>
                             <h4 className="text-2xl font-semibold text-gray-800">Sınavınızı Değerlendirin:</h4>
                             <div className="flex justify-center items-center space-x-2 mt-2">
-                                {[1, 2, 3, 4, 5].map((star) => (
+                                {[1, 2, 3, 4, 5].map(star => (
                                     <FaStar
                                         key={star}
-                                        size={30}
-                                        color={rating >= star ? "#FFD700" : "#D3D3D3"}
                                         onClick={() => handleRatingChange(star)}
+                                        color={star <= rating ? "#FFD700" : "#D3D3D3"}
+                                        className="cursor-pointer"
                                     />
                                 ))}
                             </div>
+                        </div>
+
+                        <div className="mt-4">
                             <textarea
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
+                                className="w-full h-32 p-4 border rounded-lg"
                                 placeholder="Yorumunuzu buraya yazın..."
-                                className="mt-2 w-full p-4 border rounded-md shadow-lg focus:outline-none"
-                                rows="4"
-                            />
-                            <button
-                                onClick={handleSaveComment}
-                                className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all"
-                            >
-                                Yorum Gönder
-                            </button>
+                            ></textarea>
                         </div>
 
-                        <div className="mt-6">
-                            <h4 className="text-2xl font-semibold text-gray-800">Yorumlar</h4>
-                            {comments.length === 0 ? (
-                                <p>Henüz yorum yapılmamış.</p>
-                            ) : (
-                                comments.map((comment, index) => (
-                                    <div key={index} className="border-b py-4">
-                                        <p><strong>{comment.userName}</strong> ({new Date(comment.createdAt.seconds * 1000).toLocaleDateString()}):</p>
-                                        <p>{comment.comment}</p>
-                                        <p>⭐ {comment.rating} / 5</p>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                        <button
+                            onClick={handleSaveComment}
+                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 mt-4"
+                        >
+                            Yorum ve Puanı Kaydet
+                        </button>
 
-                        <div className="mt-6">
-                            <button
-                                onClick={goToHomePage}
-                                className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition-all"
-                            >
-                                Ana Sayfaya Dön
-                            </button>
-                        </div>
+                        <button
+                            onClick={goToHomePage}
+                            className="w-full bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 mt-4"
+                        >
+                            Dashboarda Git
+                        </button>
+
+                   {
+                    isCertifiedExam && (
+                        <CertificateGenerator
+                        userName={auth.currentUser?.displayName}
+                        examName={examId}
+                        date={new Date().toLocaleDateString()} // Dinamik tarih bilgisi
+                    />
+                    )
+                   }
                     </>
                 )}
             </div>

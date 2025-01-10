@@ -100,7 +100,7 @@ const ExamsPage = () => {
     <div>
       <Navbar />
       <div className="bg-gradient-to-b from-violet-700 to-indigo-600 text-white p-6 h-[300px] flex justify-center items-center">
-        <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
+        <div className="max-w-6xl grid md:grid-cols-3 gap-8 w-full">
           <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
             <h2 className="text-4xl font-bold">{categoryId}</h2>
           </div>

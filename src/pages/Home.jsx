@@ -6,6 +6,7 @@ import InfoSection from '../components/InfoSection';
 import { motion } from 'framer-motion';
 // import  ContactSection  from '../components/ContactSection';
 import ChatWithUs from '../components/ChatWithUs';
+import Footer from './../components/Footer';
 const App = () => {
   return (
     <div
@@ -42,6 +43,7 @@ const App = () => {
 
       <InfoSection />
       {/* <ContactSection /> */}
+      <Footer />
     </div>
   );
 };
