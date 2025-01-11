@@ -147,7 +147,7 @@ const ExamsPage = () => {
               >
                 <h3 className="text-xl font-bold">{exam.id}</h3>
                 <p className="text-gray-600">
-                  {exam.description ? exam.description.slice(0, 11) : "Açıklama bulunmamaktadır."}
+                  {exam.description ? exam.title2 : "Açıklama bulunmamaktadır."}
                 </p>
                 <p className="mt-2 text-lg font-semibold">
                   {exam.price ? `${exam.price} AZN` : "Ücretsiz"}

@@ -5,6 +5,7 @@ import { uploadImageToCloudinary } from "../../utils/cloudinary"; // Assuming th
 
 const AdminPanel = () => {
   const [title, setTitle] = useState("");
+  const [examTitle2, setExamTitle2] = useState("");
   const [category, setCategory] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [classType, setClassType] = useState("");
@@ -117,10 +118,11 @@ const AdminPanel = () => {
       const examRef = doc(collection(classRef, "Exams"), title);
       await setDoc(examRef, {
         title,
+        title2: examTitle2,  // Yeni başlık verisini de ekleyin
         price: parseFloat(price),
         description,
         examDate,
-        isCertified, // Sertifika bilgisi
+        isCertified,
         createdAt: new Date(),
       });
 
@@ -183,6 +185,14 @@ const AdminPanel = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <input
+  type="text"
+  className="w-full p-3 border border-gray-300 rounded-lg"
+  placeholder="Sınav Başlığı-2"
+  value={examTitle2}
+  onChange={(e) => setExamTitle2(e.target.value)}
+/>
+
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg"

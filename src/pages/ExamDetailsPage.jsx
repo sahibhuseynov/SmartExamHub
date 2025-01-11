@@ -6,9 +6,7 @@ import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
-import certificationIcon from '../assets/certificatIcon.png'; // Sertifika ikonu
 import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
-import { motion } from 'framer-motion';
 
 const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -79,28 +77,13 @@ const ExamDetailsPage = () => {
             <Navbar />
 
             {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
-            <div className="bg-gradient-to-b from-teal-500 to-blue-600 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
                
 
                 <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
-                     {/* Sertifika İkonu */} 
-{exam?.isCertified && (
-  <motion.img
-    src={certificationIcon}
-    alt="Sertifika"
-    className="absolute -top-8 -left-12 w-32 h-32"
-    initial={{ opacity: 0, scale: 0.8 }}  // Başlangıç durumu: Opaklık 0, küçük boyut
-    animate={{ opacity: 1, scale: 1 }}  // Animasyon: Opaklık 1, normal boyut
-    transition={{ 
-      duration: 0.6,   // Animasyon süresi
-      type: "spring",  // Sıçrama efekti
-      stiffness: 100,  // Sertlik (sıçramanın gücü)
-      damping: 10,     // Damping (sıçramanın yumuşaklığı)
-    }}
-  />
-)}
+                     
                     </div>
                     
                     <div className="text-center flex justify-center items-center col-span-2">
@@ -109,7 +92,7 @@ const ExamDetailsPage = () => {
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
                             <p className="text-lg font-semibold"> {exam?.isCertified && (
-                              <h2 className="font-bold text-2xl">RƏQƏMSAL SERTİFİKAT qazan!</h2>
+                              <h2 className="font-bold text-2xl mb-2">İmtahan sonunda <span className="text-yellow-300">RƏQƏMSAL SERTİFİKAT</span> qazan!</h2>
                             )}{exam?.description || "Açıklama yok."}</p>
                         )}
                         
@@ -132,20 +115,26 @@ const ExamDetailsPage = () => {
                     <p className="text-lg font-semibold ml-2">({averageRating.toFixed(1)} / 5)</p>
                 </div>
 
-                {/* ✅ İmtahana Başla Butonu */}
-                <button
-                    onClick={handleStartExam}
-                    className="absolute bottom-8 px-8 py-4 bg-green-500 text-white text-xl font-semibold rounded-lg hover:bg-green-600 transition duration-300"
-                >
-                    İmtahana Başla 🚀
-                </button>
+                
             </div>
 
             {/* Detaylar Bölümü */}
             <div className="max-w-6xl mx-auto p-8 space-y-8">
+                {/* ✅ İmtahana Başla Butonu */}
+                <div className="flex justify-center">
+                    <button
+          onClick={handleStartExam}
+          className="text-xl w-48 h-16 rounded bg-emerald-500 text-white relative  overflow-hidden group z-10 hover:text-white duration-1000"
+        >
+          <span className="absolute bg-emerald-600 w-52 h-36 rounded-full group-hover:scale-100 scale-0 -z-10 -left-2 -top-10 group-hover:duration-500 duration-700 origin-center transform transition-all"></span>
+          <span className="absolute bg-emerald-800 w-52 h-36 -left-2 -top-10 rounded-full group-hover:scale-100 scale-0 -z-10 group-hover:duration-700 duration-500 origin-center transform transition-all"></span>
+                            İmtahana Başla
+        </button>
+                </div>
                 <div className="flex justify-between">
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📅 İmtahan Tarihi</h3>
+                        <img src="" alt="" />
+                        <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -154,7 +143,7 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">📆 Yaratılma Tarihi</h3>
+                        <h3 className="text-2xl font-bold mb-4">Yaradılma Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -163,7 +152,8 @@ const ExamDetailsPage = () => {
                     </div>
 
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">💰 Fiyat</h3>
+                        
+                        <h3 className="text-2xl font-bold mb-4">Qiymət</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (

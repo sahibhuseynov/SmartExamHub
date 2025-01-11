@@ -6,6 +6,7 @@ import RankBadgeImg from '../assets/rankbadge.png'
 import VictoryCupImg from '../assets/Victorycup.png' 
 import Aiİconİmg from '../assets/Aiİcon.png' 
 import CertificatIconImg from '../assets/certificatIcon.png'
+import notificationsImg from '../assets/notifications.png'
 const AboutUs = () => {
   return (
     <div className="bg-gray-50">
@@ -98,6 +99,25 @@ const AboutUs = () => {
               <h3 className="text-xl font-semibold text-gray-800">Yarış və Müsabiqələr</h3>
               <p className="text-gray-500 mt-2">
                 Canlı yarışlara və müsabiqələrə qoşularaq bütün istifadəçilər arasında fərqlənin və hədiyyələr qazanın!
+              </p>
+            </div>
+            <div
+              className="bg-white flex flex-col justify-center items-center p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
+             
+              
+            >
+              <motion.img
+                src={notificationsImg}
+                alt="victorycup"
+                className="w-36 h-36 object-cover"
+                initial={{ rotate: 0, y: 0 }}
+whileInView={{ rotate: [0, -10, 10, -8, 8, 0], y: 0 }}
+viewport={{ once: false }}
+transition={{ duration: 1.2, ease: "easeInOut",  }}
+              />
+              <h3 className="text-xl font-semibold text-gray-800">Məlumatlandırma </h3>
+              <p className="text-gray-500 mt-2">
+              İmtahan tarixləri, nəticələr və digər vacib dəyişikliklər haqqında məlumatları vaxtında almaq üçün bildirişlər və e-poçt yeniləmələrindən yararlan.
               </p>
             </div>
             <div

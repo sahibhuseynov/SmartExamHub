@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Slider from "../components/dashboard/Slider";
 import ChatWithUs from "../components/ChatWithUs";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs,getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
@@ -14,16 +14,18 @@ import { setClasses } from "../redux/classSlice";
 import TopRating from './../components/dashboard/TopRating';
 import TopUsersLeaderboard from './../components/dashboard/TopUsersLeaderboard';
 import Footer from './../components/Footer';
+import CongratulationModal from "../components/dashboard/CongratulationModal"; // Modalı dahil ediyoruz
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const categories = useSelector((state) => state.categories.categories);
-  const [loading, setLoading] = useState(true); // Başlangıçta yükleniyor
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false); // Modal durumu
+  const userId = useSelector((state) => state.user.user?.uid); // Kullanıcı ID'sini alıyoruz
 
   useEffect(() => {
     const fetchCategoriesAndClasses = async () => {
-      // Kategoriler yüklendiyse tekrar veri çekmeye gerek yok
       if (categories.length > 0) {
         setLoading(false);
         return;
@@ -33,7 +35,7 @@ const Dashboard = () => {
         const categoriesSnapshot = await getDocs(collection(db, "Exams"));
         const categoriesData = categoriesSnapshot.docs.map((doc) => ({
           id: doc.id,
-          description: doc.data().description || "Açıklama bulunmamaktadır."
+          description: doc.data().description || "Açıklama bulunmamaktadır.",
         }));
 
         dispatch(setCategories(categoriesData));
@@ -48,9 +50,9 @@ const Dashboard = () => {
           }));
           allClasses.push(...classesData);
 
-          dispatch(updateCategoryDescription({ 
-            categoryId: category.id, 
-            description: category.description 
+          dispatch(updateCategoryDescription({
+            categoryId: category.id,
+            description: category.description,
           }));
         }
 
@@ -58,12 +60,41 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Veri yüklenirken hata oluştu:", error);
       } finally {
-        setLoading(false); // Veriler yüklendikten sonra yükleme durumu false
+        setLoading(false);
       }
     };
 
     fetchCategoriesAndClasses();
   }, [dispatch, categories.length]);
+
+  // Kullanıcıyı kontrol et ve "Başlanğıc" rozetini ver
+  useEffect(() => {
+    const checkAndSetBadge = async () => {
+      if (!userId) return; // Kullanıcı ID'si yoksa işlem yapma
+
+      // Kullanıcı belgesini alıyoruz
+      const userDocRef = doc(db, "Users", userId); // Belirli kullanıcıyı almak için userId kullanıyoruz
+
+      try {
+        const userSnapshot = await getDoc(userDocRef); // getDoc ile tek bir belgeyi alıyoruz
+
+        if (userSnapshot.exists()) { 
+          const userData = userSnapshot.data();
+
+          // Eğer kullanıcı "Başlanğıc" rozetine sahip değilse, rozet ekle ve modalı göster
+          if (!userData.hasStarterBadge) {
+            setShowModal(true); // Modalı aç
+            await updateDoc(userDocRef, { hasStarterBadge: true }); // Rozeti ekle
+          }
+        }
+      } catch (error) {
+        console.error("Kullanıcı verisi alınırken hata oluştu: ", error.message);
+      }
+    };
+
+    checkAndSetBadge(); // Fonksiyonu çağırıyoruz
+}, [userId]);
+
 
   const handleExamClick = (examId, categoryId) => {
     navigate(`/${categoryId}/${examId}`);
@@ -104,6 +135,7 @@ const Dashboard = () => {
           )}
         </ul>
       </div>
+
       <div className="max-w-6xl mx-auto mb-12">
         <TopRating />
         {/* <CompletedExams /> */}
@@ -111,6 +143,9 @@ const Dashboard = () => {
       </div>
       
       <Footer />
+
+      {/* Tebrik modalını ekliyoruz */}
+      <CongratulationModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 };

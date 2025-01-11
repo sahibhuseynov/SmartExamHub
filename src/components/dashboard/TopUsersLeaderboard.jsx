@@ -17,29 +17,25 @@ const TopUsersLeaderboard = () => {
         usersSnapshot.forEach(doc => {
           const userData = doc.data();
           const exams = userData.exams || [];
-
-          // Toplam doğru cevaplar ve toplam sorular hesaplanıyor
+        
           const totalCorrectAnswers = exams.reduce((sum, exam) => sum + (exam.correctAnswers || 0), 0);
           const totalQuestions = exams.reduce((sum, exam) => sum + (exam.totalQuestions || 0), 0);
-          
-          // Başarı oranı hesaplanıyor
           const averageSuccessRate = totalQuestions > 0 ? (totalCorrectAnswers / totalQuestions) * 100 : 0;
-
-          // Kullanıcının toplam puanı hesaplanıyor
-          const totalPoints = totalCorrectAnswers;  // Puan hesaplaması (örneğin: her doğru cevap bir puan)
-
-          // Firebase'de kullanıcının puanını güncelle
-          if (doc.id) {
-            updateUserPoints(doc.id, totalPoints);
+          const totalPoints = totalCorrectAnswers;  // Toplam puan
+        
+          if (totalPoints > 0) {  // Yalnızca puanı 0'dan büyük kullanıcılar
+            if (doc.id) {
+              updateUserPoints(doc.id, totalPoints);
+            }
+            usersData.push({
+              id: doc.id,
+              name: userData.name || 'Bilinmeyen Kullanıcı',
+              averageSuccessRate,
+              totalPoints,
+            });
           }
-
-          usersData.push({
-            id: doc.id,
-            name: userData.name || 'Bilinmeyen Kullanıcı',
-            averageSuccessRate,
-            totalPoints,
-          });
         });
+        
 
         usersData.sort((a, b) => b.totalPoints - a.totalPoints);
         setTopUsers(usersData.slice(0, 5));  // En yüksek 5 kullanıcıyı göster

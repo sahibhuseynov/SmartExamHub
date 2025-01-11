@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import RankBadgeImg from '../assets/rankbadge.png'; // Rozet görseli
 import Navbar from '../components/Navbar';
-import { IoStarSharp } from "react-icons/io5";
+import { FaStar } from 'react-icons/fa';
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('exams');
-  const userName = useSelector((state) => state.user.user.displayName);
-
+  const user = useSelector((state) => state.user.user);
+  console.log(user)
   const renderContent = () => {
     switch (activeTab) {
       case 'exams':
@@ -32,10 +31,10 @@ const ProfilePage = () => {
           <div className="w-1/4 bg-white p-6 shadow-md rounded-lg">
             {/* Profil Başlığı */}
             <div className="text-center flex flex-col items-center mb-8">
-              <img src={RankBadgeImg} alt="Rozet" className="w-32 h-32 object-cover" />
-              <h2 className="text-2xl font-bold text-gray-800">{userName}</h2>
-              <div className='flex gap-1 items-center mt-2'><p className="text-sm text-gray-500">Kəşfiyyatçı</p>
-              <IoStarSharp />
+              <img  src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
+              <h2 className="text-2xl font-bold text-gray-800">{user.displayName}</h2>
+              <div className='flex gap-1 items-center mt-2'><p className="text-sm text-gray-500">Başlanğıc</p>
+              <FaStar />
               </div>
             </div>
     
