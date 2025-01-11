@@ -12,6 +12,8 @@ import ExamDetailsPage from './pages/ExamDetailsPage';
 import ExamViewPage from './pages/ExamViewPage';
 import AboutUs from './pages/AboutUs';
 import ScrollToTop from './components/ScrollToTop';  // ScrollToTop bileşenini import et
+import ProfilePage from './pages/ProfilePage';
+import RewardsPage from './pages/RewardsPage';
 
 const App = () => {
   return (
@@ -23,12 +25,14 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/aboutUs" element={<AboutUs />} />
+              <Route path="/rewards" element={<RewardsPage/>} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/:categoryId/:examId" element={<ExamsPage />} />
               <Route path="/category/:categoryId/class/:classId/exam/:examId/details" element={<ExamDetailsPage />} />
               <Route path="/exam/:categoryId/:classId/:examId/view" element={<ExamViewPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/profile" element={<ProfilePage />} />
               
             </Routes>
           </AnimatePresence>

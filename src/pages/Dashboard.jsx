@@ -70,7 +70,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="">
+    <div className="bg-gray-50">
       <ChatWithUs />
       <Navbar />
       <Slider />

@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import RankBadgeImg from '../assets/rankbadge.png' 
 import VictoryCupImg from '../assets/Victorycup.png' 
 import Aiİconİmg from '../assets/Aiİcon.png' 
-
+import CertificatIconImg from '../assets/certificatIcon.png'
 const AboutUs = () => {
   return (
     <div className="bg-gray-50">
@@ -14,14 +14,12 @@ const AboutUs = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-12 mb-16">
         <div className="text-center">
-          <motion.h1
+          <h1
             className="text-4xl font-extrabold text-blue-600 mb-6"
-            initial={{ opacity: 0, y: -50 }} // Başlangıç animasyonu
-            animate={{ opacity: 1, y: 0 }} // Hedef animasyon
-            transition={{ duration: 0.8 }} // Geçiş süresi
+            
           >
             <span className="text-black">Cirtdan</span> Online İmtahan Platforması
-          </motion.h1>
+          </h1>
 
           <motion.p
             className="text-xl text-gray-700 mb-12"
@@ -82,6 +80,7 @@ const AboutUs = () => {
               </div>
             </div>
 
+
             <div
               className="bg-white flex flex-col justify-center items-center p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
              
@@ -99,6 +98,25 @@ const AboutUs = () => {
               <h3 className="text-xl font-semibold text-gray-800">Yarış və Müsabiqələr</h3>
               <p className="text-gray-500 mt-2">
                 Canlı yarışlara və müsabiqələrə qoşularaq bütün istifadəçilər arasında fərqlənin və hədiyyələr qazanın!
+              </p>
+            </div>
+            <div
+              className="bg-white flex flex-col justify-center items-center p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
+             
+              
+            >
+              <motion.img
+                src={CertificatIconImg}
+                alt="victorycup"
+                className="w-36 h-36 object-cover"
+                initial={{ rotate: 0, y: 0 }}
+                whileInView={{ rotate: [0, 15, -15, 0], y: [0, -10, 0] }}
+                viewport={{ once: false }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+              />
+              <h3 className="text-xl font-semibold text-gray-800">Sertifikatlar və Nailiyyətlər</h3>
+              <p className="text-gray-500 mt-2">
+              Sertifikatlarınızı və əldə etdiyiniz nailiyyətləri toplayaraq fərqlənin, uğurlarınızı paylaşın və daha çox motivasiya qazanın!
               </p>
             </div>
           </div>

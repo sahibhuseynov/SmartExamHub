@@ -6,7 +6,7 @@ import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
-import certificationIcon from '../assets/certificat.png'; // Sertifika ikonu
+import certificationIcon from '../assets/certificatIcon.png'; // Sertifika ikonu
 import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
 import { motion } from 'framer-motion';
 
@@ -90,7 +90,7 @@ const ExamDetailsPage = () => {
   <motion.img
     src={certificationIcon}
     alt="Sertifika"
-    className="absolute -top-8 -left-12 w-36 h-36"
+    className="absolute -top-8 -left-12 w-32 h-32"
     initial={{ opacity: 0, scale: 0.8 }}  // Başlangıç durumu: Opaklık 0, küçük boyut
     animate={{ opacity: 1, scale: 1 }}  // Animasyon: Opaklık 1, normal boyut
     transition={{ 

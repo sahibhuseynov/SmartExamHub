@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { FaCrown } from 'react-icons/fa';  // Taç simgesi lider kullanıcı için
 import { FiUser } from 'react-icons/fi';  // Kullanıcı ikonu
-import { GiRank3 } from 'react-icons/gi';  // Sıralama ikonu
 
 const TopUsersLeaderboard = () => {
   const [topUsers, setTopUsers] = useState([]);
@@ -19,19 +18,31 @@ const TopUsersLeaderboard = () => {
           const userData = doc.data();
           const exams = userData.exams || [];
 
+          // Toplam doğru cevaplar ve toplam sorular hesaplanıyor
           const totalCorrectAnswers = exams.reduce((sum, exam) => sum + (exam.correctAnswers || 0), 0);
           const totalQuestions = exams.reduce((sum, exam) => sum + (exam.totalQuestions || 0), 0);
+          
+          // Başarı oranı hesaplanıyor
           const averageSuccessRate = totalQuestions > 0 ? (totalCorrectAnswers / totalQuestions) * 100 : 0;
+
+          // Kullanıcının toplam puanı hesaplanıyor
+          const totalPoints = totalCorrectAnswers;  // Puan hesaplaması (örneğin: her doğru cevap bir puan)
+
+          // Firebase'de kullanıcının puanını güncelle
+          if (doc.id) {
+            updateUserPoints(doc.id, totalPoints);
+          }
 
           usersData.push({
             id: doc.id,
             name: userData.name || 'Bilinmeyen Kullanıcı',
             averageSuccessRate,
+            totalPoints,
           });
         });
 
-        usersData.sort((a, b) => b.averageSuccessRate - a.averageSuccessRate);
-        setTopUsers(usersData.slice(0, 5));
+        usersData.sort((a, b) => b.totalPoints - a.totalPoints);
+        setTopUsers(usersData.slice(0, 5));  // En yüksek 5 kullanıcıyı göster
       } catch (error) {
         console.error('En iyi kullanıcılar alınırken hata oluştu:', error);
       }
@@ -40,10 +51,22 @@ const TopUsersLeaderboard = () => {
     fetchTopUsers();
   }, []);
 
+  // Firebase'deki kullanıcının puanını güncelleyen fonksiyon
+  const updateUserPoints = async (userId, points) => {
+    try {
+      const userRef = doc(db, 'Users', userId);
+      await updateDoc(userRef, {
+        points: points,  // Puanları ekliyoruz
+      });
+    } catch (error) {
+      console.error('Puan güncellenirken hata oluştu:', error);
+    }
+  };
+
   return (
-    <div className=" p-6  ">
+    <div className="p-6">
       <h2 className="text-3xl font-bold mb-6 text-black flex items-center gap-2">
-        <GiRank3 /> Ən Yüksək Uğura Sahib İstifadəçilər
+         Ən Yüksək Uğura Sahib İstifadəçilər
       </h2>
       <ul>
         {topUsers.length > 0 ? (
@@ -63,7 +86,7 @@ const TopUsersLeaderboard = () => {
                 <span className="font-semibold text-lg">{user.name}</span>
               </div>
               <span className="text-xl font-bold text-gray-700">
-                {user.averageSuccessRate.toFixed(2)}%
+                {user.totalPoints} Puan
               </span>
             </li>
           ))
