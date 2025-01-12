@@ -68,8 +68,12 @@ const ExamDetailsPage = () => {
     };
 
     const handleStartExam = () => {
-        handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanmış olarak işaretle
-        navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+        if (exam?.price && exam.price > 0) {
+            navigate(`/payment?examId=${examId}&categoryId=${categoryId}&classId=${classId}&price=${exam.price}`);
+        } else {
+            handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanmış olaraq işarətlənir
+            navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+        }
     };
 
     return (

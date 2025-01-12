@@ -13,6 +13,7 @@ import AboutUs from './pages/AboutUs';
 import ScrollToTop from './components/ScrollToTop';  // ScrollToTop bileşenini import et
 import ProfilePage from './pages/ProfilePage';
 import RewardsPage from './pages/RewardsPage';
+import PaymentPage from './pages/PaymentPage';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
               
               <Route path="/:categoryId/:examId" element={<ExamsPage />} />
               <Route path="/category/:categoryId/class/:classId/exam/:examId/details" element={<ExamDetailsPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
               <Route path="/exam/:categoryId/:classId/:examId/view" element={<ExamViewPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/admin" element={<AdminPanel />} />

@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Slider from "../components/dashboard/Slider";
 import ChatWithUs from "../components/ChatWithUs";
 import { collection, getDocs,getDoc, doc, updateDoc } from "firebase/firestore";
-import { auth, db } from "../firebase/config";
+import {  db } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -25,7 +25,7 @@ const Dashboard = () => {
   const userId = useSelector((state) => state.user.user?.uid); // Kullanıcı ID'sini alıyoruz
 
   useEffect(() => {
-    console.log(auth)
+    
     const fetchCategoriesAndClasses = async () => {
       if (categories.length > 0) {
         setLoading(false);

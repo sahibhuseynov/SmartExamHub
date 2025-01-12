@@ -42,7 +42,7 @@ const ProfilePage = () => {
               </div>
             </div>
     
-            <h3 className="text-lg font-semibold mb-4">Profil Menyusu</h3>
+            
             <ul className="space-y-3">
               {[
                 { label: 'Nəticələrim', tab: 'exams' },

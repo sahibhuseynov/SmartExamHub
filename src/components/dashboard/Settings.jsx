@@ -100,7 +100,7 @@ const Settings = () => {
           <option value="female">Qadın</option>
         </select>
       </div>
-      <button onClick={handleUpdateProfile} className="btn btn-primary col-span-2">
+      <button onClick={handleUpdateProfile} className="btn btn-primary col-span-2 text-white">
         Profili Yenilə
       </button>
       <h3 className="text-xl font-semibold col-span-2">Şifrə Dəyişdir</h3>
@@ -131,7 +131,7 @@ const Settings = () => {
           className="input input-bordered w-full"
         />
       </div>
-      <button onClick={handleChangePassword} className="btn btn-warning col-span-2">
+      <button onClick={handleChangePassword} className="btn btn-primary text-white col-span-2">
         Şifrəni Yenilə
       </button>
     </div>
