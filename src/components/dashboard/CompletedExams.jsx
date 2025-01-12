@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase/config";
 import { collection, getDocs } from "firebase/firestore";
 import { auth } from "../../firebase/config"; // Firebase auth
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 
 const CompletedExams = () => {
   const [completedExams, setCompletedExams] = useState([]);
@@ -38,13 +36,15 @@ const CompletedExams = () => {
   }, []); // useEffect sadece ilk renderda çalışacak
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-lg text-black mt-8">
-      <h3 className="text-3xl font-bold mb-6 text-center text-gray-800">Son İmtahan Nəticələri</h3>
+    <div className="">
+      <h3 className="text-xl font-bold mb-6 text-gray-800">Son İmtahan Nəticələri</h3>
       
       {loading ? (
-        <Skeleton count={3} height={50} />
+        <div className="text-center py-6">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
       ) : completedExams.length === 0 ? (
-        <p className="text-center text-gray-500">Henüz tamamlanmış bir sınavınız yok.</p>
+        <p className="text-center text-gray-500">Hələ tamamlanmış bir imtahanınız yoxdur.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {completedExams.map((exam) => (
@@ -57,13 +57,13 @@ const CompletedExams = () => {
                 <span className="text-gray-500">{new Date(exam.completedAt).toLocaleDateString("tr-TR")}</span>
               </div>
               <div className="mt-2 text-gray-700">
-                <span className="font-semibold">Kategori:</span> {exam.categoryId} / {exam.classId}
+                <span className="font-semibold">Kateqoriya:</span> {exam.categoryId} / {exam.classId}
               </div>
               <div className="mt-4 text-center">
                 <button
                   className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
                 >
-                  Detaylar
+                  Detallar
                 </button>
               </div>
             </div>

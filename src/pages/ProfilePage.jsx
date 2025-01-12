@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Navbar from '../components/Navbar';
 import { FaStar } from 'react-icons/fa';
+import CompletedExams from './../components/dashboard/CompletedExams';
+import Settings from './../components/dashboard/Settings';
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('exams');
   const user = useSelector((state) => state.user.user);
@@ -9,13 +11,15 @@ const ProfilePage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'exams':
-        return <div className="text-lg">İmtahanlarım</div>;
+        return <div className="text-lg">
+          <CompletedExams />
+        </div>;
       case 'certificates':
         return <div className="text-lg">Sertifikatlarım</div>;
       case 'balance':
         return <div className="text-lg">Balansım</div>;
       case 'settings':
-        return <div className="text-lg">Ayarlar</div>;
+        return <div className="text-lg"><Settings /></div>;
         case 'badge':
         return <div className="text-lg">Rozetlərim</div>;
       default:
@@ -26,7 +30,7 @@ const ProfilePage = () => {
   return (
    <div className='bg-gray-50'>
     <Navbar />
-        <div className="flex  h-screen max-w-7xl mx-auto py-7 ">
+        <div className="flex   max-w-7xl mx-auto py-7 ">
           {/* Sol Menü */}
           <div className="w-1/4 bg-white p-6 shadow-md rounded-lg">
             {/* Profil Başlığı */}
@@ -41,7 +45,7 @@ const ProfilePage = () => {
             <h3 className="text-lg font-semibold mb-4">Profil Menyusu</h3>
             <ul className="space-y-3">
               {[
-                { label: 'İmtahanlarım', tab: 'exams' },
+                { label: 'Nəticələrim', tab: 'exams' },
                 { label: 'Sertifikatlarım', tab: 'certificates' },
                 { label: 'Balansım', tab: 'balance' },
                 { label: 'Ayarlar', tab: 'settings' },
