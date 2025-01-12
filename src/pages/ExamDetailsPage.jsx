@@ -181,7 +181,7 @@ const ExamDetailsPage = () => {
                             comments.length > 0 ? (
                                 comments.map((comment, index) => (
                                     <div key={index} className="p-4 border rounded-lg shadow-sm">
-                                        <p><strong>{comment.userName}:</strong></p>
+                                        <p><strong>{comment.Username}</strong></p>
                                         <p>{comment.comment}</p>
                                         <div className="flex items-center space-x-1 mt-2">
                                             {[1, 2, 3, 4, 5].map((star) => (

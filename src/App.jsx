@@ -3,7 +3,6 @@ import { AnimatePresence } from 'framer-motion';
 import { Provider } from 'react-redux';
 import { store, persistor } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
-import Home from "./pages/Home";
 import Dashboard from './pages/Dashboard';
 import RegisterPage from './pages/RegisterPage';
 import AdminPanel from './components/adminPanel/AdminPanel';
@@ -23,10 +22,10 @@ const App = () => {
           <ScrollToTop />  {/* Sayfa her değiştiğinde scroll sıfırlanır */}
           <AnimatePresence mode="wait">
             <Routes>
-              <Route path="/" element={<Home />} />
+            <Route path="/" element={<Dashboard />} />
               <Route path="/aboutUs" element={<AboutUs />} />
               <Route path="/rewards" element={<RewardsPage/>} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              
               <Route path="/:categoryId/:examId" element={<ExamsPage />} />
               <Route path="/category/:categoryId/class/:classId/exam/:examId/details" element={<ExamDetailsPage />} />
               <Route path="/exam/:categoryId/:classId/:examId/view" element={<ExamViewPage />} />

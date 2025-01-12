@@ -8,7 +8,7 @@ import { auth } from "../firebase/config"; // Firebase Authentication importu
 import { useNavigate } from "react-router-dom";
 import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
 import { FaCertificate } from "react-icons/fa";
-
+import { useSelector } from 'react-redux';
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
     const [questions, setQuestions] = useState([]);
@@ -25,8 +25,10 @@ const ExamViewPage = () => {
     const [showModal, setShowModal] = useState(true);  // State for modal visibility
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
     const navigate = useNavigate();
-
+    const userr = useSelector(state => state.user.user);
     useEffect(() => {
+       // Redux'tan kullanıcı bilgilerini çekmek
+
         const fetchExamData = async () => {
             try {
                 const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
@@ -95,7 +97,7 @@ const ExamViewPage = () => {
             const userRef = doc(db, "Users", user.uid);
       
             await setDoc(userRef, {
-              name: user.displayName || 'Bilinmeyen Kullanıcı',
+              name: user.displayName || userr.displayName ,
               exams: arrayUnion({
                 examId: examId,
                 correctAnswers: correct,
@@ -127,7 +129,7 @@ const ExamViewPage = () => {
             try {
                 const commentRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId, "Comments", user.uid);
                 await setDoc(commentRef, {
-                    userName: user.displayName, 
+                    Username: user.displayName || userr.displayName,
                     comment: comment,           
                     rating: rating,             
                     createdAt: new Date()       
@@ -179,7 +181,7 @@ const ExamViewPage = () => {
     };
 
     const goToHomePage = () => {
-        navigate('/dashboard');
+        navigate('/');
     };
 
     const closeModal = () => {
@@ -330,9 +332,9 @@ const ExamViewPage = () => {
                    {
                     isCertifiedExam && (
                         <CertificateGenerator
-                        userName={auth.currentUser?.displayName}
+                        userName={userr?.displayName || "Bilinmeyen Kullanıcı"}  // Redux'dan userName çekiyoruz
                         examName={examId}
-                        date={new Date().toLocaleDateString()} // Dinamik tarih bilgisi
+                        date={new Date().toLocaleDateString()}
                     />
                     )
                    }

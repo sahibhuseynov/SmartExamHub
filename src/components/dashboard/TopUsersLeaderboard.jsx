@@ -17,25 +17,24 @@ const TopUsersLeaderboard = () => {
         usersSnapshot.forEach(doc => {
           const userData = doc.data();
           const exams = userData.exams || [];
-        
+
           const totalCorrectAnswers = exams.reduce((sum, exam) => sum + (exam.correctAnswers || 0), 0);
           const totalQuestions = exams.reduce((sum, exam) => sum + (exam.totalQuestions || 0), 0);
           const averageSuccessRate = totalQuestions > 0 ? (totalCorrectAnswers / totalQuestions) * 100 : 0;
           const totalPoints = totalCorrectAnswers;  // Toplam puan
-        
+
           if (totalPoints > 0) {  // Yalnızca puanı 0'dan büyük kullanıcılar
             if (doc.id) {
               updateUserPoints(doc.id, totalPoints);
             }
             usersData.push({
               id: doc.id,
-              name: userData.name || 'Bilinmeyen Kullanıcı',
+              name: userData.displayName || userData.name || 'Bilinmeyen Kullanıcı',  // `displayName` öncelikli olaraq göstərilir
               averageSuccessRate,
               totalPoints,
             });
           }
         });
-        
 
         usersData.sort((a, b) => b.totalPoints - a.totalPoints);
         setTopUsers(usersData.slice(0, 5));  // En yüksek 5 kullanıcıyı göster

@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import rankBadgeImg from '../../assets/rankbadge.png';
+import { useSelector } from "react-redux";
 
 const CongratulationModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-
+  const user = useSelector((state) => state.user.user);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -52,7 +53,9 @@ const CongratulationModal = ({ isOpen, onClose }) => {
             <motion.h2 className="text-3xl font-bold text-blue-600 mb-4">
               Təbriklər!
             </motion.h2>
-
+            <motion.h2 className="text-3xl font-bold text-blue-600 mb-4">
+              {user.displayName}
+            </motion.h2>
             <div className="mb-2">
               <img
                 src={rankBadgeImg}
