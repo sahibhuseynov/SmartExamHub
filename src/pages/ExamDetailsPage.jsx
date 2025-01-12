@@ -164,7 +164,7 @@ const ExamDetailsPage = () => {
 
                 {/* 💬 Yorumlar */}
                 <div className="p-6 bg-white  text-black mt-8">
-                    <h3 className="text-2xl font-bold mb-4">💬 Yorumlar</h3>
+                    <h3 className="text-2xl font-bold mb-4">💬 Rəylər</h3>
 
                     {/* Yorumları 3 sütunlu grid içinde göstereceğiz */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

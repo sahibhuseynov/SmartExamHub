@@ -206,7 +206,7 @@ const ExamViewPage = () => {
                           <div className="flex gap-3">
                                 <FaCertificate  size={32} className="text-yellow-400"/>
                                 <p className="text-lg  text-gray-800 mb-4">
-                                    Bu sınav sonunda başarı oranınıza göre bir sertifika verilecektir.
+                                Bu imtahanın sonunda uğur faizinizə əsasən sertifikat veriləcəkdir.
                                 </p>
                           </div>
                         )}

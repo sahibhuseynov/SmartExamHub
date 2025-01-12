@@ -101,7 +101,7 @@ const TopRating = () => {
                   onClick={() => goToExam(exam.categoryId, exam.classId, exam.id)}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-600 transition-all"
                 >
-                  Sınavı Gör
+                  İmtahana Bax
                 </button>
               </div>
             </div>
