@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import paymentIcon from '../assets/payment.png';
 import Navbar from './../components/Navbar';
 import ChatWithUs from './../components/ChatWithUs';
@@ -36,7 +36,7 @@ const PaymentPage = () => {
       <ChatWithUs />
 
       {/* Header Section */}
-      <div className="bg-gradient-to-r  from-violet-500 to-purple-500 text-white h-[300px] flex justify-center items-center relative">
+      <div className="bg-gradient-to-b from-violet-500 to-purple-500 text-white h-[300px] flex justify-center items-center relative">
         <div className='max-w-6xl mx-auto flex items-center text-center'>
             <img src={paymentIcon} alt="Payment Icon" className="w-64 h-64 object-cover" />
             <h2 className="text-2xl font-bold max-w-3xl leading-relaxed">
@@ -115,7 +115,7 @@ const PaymentPage = () => {
                   checked={isAccepted}
                   className="checkbox checkbox-primary"
                 />
-                <span className="label-text text-base">Ödəniş şərtlərini qəbul edirəm</span>
+                <span className="label-text text-base"><Link to='/paymentConditions'><span className='text-blue-600'>Ödəniş şərtlərini</span></Link> qəbul edirəm</span>
               </label>
             </div>
           </div>

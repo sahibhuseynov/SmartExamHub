@@ -61,7 +61,7 @@ const TopUsersLeaderboard = () => {
   return (
     <div className="p-6">
       <h2 className="text-3xl font-bold mb-6 text-black flex items-center gap-2">
-         Ən Yüksək Uğura Sahib İstifadəçilər
+      Zirvədəki Qaliblər
       </h2>
       <ul>
         {topUsers.length > 0 ? (

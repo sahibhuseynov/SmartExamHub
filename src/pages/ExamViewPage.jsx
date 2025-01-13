@@ -26,6 +26,7 @@ const ExamViewPage = () => {
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
+   
     useEffect(() => {
        // Redux'tan kullanıcı bilgilerini çekmek
 
@@ -83,10 +84,18 @@ const ExamViewPage = () => {
         setCorrectAnswers(correct);
         setIncorrectAnswers(incorrect);
         setShowResults(true);
-
-        // Save the user's answers (correct and incorrect counts) and success rate
+    
+        const successRate = (correct / totalQuestions) * 100;
+    
+        if (isCertifiedExam && successRate >= 80) {
+            alert("Təbriklər! Sertifikat qazandınız.");
+        } else if (isCertifiedExam) {
+            alert("Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.");
+        }
+    
         await saveExamResultsToUser(correct, incorrect);
     };
+    
 
     // Save the results to the User document in Firestore
     const saveExamResultsToUser = async (correct, incorrect) => {
@@ -329,15 +338,15 @@ const ExamViewPage = () => {
                             Dashboarda Git
                         </button>
 
-                   {
-                    isCertifiedExam && (
-                        <CertificateGenerator
-                        userName={userr?.displayName || "Bilinmeyen Kullanıcı"}  // Redux'dan userName çekiyoruz
-                        examName={examId}
-                        date={new Date().toLocaleDateString()}
-                    />
-                    )
-                   }
+                   {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+    <CertificateGenerator
+        userName={userr?.displayName || "Bilinmeyen Kullanıcı"}
+        examName={examId}
+        date={new Date().toLocaleDateString()}
+        userUID={userr?.uid|| "Bilinmeyen Kullanıcı"}
+    />
+)}
+
                     </>
                 )}
             </div>

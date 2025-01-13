@@ -4,10 +4,13 @@ import Navbar from '../components/Navbar';
 import { FaStar } from 'react-icons/fa';
 import CompletedExams from './../components/dashboard/CompletedExams';
 import Settings from './../components/dashboard/Settings';
+import UserCertificates from '../components/dashboard/UserCertificates';
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('exams');
   const user = useSelector((state) => state.user.user);
-  console.log(user)
+  
+
+
   const renderContent = () => {
     switch (activeTab) {
       case 'exams':
@@ -15,7 +18,7 @@ const ProfilePage = () => {
           <CompletedExams />
         </div>;
       case 'certificates':
-        return <div className="text-lg">Sertifikatlarım</div>;
+        return <div className="text-lg"><UserCertificates /></div>;
       case 'balance':
         return <div className="text-lg">Balansım</div>;
       case 'settings':
@@ -70,6 +73,7 @@ const ProfilePage = () => {
           {/* Sağ İçerik */}
           <div className="flex-1 bg-white p-8 shadow-md rounded-lg ml-4">{renderContent()}</div>
         </div>
+        
    </div>
   );
 };

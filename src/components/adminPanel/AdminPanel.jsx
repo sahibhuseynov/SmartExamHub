@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc, getDocs, addDoc, deleteDoc } from "firebase/firestore";
-import { uploadImageToCloudinary } from "../../utils/cloudinary"; // Assuming the Cloudinary upload function is in a separate file
+import { uploadFileToCloudinary } from "../../utils/cloudinary"; // Cloudinary yükleme fonksiyonu
 
 const AdminPanel = () => {
   const [title, setTitle] = useState("");
@@ -12,7 +12,7 @@ const AdminPanel = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [examDate, setExamDate] = useState("");
-  const [isCertified, setIsCertified] = useState(false); // Sertifikalı sınav seçimi
+  const [isCertified, setIsCertified] = useState(false);
   const [questions, setQuestions] = useState([{ questionText: "", options: ["", "", ""], correctAnswer: "", image: null }]);
   const [categoriesWithExams, setCategoriesWithExams] = useState([]);
   const [isExamFormVisible, setIsExamFormVisible] = useState(false);
@@ -85,16 +85,16 @@ const AdminPanel = () => {
     setQuestions(updatedQuestions);
   };
 
-  const handleImageUpload = async (index, event) => {
-    const imageFile = event.target.files[0];
-    if (imageFile) {
+  const handleFileUpload = async (index, event) => {
+    const file = event.target.files[0];
+    if (file) {
       try {
-        const imageUrl = await uploadImageToCloudinary(imageFile);
+        const fileUrl = await uploadFileToCloudinary(file);
         const updatedQuestions = [...questions];
-        updatedQuestions[index].image = imageUrl;
+        updatedQuestions[index].image = fileUrl;
         setQuestions(updatedQuestions);
       } catch (error) {
-        console.error("Resim yüklenirken hata oluştu:", error);
+        console.error("Dosya yüklenirken hata oluştu:", error);
       }
     }
   };
@@ -118,7 +118,7 @@ const AdminPanel = () => {
       const examRef = doc(collection(classRef, "Exams"), title);
       await setDoc(examRef, {
         title,
-        title2: examTitle2,  // Yeni başlık verisini de ekleyin
+        title2: examTitle2, 
         price: parseFloat(price),
         description,
         examDate,
@@ -132,7 +132,7 @@ const AdminPanel = () => {
           questionText: question.questionText,
           options: question.options,
           correctAnswer: question.correctAnswer,
-          image: question.image, // Store image URL
+          image: question.image, 
         });
       }
 
@@ -186,13 +186,12 @@ const AdminPanel = () => {
               onChange={(e) => setTitle(e.target.value)}
             />
             <input
-  type="text"
-  className="w-full p-3 border border-gray-300 rounded-lg"
-  placeholder="Sınav Başlığı-2"
-  value={examTitle2}
-  onChange={(e) => setExamTitle2(e.target.value)}
-/>
-
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Sınav Başlığı-2"
+              value={examTitle2}
+              onChange={(e) => setExamTitle2(e.target.value)}
+            />
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg"
@@ -256,46 +255,67 @@ const AdminPanel = () => {
                 />
                 <input
                   type="file"
-                  className="w-full p-3 border border-gray-300 rounded-lg"
-                  onChange={(e) => handleImageUpload(index, e)}
+                  className="w-full p-2 mt-2"
+                  onChange={(e) => handleFileUpload(index, e)}
                 />
-                {q.image && <img src={q.image} alt="Soru Resmi" className="mt-2 w-32" />}
               </div>
             ))}
+
             <button
               type="button"
-              className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all"
               onClick={handleAddQuestion}
-            >
-              Soru Ekle
-            </button>
-            <button
-              type="submit"
               className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all"
             >
-              Sınavı Kaydet
+              Yeni Soru Ekle
+            </button>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all"
+            >
+              Sınavı Ekle
             </button>
           </form>
         )}
 
-        <h3 className="text-2xl font-bold mt-8">Mevcut Kategoriler ve Sınavlar:</h3>
-        {categoriesWithExams.map((cat) => (
-          <div key={cat.id} className="p-4 border rounded-lg bg-blue-50">
-            <h4 className="text-lg font-semibold">{cat.id}</h4>
-            {cat.exams.map((exam) => (
-              <p key={exam.id}>
-                {exam.className} - {exam.id} | {exam.description} | Tarih: {exam.examDate} | Sertifikalı:{" "}
-                {exam.isCertified ? "Evet" : "Hayır"}
-              </p>
+        {/* Kategoriler ve Sınavlar */}
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold mb-4">Kategori ve Sınavlar</h3>
+          <ul className="space-y-4">
+            {categoriesWithExams.map((category) => (
+              <li key={category.id}>
+                <div className="bg-gray-100 p-4 rounded-lg">
+                  <h4 className="font-bold text-lg">{category.id}</h4>
+                  {category.exams.length === 0 ? (
+                    <p>Bu kategoride sınav yok.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {category.exams.map((exam) => (
+                        <li key={exam.id}>
+                          <div className="p-2 border-b">
+                            <p>Sınıf: {exam.className}</p>
+                            <p>Açıklama: {exam.description}</p>
+                            <p>Tarih: {exam.examDate}</p>
+                            <p>
+                              Sertifikalı:{" "}
+                              {exam.isCertified ? "Evet" : "Hayır"}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    onClick={() => handleDeleteCategory(category.id)}
+                    className="text-red-500 mt-4"
+                  >
+                    Kategoriyi Sil
+                  </button>
+                </div>
+              </li>
             ))}
-            <button
-              onClick={() => handleDeleteCategory(cat.id)}
-              className="mt-2 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
-            >
-              Kategoriyi Sil
-            </button>
-          </div>
-        ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
