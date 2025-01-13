@@ -49,7 +49,7 @@ const UserCertificates = () => {
     };
 
     return (
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto  ">
             <h2 className="text-2xl font-semibold mb-6 text-gray-800">Sertifikalarım</h2>
             {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -63,7 +63,7 @@ const UserCertificates = () => {
                     {certificates.map((url, index) => (
                         <div
                             key={index}
-                            className="w-72 bg-white rounded-b-lg border-t-8 border-green-400 px-4 py-5 flex flex-col justify-around shadow-md"
+                            className=" bg-white rounded-b-lg border-t-8 border-green-400 px-4 py-5 flex flex-col justify-around shadow-md rounded-lg"
                         >
                             <p className="text-lg font-bold font-sans">Sertifikat {index + 1}</p>
                             <div className="py-3">

@@ -31,9 +31,9 @@ const ProfilePage = () => {
   };
 
   return (
-   <div className='bg-gray-50'>
+   <div className='bg-gray-50  '>
     <Navbar />
-        <div className="flex   max-w-7xl mx-auto py-7 ">
+        <div className="flex min-h-screen  max-w-7xl mx-auto py-7 ">
           {/* Sol Menü */}
           <div className="w-1/4 bg-white p-6 shadow-md rounded-lg">
             {/* Profil Başlığı */}
@@ -71,7 +71,7 @@ const ProfilePage = () => {
           </div>
     
           {/* Sağ İçerik */}
-          <div className="flex-1 bg-white p-8 shadow-md rounded-lg ml-4">{renderContent()}</div>
+          <div className="flex-1 h-auto  bg-white p-8 shadow-md rounded-lg ml-4">{renderContent()}</div>
         </div>
         
    </div>
