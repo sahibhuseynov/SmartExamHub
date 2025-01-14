@@ -19,6 +19,7 @@ const Footer = () => {
     <nav>
       <h6 className="footer-title">Faydalı Linklər</h6>
       <Link to='/aboutUs' className=" link-hover">Haqqımızda</Link>
+      <Link to='/rewards' className=" link-hover">Hədiyyələr</Link>
       <a className="link link-hover">Contact</a>
      
     </nav>

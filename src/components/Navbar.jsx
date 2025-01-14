@@ -31,7 +31,7 @@ const Navbar = () => {
   return (
     <div className='w-full bg-white sticky top-0 z-50'>
       <div className='navbar bg-white text-black max-w-7xl mx-auto h-16 px-2 sm:px-16'>
-        <div className="navbar-start">
+        <div className="navbar-start  md:w-2/4">
           <Link to={'/'} className="text-3xl font-bold">Cirtdan</Link>
         </div>
         <div className="navbar-center hidden lg:flex">

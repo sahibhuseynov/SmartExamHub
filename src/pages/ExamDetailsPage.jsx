@@ -81,10 +81,10 @@ const ExamDetailsPage = () => {
             <Navbar />
 
             {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
-            <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-[300px] flex justify-center items-center relative">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-[450px] md:h-[300px] flex justify-center items-center relative">
                
 
-                <div className="max-w-6xl grid grid-cols-3 gap-8 w-full">
+                <div className="max-w-6xl  flex flex-col md:grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
                      
@@ -105,7 +105,7 @@ const ExamDetailsPage = () => {
                 </div>
 
                 {/* ✅ İmtahanın Yıldız Puanı ve Ortalama Puan */}
-                <div className="absolute top-8 right-8 flex items-center space-x-2">
+                <div className="absolute top-2 md:top-8 md:right-8 flex items-center space-x-2">
                     <p className="text-lg font-semibold">Rating:</p>
                     <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -135,7 +135,7 @@ const ExamDetailsPage = () => {
                             İmtahana Başla
         </button>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex flex-wrap justify-between">
                     <div className="p-6 text-black text-center">
                         <img src="" alt="" />
                         <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
