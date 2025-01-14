@@ -2,7 +2,7 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { Link } from 'react-router-dom';
 
 const UserBalance = () => {
-    const currentBalance = 50; // Example: Static balance value
+    const currentBalance = 0; // Example: Static balance value
 
     return (
         <div className="container mx-auto">

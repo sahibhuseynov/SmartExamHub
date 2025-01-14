@@ -50,7 +50,7 @@ const UserCertificates = () => {
 
     return (
         <div className="container mx-auto  ">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Sertifikalarım</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Sertifikatlarım</h2>
             {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Loading spinner inside the grid */}
@@ -86,7 +86,7 @@ const UserCertificates = () => {
                     ))}
                 </div>
             ) : (
-                <p>Henüz bir sertifikanız bulunmamaktadır.</p>
+                <p>Hazırda heç bir sertifikatınız yoxdur. Sertifikat əldə etmək üçün sertifikatlı imtahanlara qatılmalı və uğurlarınız nəticəsində rozet qazandıqdan sonra sertifikatınıza sahib ola bilərsiniz.</p>
             )}
         </div>
     );

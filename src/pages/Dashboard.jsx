@@ -81,9 +81,10 @@ const Dashboard = () => {
 
         if (userSnapshot.exists()) { 
           const userData = userSnapshot.data();
-
+          
           // Eğer kullanıcı "Başlanğıc" rozetine sahip değilse, rozet ekle ve modalı göster
-          if (!userData.hasStarterBadge) {
+          if (!userData.hasStarterBadge === false) {
+           
             setShowModal(true); // Modalı aç
             await updateDoc(userDocRef, { hasStarterBadge: true }); // Rozeti ekle
           }

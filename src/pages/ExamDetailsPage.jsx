@@ -81,7 +81,7 @@ const ExamDetailsPage = () => {
             <Navbar />
 
             {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
-            <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-[450px] md:h-[300px] flex justify-center items-center relative">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-auto md:h-[300px] flex justify-center items-center relative">
                
 
                 <div className="max-w-6xl  flex flex-col md:grid grid-cols-3 gap-8 w-full">

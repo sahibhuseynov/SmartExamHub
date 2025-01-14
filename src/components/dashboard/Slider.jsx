@@ -47,7 +47,7 @@ const Carousel = () => {
 
   return (
     <div className='bg-gradient-to-b from-pink-500 to-purple-600'>
-      <div className="carousel-container max-w-full mx-auto w-full relative group text-white p-8">
+      <div className="carousel-container max-w-[100rem] mx-auto w-full relative group text-white p-8">
         <Slider {...settings}>
           {slides.map((slide, index) => (
             <div key={index} className="!flex flex-col md:flex-row items-center justify-center md:h-[230px]">

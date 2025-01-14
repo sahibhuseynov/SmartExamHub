@@ -46,7 +46,7 @@ const UserBadges = () => {
 
     return (
         <div className="container mx-auto ">
-            <h2 className="text-3xl font-semibold  text-gray-900 mb-6">Rozetlerim ve Hədiyyələrim</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Rozetlerim ve Hədiyyələrim</h2>
 
             {/* Current Rank Section */}
             <div className=" shadow-2xl rounded-xl p-8 mb-8">
@@ -59,7 +59,7 @@ const UserBadges = () => {
                 <p className="mt-4 text-lg ">Bir sonraki hədiyyə: <span className="font-semibold ">{nextRank.reward}</span></p>
 
                 {pointsNeeded > 0 && (
-                    <p className="mt-4 text-sm ">Gerekli Xallar: <span className="font-bold ">{pointsNeeded}</span></p>
+                    <p className="mt-4 text-sm ">Lazım olan xal: <span className="font-bold ">{pointsNeeded}</span></p>
                 )}
             </div>
 
