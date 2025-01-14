@@ -27,8 +27,8 @@ const PrevArrow = ({ onClick }) => (
 
 const Carousel = () => {
   const slides = [
-    { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.  ", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan.Cırtdan, istifadəçiləri üçün canlı yarışlar təşkil edərək əyləncə imkanı yaradır." },
-    { image: sliderimg2, text: "Hər gün yeni onlayn imtahanlar, testlər və suallar ilə biliyini inkişaf etdir. " , text2: "Online təhsil platformasındakı kurslar və müəllimlərin təqdim etdiyi yeni imtahanlar, minlərlə sual və geniş test bazası ilə öz bilik səviyyəni ölç!" },
+    { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan." },
+    { image: sliderimg2, text: "Hər gün yeni onlayn imtahanlar, testlər və suallar ilə biliyini inkişaf etdir.", text2: "Online təhsil platformasındakı kurslar və yeni imtahanlar ilə öz bilik səviyyəni ölç!" },
     { image: sliderimg3, text: "Adventure Awaits You" }
   ];
 
@@ -40,37 +40,25 @@ const Carousel = () => {
     slidesToScroll: 1, 
     nextArrow: <NextArrow />, 
     prevArrow: <PrevArrow />, 
-    // autoplay: true, 
+    autoplay: false, 
     autoplaySpeed: 3000,
     pauseOnHover: true,
-    // appendDots: dots => (
-    //   <div className="absolute bottom-4 w-full flex justify-center">
-    //     <ul className="flex space-x-3 justify-center">{dots}</ul>
-    //   </div>
-    // ),
-    // customPaging: () => (
-    //   <div className="w-4 h-4 flex items-center justify-center">
-    //     <div 
-    //       className="w-3 h-3 rounded-full border border-blue-500 transition-all duration-300 ease-in-out"
-    //     />
-    //   </div>
-    // ),
   };
 
   return (
-   <div className='bg-gradient-to-b from-pink-500 to-purple-600'>
-      <div className="carousel-container max-w-7xl mx-auto  w-full h-[300px] relative group  text-white p-8 ">
+    <div className='bg-gradient-to-b from-pink-500 to-purple-600'>
+      <div className="carousel-container max-w-full mx-auto w-full relative group text-white p-8">
         <Slider {...settings}>
           {slides.map((slide, index) => (
-            <div key={index} className="!flex items-center justify-center h-[230px]">
+            <div key={index} className="!flex flex-col md:flex-row items-center justify-center md:h-[230px]">
               {/* Sol taraf - Resim */}
-              <div className="w-96 h-full">
+              <div className="w-full md:w-96 h-[200px] md:h-full mb-4 md:mb-0">
                 <img src={slide.image} alt={`Slide ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
               </div>
               {/* Sağ taraf - Metin */}
-              <div className="w-1/2 flex flex-col gap-4 items-center justify-center p-8 text-center">
-                <h2 className="text-4xl font-bold">{slide.text}</h2>
-                <p>{slide.text2}</p>
+              <div className="w-full md:w-1/2 flex flex-col gap-4 items-center justify-center text-center px-4">
+                <h2 className="text-2xl md:text-4xl font-bold">{slide.text}</h2>
+                <p className="text-sm md:text-lg">{slide.text2}</p>
               </div>
             </div>
           ))}
@@ -79,12 +67,12 @@ const Carousel = () => {
           .slick-dots li button:before {
             display: none;
           }
-  
+
           .slick-dots li div {
             border-radius: 50%;
             border: 2px solid blue;
           }
-  
+
           .slick-dots li.slick-active div {
             background-color: blue !important;
             border-color: blue !important;
@@ -92,7 +80,7 @@ const Carousel = () => {
           }
         `}</style>
       </div>
-   </div>
+    </div>
   );
 };
 

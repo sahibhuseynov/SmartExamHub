@@ -99,8 +99,8 @@ const ExamsPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="bg-gradient-to-b from-violet-700 to-indigo-600 text-white p-6 h-[300px] flex justify-center items-center">
-        <div className="max-w-6xl grid md:grid-cols-3 gap-8 w-full">
+      <div className="bg-gradient-to-b from-violet-700 to-indigo-600 text-white p-6 h-[450px] md:h-[300px] flex justify-center md:items-center">
+        <div className="max-w-6xl flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-8 w-full">
           <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
             <h2 className="text-4xl font-bold">{categoryId}</h2>
           </div>
@@ -108,7 +108,7 @@ const ExamsPage = () => {
             {loading ? (
               <Skeleton count={1} height={30} width="50%" className="mx-auto" />
             ) : (
-              <p className="text-lg font-semibold">{description}</p>
+              <p className="text-base md:text-lg font-semibold">{description}</p>
             )}
           </div>
         </div>

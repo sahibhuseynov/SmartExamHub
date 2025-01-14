@@ -1,5 +1,5 @@
 import{ useEffect, useState, useRef } from 'react';
-import { FaBell, FaUserCircle } from 'react-icons/fa';
+import { FaBell, } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userSlice';
 import { useNavigate, Link } from 'react-router-dom';
@@ -74,7 +74,9 @@ const Navbar = () => {
                     {user.photoURL ? (
                       <img src={user.photoURL} alt="User Profile" />
                     ) : (
-                      <FaUserCircle size={40} />
+                      <div className='w-10 h h-full flex items-center justify-center rounded-full bg-blue-600'>
+                       <span className='text-white text-xl font-thin'>{user.displayName.charAt(0).toUpperCase()}</span>
+                      </div>
                     )}
                   </div>
                 </div>

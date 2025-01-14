@@ -31,7 +31,7 @@ const PaymentConditions = () => {
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Ödəniş Prosesi</h2>
             <p className="text-lg leading-relaxed">
-              İstifadəçi bank kartı ilə ödəniş edərək balansını artırıb məhsul əldə edə bilər. Profilinizdəki "Balansım" bölməsindən
+              İstifadəçi bank kartı ilə ödəniş edərək balansını artırıb məhsul əldə edə bilər. Profilinizdəki Balans bölməsindən
               ödəniş məbləğini daxil edib kart məlumatlarını təqdim edin. Şərtləri qəbul edərək ödənişi təsdiqlədikdən sonra balansınız yenilənəcək.
             </p>
           </section>

@@ -41,7 +41,6 @@ const RewardsPage = () => {
   }, [userId]);
 
   const currentRankIndex = rankConfig.findIndex((rank) => points < rank.points) - 1;
-  const currentRank = rankConfig[currentRankIndex >= 0 ? currentRankIndex : rankConfig.length - 1];
   const nextRank = rankConfig[currentRankIndex + 1] || { name: 'Maksimum', points: points, reward: 'Son Hədiyyə' };
   const pointsNeeded = nextRank.points - points;
 
@@ -73,13 +72,7 @@ const RewardsPage = () => {
             ))}
           </div>
     
-          <div className="mt-12 text-center p-6  bg-white">
-            <h3 className="text-xl font-semibold">Cari Rütbə</h3>
-            <p className="text-2xl flex items-center justify-center gap-2 mt-4">
-              {currentRank.icon} <span>{currentRank.name}</span>
-            </p>
-            <p className="text-lg mt-2">Toplanmış Xallar: <span className="font-bold text-blue-600">{points}</span></p>
-          </div>
+          
         </div>
    </div>
   );

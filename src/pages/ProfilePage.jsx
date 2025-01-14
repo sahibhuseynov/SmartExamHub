@@ -6,6 +6,7 @@ import CompletedExams from './../components/dashboard/CompletedExams';
 import Settings from './../components/dashboard/Settings';
 import UserCertificates from '../components/dashboard/UserCertificates';
 import UserBalance from '../components/dashboard/UserBalance';
+import UserBadges from '../components/dashboard/UserBadges';
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('exams');
   const user = useSelector((state) => state.user.user);
@@ -25,7 +26,7 @@ const ProfilePage = () => {
       case 'settings':
         return <div className="text-lg"><Settings /></div>;
         case 'badge':
-        return <div className="text-lg">Rozetlərim</div>;
+        return <div className="text-lg"><UserBadges /></div>;
       default:
         return <div className="text-lg">İmtahanlarım</div>;
     }
@@ -39,8 +40,17 @@ const ProfilePage = () => {
           <div className="w-1/4 bg-white p-6 shadow-md rounded-lg">
             {/* Profil Başlığı */}
             <div className="text-center flex flex-col items-center mb-8">
-              <img  src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
-              <h2 className="text-2xl font-bold text-gray-800">{user.displayName}</h2>
+             {
+              user.photoUrl ? 
+              ( <img  src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />) : 
+              (
+                <div className='flex items-center justify-center w-24 h-24 bg-blue-600 rounded-full '>
+                                        <span className='text-white text-6xl font-thin'>{user.displayName.charAt(0).toUpperCase()}</span>
+
+                </div>
+              )
+             }
+              <h2 className="text-2xl font-bold text-gray-800 mt-3">{user.displayName}</h2>
               <div className='flex gap-1 items-center mt-2'><p className="text-sm text-gray-500">Başlanğıc</p>
               <FaStar />
               </div>

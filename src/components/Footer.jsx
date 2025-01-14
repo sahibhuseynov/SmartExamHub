@@ -10,24 +10,24 @@ const Footer = () => {
       <p>Müəllif hüquqları © {new Date().getFullYear()} <br/>Bütün hüquqlar qorunur Cirtdan</p>
     </aside>
     <nav>
-      <h6 className="footer-title">Services</h6>
-      <a className="link link-hover">Branding</a>
+      <h6 className="footer-title">Servislər</h6>
+      <Link to="/" className=" link-hover">İmtahanlar</Link>
       <a className="link link-hover">Design</a>
       <a className="link link-hover">Marketing</a>
       <a className="link link-hover">Advertisement</a>
     </nav>
     <nav>
-      <h6 className="footer-title">Company</h6>
-      <a className="link link-hover">About us</a>
+      <h6 className="footer-title">Faydalı Linklər</h6>
+      <Link to='/aboutUs' className=" link-hover">Haqqımızda</Link>
       <a className="link link-hover">Contact</a>
-      <a className="link link-hover">Jobs</a>
-      <a className="link link-hover">Press kit</a>
+     
     </nav>
     <nav>
-      <h6 className="footer-title">Legal</h6>
-      <a className="link link-hover">Terms of use</a>
-      <a className="link link-hover">Privacy policy</a>
-      <a className="link link-hover">Cookie policy</a>
+      <h6 className="footer-title">Dəstək</h6>
+      <Link to='/termsOfUse' className="link-hover">İstifadə Şərtləri</Link>
+      <Link to='/privacyPolicy' className="link-hover">Məxfilik Siyasəti</Link>
+      <Link to='/paymentConditions' className="link-hover">Ödəniş Şərtləri və Qaydaları </Link>
+      
     </nav>
   </footer>
           </div>
