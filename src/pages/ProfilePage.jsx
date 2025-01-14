@@ -5,6 +5,7 @@ import { FaStar } from 'react-icons/fa';
 import CompletedExams from './../components/dashboard/CompletedExams';
 import Settings from './../components/dashboard/Settings';
 import UserCertificates from '../components/dashboard/UserCertificates';
+import UserBalance from '../components/dashboard/UserBalance';
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('exams');
   const user = useSelector((state) => state.user.user);
@@ -20,7 +21,7 @@ const ProfilePage = () => {
       case 'certificates':
         return <div className="text-lg"><UserCertificates /></div>;
       case 'balance':
-        return <div className="text-lg">Balansım</div>;
+        return <div className="text-lg"><UserBalance /></div>;
       case 'settings':
         return <div className="text-lg"><Settings /></div>;
         case 'badge':

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase/config";
 import { collection, getDocs } from "firebase/firestore";
 import { auth } from "../../firebase/config"; // Firebase auth
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
 
 const CompletedExams = () => {
   const [completedExams, setCompletedExams] = useState([]);
@@ -19,8 +20,8 @@ const CompletedExams = () => {
       try {
         const completedExamsRef = collection(db, `Users/${user.uid}/CompletedExams`);
         const completedExamsSnapshot = await getDocs(completedExamsRef);
-        
-        const exams = completedExamsSnapshot.docs.map(doc => ({
+
+        const exams = completedExamsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -36,33 +37,40 @@ const CompletedExams = () => {
   }, []); // useEffect sadece ilk renderda çalışacak
 
   return (
-    <div className="">
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Son İmtahan Nəticələri</h3>
-      
+    <div className="container mx-auto">
+      <h3 className="text-2xl font-bold mb-6 text-gray-800">Son İmtahan Nəticələri</h3>
+
       {loading ? (
-        <div className="text-center py-6">
-          <span className="loading loading-spinner loading-lg"></span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Loading spinner inside the grid */}
+          <div className="flex justify-center items-center col-span-full">
+            <span className="loading loading-spinner loading-lg text-gray-400"></span>
+          </div>
         </div>
       ) : completedExams.length === 0 ? (
         <p className="text-center text-gray-500">Hələ tamamlanmış bir imtahanınız yoxdur.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {completedExams.map((exam) => (
             <div
               key={exam.id}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+              className="bg-white rounded-lg border-t-8 border-blue-500 px-4 py-5 flex flex-col justify-around shadow-md hover:shadow-lg transition-shadow duration-300"
             >
-              <div className="flex justify-between">
-                <span className="font-semibold text-xl">{exam.examId}</span>
-                <span className="text-gray-500">{new Date(exam.completedAt).toLocaleDateString("tr-TR")}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold font-sans">{exam.examId}</span>
+                <span className="text-gray-500 text-sm">
+                  {new Date(exam.completedAt).toLocaleDateString("az-AZ")}
+                </span>
               </div>
-              <div className="mt-2 text-gray-700">
-                <span className="font-semibold">Kateqoriya:</span> {exam.categoryId} / {exam.classId}
+              <div className="py-3">
+                <p className="text-sm">
+                  <span className="font-semibold">Kateqoriya:</span> {exam.categoryId} / {exam.classId}
+                </p>
               </div>
-              <div className="mt-4 text-center">
-                <button
-                  className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
-                >
+              <div className="flex items-center justify-between">
+                <IoCheckmarkDoneSharp size={32} className="text-green-400" />
+                <button className="btn btn-primary text-white  font-medium flex items-center ">
+                 
                   Detallar
                 </button>
               </div>
