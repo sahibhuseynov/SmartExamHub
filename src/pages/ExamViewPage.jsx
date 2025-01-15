@@ -285,7 +285,7 @@ const ExamViewPage = () => {
                     </>
                 ) : (
                     <>
-                        <h3 className="text-3xl font-semibold text-green-600">Sonuçlar</h3>
+                        <h3 className="text-3xl font-semibold text-green-600">Nəticələr</h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" fill="#8884d8" label>
@@ -301,11 +301,12 @@ const ExamViewPage = () => {
                         <p className="text-lg text-gray-600">Başarı Oranı: {(correctAnswers / totalQuestions) * 100}%</p>
 
                         <div className="mt-6">
-                            <h4 className="text-2xl font-semibold text-gray-800">Ortalama Puan: {averageRating ? averageRating.toFixed(2) : "Henüz yorum yapılmamış."}</h4>
-                            <h4 className="text-2xl font-semibold text-gray-800">Sınavınızı Değerlendirin:</h4>
+                            <h4 className="text-2xl font-semibold text-gray-800">Ortalama Qiymət: {averageRating ? averageRating.toFixed(2) : "Henüz yorum yapılmamış."}</h4>
+                            <h4 className="text-2xl font-semibold text-gray-800">İmtahanınızı Dəyərləndirin:</h4>
                             <div className="flex justify-center items-center space-x-2 mt-2">
                                 {[1, 2, 3, 4, 5].map(star => (
                                     <FaStar
+                                    size={45}
                                         key={star}
                                         onClick={() => handleRatingChange(star)}
                                         color={star <= rating ? "#FFD700" : "#D3D3D3"}
@@ -328,14 +329,14 @@ const ExamViewPage = () => {
                             onClick={handleSaveComment}
                             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 mt-4"
                         >
-                            Yorum ve Puanı Kaydet
+                            Şərhinizi və Qiymətinizi Yadda Saxlayın
                         </button>
 
                         <button
                             onClick={goToHomePage}
                             className="w-full bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 mt-4"
                         >
-                            Dashboarda Git
+                            Ana Səhifəyə Get
                         </button>
 
                    {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (

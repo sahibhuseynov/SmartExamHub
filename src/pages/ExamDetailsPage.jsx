@@ -7,6 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaStar } from "react-icons/fa";
 import { handleCompleteExam } from "../services/firebaseService"; 
+import { toast, ToastContainer } from 'react-toastify';
 
 const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -95,7 +96,7 @@ const ExamDetailsPage = () => {
                 if (validCoupon.usageLimit > 0) {
                     // Kupon geçerli
                     setIsCouponValid(true);
-                    alert("Kupon geçerli!");
+                    toast.success("Kupon geçerli!");  // Success bildirimi
     
                     // Kuponun usageLimit'ini 1 azalt
                     const couponDocRef = doc(db, "Coupons", validCoupon.id);
@@ -108,16 +109,16 @@ const ExamDetailsPage = () => {
                 } else {
                     // Kupon kullanım hakkı tükenmiş
                     setIsCouponValid(false);
-                    alert("Kuponun kullanım hakkı tükenmiş.");
+                    toast.error("Kuponun istifadə müddəti bitib.");  // Error bildirimi
                 }
             } else {
                 // Kupon kodu geçersiz
                 setIsCouponValid(false);
-                alert("Geçersiz kupon kodu!");
+                toast.error("Yalnış kupon kodu!");  // Error bildirimi
             }
         } catch (error) {
             console.error("Kupon kontrolü yapılırken hata:", error);
-            alert("Bir hata oluştu, lütfen tekrar deneyin.");
+            toast.error("Bir hata oluştu, lütfen tekrar deneyin.");  // Error bildirimi
         }
     };
     
@@ -125,17 +126,20 @@ const ExamDetailsPage = () => {
     return (
         <div>
             <Navbar />
-
+            <ToastContainer />
             <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-auto md:h-[300px] flex justify-center items-center relative">
                 <div className="max-w-6xl  flex flex-col md:grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
                     </div>
                     <div className="text-center flex justify-center items-center col-span-2">
-                        {loading ? (
+                        
+                    {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-lg font-semibold">{exam?.description || "Açıklama yok."}</p>
+                            <p className="text-lg font-semibold"> {exam?.isCertified && (
+                              <h2 className="font-bold text-2xl mb-2">İmtahan sonunda <span className="text-yellow-300">RƏQƏMSAL SERTİFİKAT</span> qazan!</h2>
+                            )}{exam?.description || "Açıklama yok."}</p>
                         )}
                     </div>
                 </div>

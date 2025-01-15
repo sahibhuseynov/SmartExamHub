@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setTopExams, setLoading, selectTopExams } from "../../redux/topExamsSlice";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
@@ -7,13 +9,14 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 const TopRating = () => {
-  const [topExams, setTopExams] = useState([]);
-  const [loading, setLoading] = useState(true); // Veri yükleniyor durumu
+  const { topExams, loading } = useSelector(selectTopExams);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTopExams = async () => {
       try {
+        dispatch(setLoading(true)); // Loading durumu true yap
         const categoriesSnapshot = await getDocs(collection(db, "Exams"));
         const examsData = [];
 
@@ -38,16 +41,19 @@ const TopRating = () => {
         }
 
         examsData.sort((a, b) => b.averageRating - a.averageRating);
-        setTopExams(examsData.slice(0, 4)); // En iyi 4 sınavı göster
-        setLoading(false); // Veriler yüklendiği için loading durumunu false yap
+        dispatch(setTopExams(examsData.slice(0, 4))); // En iyi 4 sınavı göster
       } catch (error) {
         console.error("Veri yüklenirken hata oluştu:", error);
-        setLoading(false); // Hata durumunda da loading durumu false yapılır
       }
     };
 
-    fetchTopExams();
-  }, []);
+    // Eğer veriler daha önce yüklenmemişse fetch et
+    if (topExams.length === 0) {
+      fetchTopExams();
+    } else {
+      dispatch(setLoading(false)); // Veriler Redux'tan geldiğinde loading durumu false yapılır
+    }
+  }, [topExams, dispatch]);
 
   const goToExam = (categoryId, classId, examId) => {
     navigate(`/category/${categoryId}/class/${classId}/exam/${examId}/details`);
@@ -55,10 +61,8 @@ const TopRating = () => {
 
   return (
     <div className="p-8 mb-4">
-      {/* Başlık her zaman görünecek */}
       <h2 className="text-3xl font-bold text-slate-800 mb-6">Ən Sevilən</h2>
 
-      {/* Eğer veriler yükleniyorsa skeleton gösterilecek */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {loading ? (
           [...Array(4)].map((_, index) => (
@@ -67,24 +71,22 @@ const TopRating = () => {
               className="bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300"
             >
               <div className="p-6">
-                <Skeleton width="100%" height={30} className="mb-4" /> {/* Başlık Skeleton */}
-                <Skeleton width="60%" height={20} className="mb-4" /> {/* Alt Başlık Skeleton */}
+                <Skeleton width="100%" height={30} className="mb-4" />
+                <Skeleton width="60%" height={20} className="mb-4" />
                 <div className="flex items-center mb-4">
-                  <Skeleton circle width={24} height={24} className="mr-2" /> {/* Yıldız Iconu Skeleton */}
-                  <Skeleton width="40%" height={20} /> {/* Rating Skeleton */}
+                  <Skeleton circle width={24} height={24} className="mr-2" />
+                  <Skeleton width="40%" height={20} />
                 </div>
-                <Skeleton width="100%" height={40} className="rounded-lg" /> {/* Button Skeleton */}
+                <Skeleton width="100%" height={40} className="rounded-lg" />
               </div>
             </div>
           ))
         ) : (
-          // Veriler yüklendiyse normal kartlar gösterilecek
           topExams.map((exam, index) => (
             <div
               key={index}
               className="bg-white shadow-md rounded-lg transform hover:scale-105 transition-all duration-300 relative"
             >
-              {/* Sertifika İkonu */}
               {exam?.isCertified && (
                 <FaCertificate className="text-yellow-500 text-4xl absolute top-2 right-2" />
               )}

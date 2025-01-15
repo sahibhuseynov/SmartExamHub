@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './userSlice';
 import categoryReducer from './categorySlice';
 import classReducer from './classSlice';
+import topExamsReducer from "./topExamsSlice";
 import storage from 'redux-persist/lib/storage'; // LocalStorage kullanımı için
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   categories: categoryReducer,
   classes: classReducer,
+  topExams: topExamsReducer,
 });
 
 // Persist edilmiş reducer
