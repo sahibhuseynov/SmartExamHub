@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs,updateDoc} from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from './../components/Navbar';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { FaStar } from "react-icons/fa"; // Yıldız ikonunu ekliyoruz
-import { handleCompleteExam } from "../services/firebaseService"; // Firebase servisi
+import { FaStar } from "react-icons/fa";
+import { handleCompleteExam } from "../services/firebaseService"; 
 
 const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();
     const [exam, setExam] = useState(null);
-    const [comments, setComments] = useState([]); // Yorumlar durumu
+    const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [averageRating, setAverageRating] = useState(0); // Ortalama puan
+    const [averageRating, setAverageRating] = useState(0);
+    const [couponCode, setCouponCode] = useState(""); // Kupon kodu için state
+    const [isCouponValid, setIsCouponValid] = useState(false); // Kupon geçerliliğini tutacak state
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,7 +23,6 @@ const ExamDetailsPage = () => {
             try {
                 const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
                 const examSnap = await getDoc(examRef);
-
                 if (examSnap.exists()) {
                     setExam(examSnap.data());
                 } else {
@@ -39,10 +40,9 @@ const ExamDetailsPage = () => {
                 const commentsList = commentsSnapshot.docs.map(doc => doc.data());
                 setComments(commentsList);
 
-                // Ortalama puanı hesaplama
                 if (commentsList.length > 0) {
                     const totalRating = commentsList.reduce((acc, comment) => acc + comment.rating, 0);
-                    setAverageRating(totalRating / commentsList.length); // Ortalama hesaplama
+                    setAverageRating(totalRating / commentsList.length);
                 }
             } catch (error) {
                 console.error("Yorumlar alınırken hata:", error);
@@ -76,35 +76,70 @@ const ExamDetailsPage = () => {
         }
     };
 
+    const handleCouponChange = async (event) => {
+        setCouponCode(event.target.value);
+    };
+
+    const checkCouponValidity = async () => {
+        try {
+            const couponRef = collection(db, "Coupons"); // Kuponlar koleksiyonu
+            const couponQuery = await getDocs(couponRef);
+            const couponList = couponQuery.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+    
+            const validCoupon = couponList.find(coupon => coupon.couponCode === couponCode);
+    
+            if (validCoupon) {
+                if (validCoupon.usageLimit > 0) {
+                    // Kupon geçerli
+                    setIsCouponValid(true);
+                    alert("Kupon geçerli!");
+    
+                    // Kuponun usageLimit'ini 1 azalt
+                    const couponDocRef = doc(db, "Coupons", validCoupon.id);
+                    await updateDoc(couponDocRef, {
+                        usageLimit: validCoupon.usageLimit - 1,
+                    });
+                    handleCompleteExam(examId, categoryId, classId); 
+                    // Başarılı işlem sonrası yönlendirme
+                    navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+                } else {
+                    // Kupon kullanım hakkı tükenmiş
+                    setIsCouponValid(false);
+                    alert("Kuponun kullanım hakkı tükenmiş.");
+                }
+            } else {
+                // Kupon kodu geçersiz
+                setIsCouponValid(false);
+                alert("Geçersiz kupon kodu!");
+            }
+        } catch (error) {
+            console.error("Kupon kontrolü yapılırken hata:", error);
+            alert("Bir hata oluştu, lütfen tekrar deneyin.");
+        }
+    };
+    
+
     return (
         <div>
             <Navbar />
 
-            {/* ✅ Header Bölümü (İmtahana Başla Butonu Burada) */}
             <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-auto md:h-[300px] flex justify-center items-center relative">
-               
-
                 <div className="max-w-6xl  flex flex-col md:grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
-                     
                     </div>
-                    
                     <div className="text-center flex justify-center items-center col-span-2">
-                        
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-lg font-semibold"> {exam?.isCertified && (
-                              <h2 className="font-bold text-2xl mb-2">İmtahan sonunda <span className="text-yellow-300">RƏQƏMSAL SERTİFİKAT</span> qazan!</h2>
-                            )}{exam?.description || "Açıklama yok."}</p>
+                            <p className="text-lg font-semibold">{exam?.description || "Açıklama yok."}</p>
                         )}
-                        
                     </div>
-                    
                 </div>
 
-                {/* ✅ İmtahanın Yıldız Puanı ve Ortalama Puan */}
                 <div className="absolute top-2 md:top-8 md:right-8 flex items-center space-x-2">
                     <p className="text-lg font-semibold">Rating:</p>
                     <div className="flex items-center">
@@ -118,15 +153,11 @@ const ExamDetailsPage = () => {
                     </div>
                     <p className="text-lg font-semibold ml-2">({averageRating.toFixed(1)} / 5)</p>
                 </div>
-
-                
             </div>
 
-            {/* Detaylar Bölümü */}
             <div className="max-w-6xl mx-auto p-8 space-y-8">
-                {/* ✅ İmtahana Başla Butonu */}
                 <div className="flex justify-center">
-                    <button
+                <button
           onClick={handleStartExam}
           className="text-xl w-48 h-16 rounded bg-emerald-500 text-white relative  overflow-hidden group z-10 hover:text-white duration-1000"
         >
@@ -135,9 +166,30 @@ const ExamDetailsPage = () => {
                             İmtahana Başla
         </button>
                 </div>
+{/* Kupon Inputu */}
+{exam?.price > 0 && (
+    <div className="p-6 bg-white text-black mt-8">
+        <h3 className="text-2xl font-bold mb-4">Kupon Kodunu İstifadə Et</h3>
+        <input
+            type="text"
+            value={couponCode}
+            onChange={handleCouponChange}
+            className="border p-2 w-full mb-4"
+            placeholder="Kupon Kodu"
+        />
+        <button
+            onClick={checkCouponValidity}
+            className="bg-emerald-500 text-white p-3 w-full rounded"
+        >
+            Kuponu İstifadə Et
+        </button>
+    </div>
+)}
+
+
+                { /*  kupon end */}
                 <div className="flex flex-wrap justify-between">
                     <div className="p-6 text-black text-center">
-                        <img src="" alt="" />
                         <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
@@ -145,7 +197,6 @@ const ExamDetailsPage = () => {
                             <p className="text-xl">{formatDate(exam?.examDate)}</p>
                         )}
                     </div>
-
                     <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">Yaradılma Tarixi</h3>
                         {loading ? (
@@ -154,9 +205,7 @@ const ExamDetailsPage = () => {
                             <p className="text-xl">{formatDate(exam?.createdAt)}</p>
                         )}
                     </div>
-
                     <div className="p-6 text-black text-center">
-                        
                         <h3 className="text-2xl font-bold mb-4">Qiymət</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
@@ -167,13 +216,10 @@ const ExamDetailsPage = () => {
                 </div>
 
                 {/* 💬 Yorumlar */}
-                <div className="p-6 bg-white  text-black mt-8">
+                <div className="p-6 bg-white text-black mt-8">
                     <h3 className="text-2xl font-bold mb-4">💬 Rəylər</h3>
-
-                    {/* Yorumları 3 sütunlu grid içinde göstereceğiz */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {loading ? (
-                            // Skeletonları grid içinde hizalayarak göstereceğiz
                             [...Array(3)].map((_, index) => (
                                 <div key={index} className="p-4 border rounded-lg shadow-sm">
                                     <Skeleton height={100} width="100%" />
@@ -205,6 +251,8 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
                 </div>
+
+                
             </div>
         </div>
     );

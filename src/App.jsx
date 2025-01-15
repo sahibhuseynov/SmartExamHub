@@ -5,7 +5,7 @@ import { store, persistor } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import Dashboard from './pages/Dashboard';
 import RegisterPage from './pages/RegisterPage';
-import AdminPanel from './components/adminPanel/AdminPanel';
+import AdminPanel from './pages/AdminPanel';
 import ExamsPage from './pages/ExamsPage';
 import ExamDetailsPage from './pages/ExamDetailsPage';
 import ExamViewPage from './pages/ExamViewPage';

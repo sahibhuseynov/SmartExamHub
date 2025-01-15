@@ -198,7 +198,7 @@ const ExamViewPage = () => {
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen">
+        <div className="bg-white min-h-screen">
             {showModal && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 overflow-hidden">
                     <div className="bg-white p-8 rounded-lg max-w-md w-full">
@@ -230,11 +230,11 @@ const ExamViewPage = () => {
                 </div>
             )}
 
-            <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+            <div className="max-w-5xl mx-auto p-8 bg-white ">
                 {!showResults ? (
                     <>
-                        <h2 className="text-4xl font-extrabold text-center text-blue-600">{examId} Sınavı</h2>
-                        <p className="text-center text-lg text-gray-500 mt-2">Soruları yanıtlayın ve sınavınızı tamamlayın!</p>
+                        <h2 className="text-4xl font-extrabold text-center text-blue-600">{examId} İmtahanı</h2>
+                        <p className="text-center text-lg text-gray-500 mt-2">Suaları cavablandırın və imtahanınızı tamamlayın!</p>
 
                         {loading ? (
                             <div className="flex justify-center mt-8">
@@ -244,12 +244,12 @@ const ExamViewPage = () => {
                             questions.length > 0 ? (
                                 questions.map((question, index) => (
                                     <div key={index} className="p-6 border rounded-lg shadow-xl bg-gray-50 mt-4 hover:shadow-2xl transition-all">
-                                        <p className="text-xl font-semibold text-gray-800">{`Soru ${index + 1}: ${question.questionText}`}</p>
+                                        <p className="text-xl font-semibold text-gray-800">{`Sual ${index + 1}: ${question.questionText}`}</p>
                                         {question.image && (
                                             <div className="mt-4">
                                                 <img
                                                     src={question.image}
-                                                    alt={`Soru ${index + 1} için resim`}
+                                                    alt={`Sual ${index + 1} için resim`}
                                                     className="w-full h-auto rounded-lg shadow-md"
                                                 />
                                             </div>
@@ -280,7 +280,7 @@ const ExamViewPage = () => {
                             onClick={handleSubmit}
                             className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all mt-8"
                         >
-                            Sınavı Tamamla
+                            İmtahanı Bitir
                         </button>
                     </>
                 ) : (
