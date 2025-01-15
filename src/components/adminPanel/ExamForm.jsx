@@ -86,8 +86,8 @@ const ExamForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div className="min-h-screen ">
+      <div className="   mx-auto bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-center">Sınav Ekle</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
