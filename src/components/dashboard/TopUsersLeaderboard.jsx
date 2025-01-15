@@ -59,7 +59,7 @@ const TopUsersLeaderboard = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-8">
       <h2 className="text-3xl font-bold mb-6 text-slate-800 flex items-center gap-2">
       Zirvədəki Qaliblər
       </h2>

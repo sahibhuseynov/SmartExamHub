@@ -155,7 +155,7 @@ const ExamDetailsPage = () => {
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto p-8 space-y-8">
+            <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white">
                 <div className="flex justify-center">
                 <button
           onClick={handleStartExam}

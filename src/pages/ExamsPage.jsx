@@ -130,7 +130,7 @@ const ExamsPage = () => {
         )}
       </div>
 
-      <div className="max-w-6xl mx-auto p-6 h-screen">
+      <div className="max-w-6xl mx-auto p-6 h-screen bg-white ">
         {examsLoading ? (
           <div className="flex flex-wrap gap-4 ">
             {[...Array(3)].map((_, index) => (
