@@ -1,36 +1,44 @@
-import { useState } from "react";
-import { FaGoogle } from "react-icons/fa";
-import { emailSignUp, googleSignIn } from "../firebase/auth"; 
+import { useFormik } from 'formik';
+import * as Yup from 'yup'; 
+import { emailSignUp, googleSignIn } from "../firebase/auth";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { FaGoogle } from "react-icons/fa";
 import registerImg from '../assets/registr.webp';
-const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
 
+const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const isSuccessful = await emailSignUp(formData.email, formData.password, formData.name, dispatch);
-    if (isSuccessful) {
-      alert('Qeydiyyat uğurla tamamlandı!');
-      navigate("/");
-    } else {
-      alert('Qeydiyyatda səhv baş verdi. Zəhmət olmasa, yenidən cəhd edin.');
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required('Ad Soyad gerekli'),
+      email: Yup.string().email('Geçerli bir e-posta girin').required('E-posta gerekli'),
+      password: Yup.string().min(6, 'Şifre en az 6 karakter olmalıdır').required('Şifre gerekli'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const isSuccessful = await emailSignUp(values.email, values.password, values.name, dispatch);
+        if (isSuccessful) {
+          alert('Qeydiyyat uğurla tamamlandı!');
+          navigate("/");
+        }
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          alert('Bu e-posta adresi zaten kayıtlı!');
+        } else {
+          alert('Qeydiyyatda səhv baş verdi. Zəhmət olmasa, yenidən cəhd edin.');
+        }
+      }
     }
-  };
+    
+    
+  });
 
   const handleGoogleSignIn = async () => {
     const isSuccessful = await googleSignIn(dispatch);
@@ -50,35 +58,56 @@ const RegisterPage = () => {
         <div className="flex flex-col w-full md:w-1/2 items-center justify-center p-8">
           <h1 className="text-3xl font-bold mb-6">Hesab Yaradın</h1>
 
-          <form className="w-full max-w-sm" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Ad Soyad"
-              className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.name}
-              onChange={handleChange}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="E-poçt"
-              className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Şifrə"
-              className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-              Qeydiyyat
-            </button>
-          </form>
+          <form className="w-full max-w-sm" onSubmit={formik.handleSubmit}>
+  <div className="mb-4">
+    <div className="min-h-[1rem] text-red-500 text-xs">
+      {formik.touched.name && formik.errors.name}
+    </div>
+    <input
+      type="text"
+      name="name"
+      placeholder="Ad Soyad"
+      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      value={formik.values.name}
+      onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
+    />
+  </div>
+
+  <div className="mb-4">
+    <div className="min-h-[1rem] text-red-500 text-xs">
+      {formik.touched.email && formik.errors.email}
+    </div>
+    <input
+      type="email"
+      name="email"
+      placeholder="E-poçt"
+      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      value={formik.values.email}
+      onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
+    />
+  </div>
+
+  <div className="mb-4">
+    <div className="min-h-[1rem] text-red-500 text-xs">
+      {formik.touched.password && formik.errors.password}
+    </div>
+    <input
+      type="password"
+      name="password"
+      placeholder="Şifrə"
+      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      value={formik.values.password}
+      onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
+    />
+  </div>
+
+  <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+    Qeydiyyat
+  </button>
+</form>
 
           <div className="w-full max-w-sm mt-6 flex flex-col items-center">
             <p className="mb-4">və ya</p>

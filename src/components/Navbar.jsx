@@ -56,7 +56,7 @@ const Navbar = () => {
                   <FaBell className="text-xl" />
                 </button>
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white border rounded-2xl shadow-lg z-50 ">
+                  <div className="absolute right-0 mt-3 w-72 bg-white border rounded-2xl shadow-lg z-50 ">
                     <div className="p-4">
                       <h3 className="font-bold text-lg">Bildirişlər</h3>
                       <ul>
@@ -80,7 +80,7 @@ const Navbar = () => {
                     )}
                   </div>
                 </div>
-                <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                <ul tabIndex={0} className="menu menu-sm dropdown-content bg-white rounded-box z-[1] mt-3 w-52 p-2 shadow">
                   <li>
                     <Link to='/profile'>{user.displayName || 'Profile'}</Link>
                   </li>

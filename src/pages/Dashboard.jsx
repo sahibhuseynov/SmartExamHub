@@ -69,33 +69,33 @@ const Dashboard = () => {
   }, [dispatch, categories.length]);
 
   // Kullanıcıyı kontrol et ve "Başlanğıc" rozetini ver
-  useEffect(() => {
-    const checkAndSetBadge = async () => {
-      if (!userId) return; // Kullanıcı ID'si yoksa işlem yapma
+ useEffect(() => {
+  const checkAndSetBadge = async () => {
+    if (!userId) return; // Kullanıcı ID'si yoksa işlem yapma
 
-      // Kullanıcı belgesini alıyoruz
-      const userDocRef = doc(db, "Users", userId); // Belirli kullanıcıyı almak için userId kullanıyoruz
+    // Kullanıcı belgesini alıyoruz
+    const userDocRef = doc(db, "Users", userId);
 
-      try {
-        const userSnapshot = await getDoc(userDocRef); // getDoc ile tek bir belgeyi alıyoruz
+    try {
+      const userSnapshot = await getDoc(userDocRef); // Kullanıcı belgesini al
 
-        if (userSnapshot.exists()) { 
-          const userData = userSnapshot.data();
-          
-          // Eğer kullanıcı "Başlanğıc" rozetine sahip değilse, rozet ekle ve modalı göster
-          if (!userData.hasStarterBadge === false) {
-           
-            setShowModal(true); // Modalı aç
-            await updateDoc(userDocRef, { hasStarterBadge: true }); // Rozeti ekle
-          }
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+      
+        // Modal sadece hasStarterBadge false olduğunda açılacak ve rozet eklenirken tekrar güncellenmeyecek
+        if (!userData.hasStarterBadge) {
+          setShowModal(true); // Modalı aç
+          await updateDoc(userDocRef, { hasStarterBadge: true }); // Rozeti ekle
         }
-      } catch (error) {
-        console.error("Kullanıcı verisi alınırken hata oluştu: ", error.message);
       }
-    };
+    } catch (error) {
+      console.error("Kullanıcı verisi alınırken hata oluştu: ", error.message);
+    }
+  };
 
-    checkAndSetBadge(); // Fonksiyonu çağırıyoruz
+  checkAndSetBadge(); // Fonksiyonu çağır
 }, [userId]);
+
 
 
   const handleExamClick = (examId, categoryId) => {

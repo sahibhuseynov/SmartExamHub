@@ -1,74 +1,85 @@
-import {  GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from './config'; // auth və db konfiqurasiyaları
 import { setUser, logout } from '../redux/userSlice';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 
 // Google ilə giriş
 export const googleSignIn = async (dispatch) => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-  
-      // Eğer displayName yoksa, bir yedek değer ekleyelim
-      const userName = user.displayName || "Bilinmeyen Kullanıcı";
-  
-      dispatch(setUser(user));
-  
-      const userRef = doc(db, "Users", user.uid);
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Eğer displayName yoksa, bir yedek değer ekleyelim
+    const userName = user.displayName || "Bilinmeyen Kullanıcı";
+
+    dispatch(setUser(user));
+
+    const userRef = doc(db, "Users", user.uid);
+
+    // Kullanıcı verisini alalım
+    const userSnapshot = await getDoc(userRef);
+    
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data();
+
+      // Kullanıcının hasStarterBadge'inin false olduğunu kontrol et
+      if (!userData.hasStarterBadge) {
+        // Eğer false ise rozet ver ve güncelle
+        await updateDoc(userRef, { hasStarterBadge: true }); // Rozeti ekle
+      }
+    } else {
+      // Eğer kullanıcı verisi yoksa, yeni kullanıcıyı ekle
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
-        displayName: userName,  // displayName'ı burada manuel olarak güncelliyoruz
+        displayName: userName,
         photoURL: user.photoURL,
-        hasStarterBadge: false,
+        hasStarterBadge: false,  // Başlangıçta false olarak ekle
         points: 0,
-      }, { merge: true });
-  
-      return true;
-    } catch (error) {
-      console.error("Error during Google sign in: ", error.message);
-      return false;
+      });
     }
-  };
-  
+
+    return true;
+  } catch (error) {
+    console.error("Error during Google sign in: ", error.message);
+    return false;
+  }
+};
 
 // E-poçt və parol ilə qeydiyyat
 export const emailSignUp = async (email, password, name, dispatch) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-  
-      // Eğer name boşsa, varsayılan bir kullanıcı adı atıyoruz
-      const userName = name || 'Bilinmeyen Kullanıcı';  // Eğer `name` boşdursa, "Bilinmeyen Kullanıcı" təyin edilir
-  
-      // Firestore'da istifadəçi məlumatlarını saxlayırıq
-      const userRef = doc(db, "Users", user.uid);
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: userName,  // Burada displayName olaraq `userName` təyin edirik
-        points: 0,
-        hasStarterBadge: false,
-      });
-  
-      // Redux'a istifadəçi məlumatını göndəririk
-      dispatch(setUser({
-        uid: user.uid,
-        email: user.email,
-        displayName: userName,  // Redux'da da adı düzgün əlavə edirik
-      }));
-  
-      return true;
-    } catch (error) {
-      console.error("Email ilə qeydiyyat zamanı xəta baş verdi: ", error.message);
-      return false;
-    }
-  };
-  
-  
-  
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const userName = name || 'Bilinmeyen Kullanıcı';
+    const userRef = doc(db, "Users", user.uid);
+
+    await setDoc(userRef, {
+      uid: user.uid,
+      email: user.email,
+      displayName: userName,
+      points: 0,
+      hasStarterBadge: false,
+    });
+
+    dispatch(setUser({
+      uid: user.uid,
+      email: user.email,
+      displayName: userName,
+    }));
+
+    return true;
+  } catch (error) {
+    console.error("Email ilə qeydiyyat zamanı xəta baş verdi: ", error.message);
+
+    // Hatanın üst fonksiyona iletilmesi için tekrar fırlatıyoruz
+    throw error;
+  }
+};
+
 
 // E-poçt və parol ilə giriş
 export const emailSignIn = async (email, password, dispatch) => {
