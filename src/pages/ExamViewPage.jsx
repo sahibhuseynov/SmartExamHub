@@ -68,7 +68,32 @@ const ExamViewPage = () => {
             [questionIndex]: selectedOption
         }));
     };
-
+    const saveCertificateToUser = async () => {
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                const userRef = doc(db, "Users", user.uid);
+    
+                await setDoc(userRef, {
+                    certificates: arrayUnion({
+                        examId: examId,
+                        categoryName: categoryId,
+                        className: classId,
+                        passPercentage: (correctAnswers / totalQuestions) * 100,
+                        earnedAt: new Date(),
+                    })
+                }, { merge: true });
+    
+                console.log("Sertifika başarıyla kaydedildi.");
+            } catch (error) {
+                console.error("Sertifika kaydedilirken hata oluştu:", error);
+            }
+        } else {
+            alert("Sertifika kaydı için giriş yapmanız gerekir.");
+        }
+    };
+    
+    
     const handleSubmit = async () => {
         let correct = 0;
         let incorrect = 0;
@@ -87,9 +112,11 @@ const ExamViewPage = () => {
     
         if (isCertifiedExam && successRate >= 80) {
             alert("Təbriklər! Sertifikat qazandınız.");
+            await saveCertificateToUser(); // Sertifika kaydetme işlevi çağrısı
         } else if (isCertifiedExam) {
             alert("Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.");
         }
+        
     
         await saveExamResultsToUser(correct, incorrect);
     };
