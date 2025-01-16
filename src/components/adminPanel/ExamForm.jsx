@@ -13,11 +13,25 @@ const ExamForm = () => {
   const [examDate, setExamDate] = useState("");
   const [price, setPrice] = useState("");
   const [isCertified, setIsCertified] = useState(false);
-  const [questions, setQuestions] = useState([{ questionText: "", options: ["", "", ""], correctAnswer: "", image: null }]);
+  const [questions, setQuestions] = useState([{
+    questionText: "",
+    options: ["", "", "", "", ""],
+    correctAnswer: "",
+    image: null,
+    imagesEnabled: false,  // A flag to track if image upload for options should be enabled
+    optionImages: [null, null, null, null, null] // Seçenekler için resimler
+  }]);
 
   // Yeni soru ekleme
   const handleAddQuestion = () => {
-    setQuestions([...questions, { questionText: "", options: ["", "", ""], correctAnswer: "", image: null }]);
+    setQuestions([...questions, {
+      questionText: "",
+      options: ["", "", "", "", ""],
+      correctAnswer: "",
+      image: null,
+      imagesEnabled: false,  // Başta resim alanı kapalı
+      optionImages: [null, null, null, null, null] // Yeni soru için seçenek resimleri
+    }]);
   };
 
   // Input değişikliklerini yönetme
@@ -27,14 +41,30 @@ const ExamForm = () => {
     setQuestions(updatedQuestions);
   };
 
-  // Dosya yükleme
+  // Dosya yükleme (soru resmi)
   const handleFileUpload = async (index, event) => {
     const file = event.target.files[0];
     if (file) {
       try {
         const fileUrl = await uploadFileToCloudinary(file);
         const updatedQuestions = [...questions];
-        updatedQuestions[index].image = fileUrl;
+        updatedQuestions[index].image = fileUrl; // Soru resmi
+        updatedQuestions[index].imagesEnabled = true; // Seçenekler için resim alanlarını aktif et
+        setQuestions(updatedQuestions);
+      } catch (error) {
+        console.error("Dosya yüklenirken hata oluştu:", error);
+      }
+    }
+  };
+
+  // Option resim yükleme
+  const handleOptionFileUpload = async (index, optionIndex, event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const fileUrl = await uploadFileToCloudinary(file);
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].optionImages[optionIndex] = fileUrl; // Seçenek resmi
         setQuestions(updatedQuestions);
       } catch (error) {
         console.error("Dosya yüklenirken hata oluştu:", error);
@@ -71,11 +101,17 @@ const ExamForm = () => {
       // Soruları ekleme
       const questionsRef = collection(examRef, "Questions");
       for (const question of questions) {
+        // Seçeneklerin resimlerini optionPhoto olarak Firebase'e ekliyoruz
+        const optionsWithImages = question.options.map((option, index) => ({
+          option,
+          optionPhoto: question.optionImages[index] || null, // Eğer resim eklenmemişse null
+        }));
+
         await addDoc(questionsRef, {
           questionText: question.questionText,
-          options: question.options,
+          options: optionsWithImages, // Seçeneklerin resimleri ile birlikte kaydediliyor
           correctAnswer: question.correctAnswer,
-          image: question.image,
+          image: question.image, // Soru resmi
         });
       }
 
@@ -164,31 +200,49 @@ const ExamForm = () => {
                 value={q.questionText}
                 onChange={(e) => handleChange(index, "questionText", e.target.value)}
               />
-              {q.options.map((option, i) => (
-                <input
-                  key={i}
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded-lg mb-2"
-                  placeholder={`Seçenek ${i + 1}`}
-                  value={option}
-                  onChange={(e) => {
-                    const updatedOptions = [...q.options];
-                    updatedOptions[i] = e.target.value;
-                    handleChange(index, "options", updatedOptions);
-                  }}
-                />
-              ))}
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="Doğru Cevap"
-                value={q.correctAnswer}
-                onChange={(e) => handleChange(index, "correctAnswer", e.target.value)}
-              />
+
               <input
                 type="file"
                 className="w-full p-2 mt-2"
                 onChange={(e) => handleFileUpload(index, e)}
+                placeholder="Soru Resmi"
+              />
+
+              {q.image && (
+                <div className="mt-2 text-sm text-gray-500">Soru resmi yüklendi.</div>
+              )}
+
+              {q.options.map((option, i) => (
+                <div key={i} className="mb-4">
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-lg mb-2"
+                    placeholder={`Seçenek ${String.fromCharCode(65 + i)}`} // 'A', 'B', 'C', etc.
+                    value={option}
+                    onChange={(e) => {
+                      const updatedOptions = [...q.options];
+                      updatedOptions[i] = e.target.value;
+                      handleChange(index, "options", updatedOptions);
+                    }}
+                  />
+
+                  {q.imagesEnabled && (
+                    <input
+                      type="file"
+                      className="w-full p-2 mt-2"
+                      onChange={(e) => handleOptionFileUpload(index, i, e)} // Seçenek için resim yükleme
+                      placeholder={`Seçenek ${String.fromCharCode(65 + i)} Resmi`}
+                    />
+                  )}
+                </div>
+              ))}
+
+              <input
+                type="text"
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="Doğru Cevap (A, B, C, D, E)"
+                value={q.correctAnswer}
+                onChange={(e) => handleChange(index, "correctAnswer", e.target.value)}
               />
             </div>
           ))}

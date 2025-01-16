@@ -2,7 +2,7 @@ import Slider from 'react-slick';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; 
 import sliderimg1 from '../../assets/slider1.webp';
 import sliderimg2 from '../../assets/slider2.webp';
-import sliderimg3 from '../../assets/slider3.jpg';
+import sliderimg3 from '../../assets/slider3.webp';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
@@ -27,9 +27,9 @@ const PrevArrow = ({ onClick }) => (
 
 const Carousel = () => {
   const slides = [
+    { image: sliderimg3, text: " Dünyaca məşhur Kenguru Riyaziyyat İmtahanı artıq platformamızda!" , text2: "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın."},
     { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan." },
     { image: sliderimg2, text: "Hər gün yeni onlayn imtahanlar, testlər və suallar ilə biliyini inkişaf etdir.", text2: "Online təhsil platformasındakı kurslar və yeni imtahanlar ilə öz bilik səviyyəni ölç!" },
-    { image: sliderimg3, text: "Adventure Awaits You" }
   ];
 
   const settings = {

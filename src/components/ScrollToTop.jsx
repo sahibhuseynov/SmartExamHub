@@ -10,7 +10,7 @@ const ScrollToTop = () => {
     const scrollWithAnimation = () => {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth', // Kaydırma animasyonu
+        
       });
     };
 

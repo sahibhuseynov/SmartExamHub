@@ -8,6 +8,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { FaStar } from "react-icons/fa";
 import { handleCompleteExam } from "../services/firebaseService"; 
 import { toast, ToastContainer } from 'react-toastify';
+import { useSelector } from "react-redux";
 
 const ExamDetailsPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -18,7 +19,7 @@ const ExamDetailsPage = () => {
     const [couponCode, setCouponCode] = useState(""); // Kupon kodu için state
     const [isCouponValid, setIsCouponValid] = useState(false); // Kupon geçerliliğini tutacak state
     const navigate = useNavigate();
-
+    const user = useSelector((state) => state.user.user);
     useEffect(() => {
         const fetchExamDetails = async () => {
             try {
@@ -69,10 +70,17 @@ const ExamDetailsPage = () => {
     };
 
     const handleStartExam = () => {
+        
+        if (!user) {
+            // Kullanıcı giriş yapmamışsa, kayıt sayfasına yönlendir
+            navigate("/register");
+            return;
+        }
+    
         if (exam?.price && exam.price > 0) {
             navigate(`/payment?examId=${examId}&categoryId=${categoryId}&classId=${classId}&price=${exam.price}`);
         } else {
-            handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanmış olaraq işarətlənir
+            handleCompleteExam(examId, categoryId, classId);  // İmtahan tamamlanmış olarak işaretlenir
             navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
         }
     };

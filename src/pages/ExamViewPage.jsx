@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, collection, getDocs, setDoc,arrayUnion  } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { FaStar } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
 import { FaCertificate } from "react-icons/fa";
 import { useSelector } from 'react-redux';
+
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
     const [questions, setQuestions] = useState([]);
@@ -26,10 +27,8 @@ const ExamViewPage = () => {
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
-   
-    useEffect(() => {
-       // Redux'tan kullanıcı bilgilerini çekmek
 
+    useEffect(() => {
         const fetchExamData = async () => {
             try {
                 const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
@@ -49,8 +48,7 @@ const ExamViewPage = () => {
                     const averageRating = examSnap.data().averageRating || 0;
                     setAverageRating(averageRating);
 
-                    // Check if the exam is certified
-                    setIsCertifiedExam(examSnap.data().isCertified || false);  // Assuming isCertified is a boolean field
+                    setIsCertifiedExam(examSnap.data().isCertified || false);
                 } else {
                     console.error("Sınav bulunamadı.");
                 }
@@ -95,9 +93,7 @@ const ExamViewPage = () => {
     
         await saveExamResultsToUser(correct, incorrect);
     };
-    
 
-    // Save the results to the User document in Firestore
     const saveExamResultsToUser = async (correct, incorrect) => {
         const user = auth.currentUser;
         if (user) {
@@ -208,8 +204,6 @@ const ExamViewPage = () => {
                             <li>Cavab verməyə istədiyiniz sualdan başlaya bilərsiniz.</li>
                             <li>Yanlış cavablar doğru cavablara təsir göstərmir.</li>
                             <li>Hər doğru cavab 1 bal ilə qiymətləndirilir.</li>
-
-                            {/* Add other rules here */}
                         </ul>
                         {isCertifiedExam && (
                           <div className="flex gap-3">
@@ -243,32 +237,46 @@ const ExamViewPage = () => {
                         ) : (
                             questions.length > 0 ? (
                                 questions.map((question, index) => (
-                                    <div key={index} className="p-6 border rounded-lg shadow-xl bg-gray-50 mt-4 hover:shadow-2xl transition-all">
+                                    <div key={index} className="p-6   mt-4 transition-all">
                                         <p className="text-xl font-semibold text-gray-800">{`Sual ${index + 1}: ${question.questionText}`}</p>
                                         {question.image && (
                                             <div className="mt-4">
                                                 <img
                                                     src={question.image}
-                                                    alt={`Sual ${index + 1} için resim`}
-                                                    className="w-full h-auto rounded-lg shadow-md"
+                                                    alt={`Sual ${index + 1} üçün resim`}
+                                                    className="w-full h-96 object-contain rounded-lg "
                                                 />
                                             </div>
                                         )}
-                                        <ul className="mt-4 space-y-3">
-                                            {question.options.map((option, i) => (
-                                                <li key={i} className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name={`question${index}`}
-                                                        value={option}
-                                                        checked={selectedAnswers[index] === option}
-                                                        onChange={() => handleAnswerChange(index, option)}
-                                                        className="form-radio h-5 w-5 text-blue-500"
-                                                    />
-                                                    <label className="text-gray-700">{option}</label>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                  <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {question.options.map((option, i) => (
+    <li 
+      key={i} 
+      className="flex flex-col items-start p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow"
+    >
+      <label className="cursor-pointer flex items-center space-x-2 w-full">
+        <input
+          type="radio"
+          name={`question${index}`}
+          value={option.option}
+          checked={selectedAnswers[index] === option.option}
+          onChange={() => handleAnswerChange(index, option.option)}
+          className="radio radio-primary"
+        />
+        <span className="text-gray-700">{option.option}</span>
+      </label>
+      {option.optionPhoto && (
+        <img
+          src={option.optionPhoto}
+          alt={`Option ${i + 1} for question ${index + 1}`}
+          className="mt-2 h-16 w-16 object-cover rounded-lg"
+        />
+      )}
+    </li>
+  ))}
+</ul>
+
+
                                     </div>
                                 ))
                             ) : (
@@ -341,13 +349,11 @@ const ExamViewPage = () => {
 
                    {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
     <CertificateGenerator
-        userName={userr?.displayName || "Bilinmeyen Kullanıcı"}
+        userName={userr?.displayName}
         examName={examId}
-        date={new Date().toLocaleDateString()}
-        userUID={userr?.uid|| "Bilinmeyen Kullanıcı"}
+        passPercentage={correctAnswers / totalQuestions * 100}
     />
 )}
-
                     </>
                 )}
             </div>
