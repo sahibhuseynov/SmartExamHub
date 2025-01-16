@@ -85,17 +85,17 @@ const TopRating = () => {
           topExams.map((exam, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg transform hover:scale-105 transition-all duration-300 relative"
+              className="bg-white shadow-md rounded-lg transform  transition-all duration-300 relative"
             >
               {exam?.isCertified && (
-                <FaCertificate className="text-yellow-500 text-4xl absolute top-2 right-2" />
+                <FaCertificate className="text-yellow-500 text-3xl absolute top-2 right-2" />
               )}
 
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 text-black">{exam.id}</h3>
                 <p className="text-gray-500 mb-4">{exam.categoryId} / {exam.classId}</p>
                 <div className="flex items-center mb-4">
-                  <FaStar className="text-yellow-400 mr-2" />
+                  <FaStar className="text-yellow-400 mr-2"  />
                   <span className="text-gray-700 font-medium">{exam.averageRating.toFixed(2)} / 5</span>
                 </div>
 

@@ -7,7 +7,7 @@ import { IoCheckmarkDoneSharp } from "react-icons/io5";
 const UserCertificates = () => {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    console.log(certificates)
     const userUID = useSelector((state) => state.user.user.uid); // Redux'dan UID alınması
 
     useEffect(() => {
@@ -60,30 +60,34 @@ const UserCertificates = () => {
                 </div>
             ) : certificates.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certificates.map((url, index) => (
-                        <div
-                            key={index}
-                            className=" bg-white rounded-b-lg border-t-8 border-green-400 px-4 py-5 flex flex-col justify-around shadow-md rounded-lg"
-                        >
-                            <p className="text-lg font-bold font-sans">Sertifikat {index + 1}</p>
-                            <div className="py-3">
-                                <p className="text-sm">
-                                    Sertifikatı uğurla aldınız!
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <IoCheckmarkDoneSharp size={32} className="text-green-400"/>
-                                <div className="">
-                                    <button
-                                        onClick={() => downloadFile(url, `sertifika_${index + 1}.pdf`)}
-                                        className="btn btn-primary text-white"
-                                    >
-                                        Yüklə
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                    {certificates.map((certificate, index) => (
+    <div
+        key={index}
+        className="bg-white rounded-b-lg border-t-8 border-green-400 px-4 py-5 flex flex-col justify-around shadow-md rounded-lg"
+    >
+        <p className="text-lg font-bold font-sans">Sertifikat {index + 1}</p>
+        <div className="py-3">
+            <span>
+                {certificate.examId}
+            </span>
+            <p className="text-sm">
+                Sertifikatı uğurla aldınız!
+            </p>
+        </div>
+        <div className="flex items-center justify-between">
+            <IoCheckmarkDoneSharp size={32} className="text-green-400" />
+            <div>
+                <button
+                    onClick={() => downloadFile(certificate.url, `sertifika_${index + 1}.pdf`)}
+                    className="btn btn-primary text-white"
+                >
+                    Yüklə
+                </button>
+            </div>
+        </div>
+    </div>
+))}
+
                 </div>
             ) : (
                 <p>Hazırda heç bir sertifikatınız yoxdur. Sertifikat əldə etmək üçün sertifikatlı imtahanlara qatılmalı və uğurlarınız nəticəsində rozet qazandıqdan sonra sertifikatınıza sahib ola bilərsiniz.</p>

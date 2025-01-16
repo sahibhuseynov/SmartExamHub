@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { db } from "../../firebase/config";
 import { collection, getDocs } from "firebase/firestore";
-import { auth } from "../../firebase/config"; // Firebase auth
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 const CompletedExams = () => {
   const [completedExams, setCompletedExams] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const user = useSelector((state) => state.user.user)
   useEffect(() => {
     const fetchCompletedExams = async () => {
-      const user = auth.currentUser; // Mevcut kullanıcıyı al
       if (!user) {
         console.error("Kullanıcı giriş yapmamış.");
         setLoading(false); // Kullanıcı giriş yapmamışsa loading false yap

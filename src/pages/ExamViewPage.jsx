@@ -69,11 +69,25 @@ const ExamViewPage = () => {
         }));
     };
     const saveCertificateToUser = async () => {
-        const user = auth.currentUser;
-        if (user) {
+        
+        if (userr) {
             try {
-                const userRef = doc(db, "Users", user.uid);
+                const userRef = doc(db, "Users", userr.uid);
+                const userDoc = await getDoc(userRef); // Kullanıcı belgelerini al
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const certificates = userData.certificates || [];
+                    
+                    // Sertifikayı daha önce almış mı kontrol et
+                    const alreadyExists = certificates.some(cert => cert.examId === examId);
+                    if (alreadyExists) {
+                        console.log("Bu sertifikayı zaten aldınız.");
+                        return; // İşlemden çık
+                    }
+                }
     
+                // Sertifika ekleme
                 await setDoc(userRef, {
                     certificates: arrayUnion({
                         examId: examId,
@@ -92,7 +106,6 @@ const ExamViewPage = () => {
             alert("Sertifika kaydı için giriş yapmanız gerekir.");
         }
     };
-    
     
     const handleSubmit = async () => {
         let correct = 0;

@@ -152,7 +152,7 @@ const ExamDetailsPage = () => {
                     </div>
                 </div>
 
-                <div className="absolute top-2 md:top-8 md:right-8 flex items-center space-x-2">
+                <div className="absolute top-2 md:top-3 md:right-8 flex items-center space-x-2">
                     <p className="text-lg font-semibold">Rating:</p>
                     <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -204,10 +204,13 @@ const ExamDetailsPage = () => {
                     <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
                         {loading ? (
-                            <Skeleton count={1} height={30} width="50%" />
-                        ) : (
-                            <p className="text-xl">{formatDate(exam?.examDate)}</p>
-                        )}
+    <Skeleton count={1} height={30} width="50%" />
+) : (
+    <p className="text-xl">
+        {exam?.examDate ? formatDate(exam.examDate) : "İstənilən Vaxt"}
+    </p>
+)}
+
                     </div>
                     <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">Yaradılma Tarixi</h3>
