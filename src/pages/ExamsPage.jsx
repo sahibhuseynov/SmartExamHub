@@ -114,7 +114,7 @@ const ExamsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6 flex flex-wrap gap-4 justify-center">
+      <div className="max-w-6xl bg-white mx-auto p-6 flex flex-wrap gap-4 justify-center">
         {examsLoading && displayedClasses.length === 0 ? (
           <Skeleton count={3} height={40} width={150} />
         ) : (

@@ -31,12 +31,12 @@ const PaymentPage = () => {
   };
 
   return (
-    <div>
+    <div className='bg-white'>
       <Navbar />
       <ChatWithUs />
 
       {/* Header Section */}
-      <div className="bg-gradient-to-b from-violet-500 to-purple-500 text-white h-[300px] flex justify-center items-center relative px-4">
+      <div className="bg-gradient-to-b from-violet-500 to-purple-500 text-white h-[400px] md:h-[300px] flex justify-center items-center relative px-4">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left gap-6">
           <img src={paymentIcon} alt="Payment Icon" className="w-32 h-32 lg:w-64 lg:h-64 object-cover" />
           <h2 className="text-xl lg:text-2xl text-center font-bold max-w-3xl leading-relaxed">
