@@ -52,7 +52,7 @@ const Carousel = () => {
           {slides.map((slide, index) => (
             <div key={index} className="!flex flex-col md:flex-row items-center justify-center md:h-[230px]">
               {/* Sol taraf - Resim */}
-              <div className="w-full md:w-96 h-[200px] md:h-full mb-4 md:mb-0">
+              <div className="w-full md:w-2/6 h-[200px] md:h-full mb-4 md:mb-0">
                 <img src={slide.image} alt={`Slide ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
               </div>
               {/* Sağ taraf - Metin */}

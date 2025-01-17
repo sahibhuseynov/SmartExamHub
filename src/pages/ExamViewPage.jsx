@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, collection, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { FaStar } from "react-icons/fa";
+import { FaFacebook, FaStar,FaWhatsapp } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { auth } from "../firebase/config"; // Firebase Authentication importu
 import { useNavigate } from "react-router-dom";
@@ -25,11 +25,24 @@ const ExamViewPage = () => {
     const [averageRating, setAverageRating] = useState(0); 
     const [showModal, setShowModal] = useState(true);  // State for modal visibility
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
+    const [wrongAnswers, setWrongAnswers] = useState([]);
     const [hasCertificate, setHasCertificate] = useState(false); //daha once sertifikat almisimi
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
 
-
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+    
+        // Cleanup için: Modal kapandığında scroll özelliğini geri yükle
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, [showModal]);
+    
     useEffect(() => {
         const checkCertificate = async () => {
             try {
@@ -109,26 +122,35 @@ const ExamViewPage = () => {
     const handleSubmit = async () => {
         let correct = 0;
         let incorrect = 0;
+        let wrongAnswersList = []; // Yanlış cevapları tutacak bir liste
+    
         questions.forEach((question, index) => {
             if (selectedAnswers[index] === question.correctAnswer) {
                 correct++;
             } else {
                 incorrect++;
+                wrongAnswersList.push({
+                    question: question.questionText,
+                    correctAnswer: question.correctAnswer,
+                    userAnswer: selectedAnswers[index]
+                });
             }
         });
+    
         setCorrectAnswers(correct);
         setIncorrectAnswers(incorrect);
         setShowResults(true);
+        
+        // Yanlış cevaplar kısmını göstermek için state güncellemesi
+        setWrongAnswers(wrongAnswersList);
     
         const successRate = (correct / totalQuestions) * 100;
     
         if (isCertifiedExam && successRate >= 80) {
             alert("Təbriklər! Sertifikat qazandınız.");
-           
         } else if (isCertifiedExam) {
             alert("Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.");
         }
-        
     
         await saveExamResultsToUser(correct, incorrect);
     };
@@ -356,81 +378,110 @@ const ExamViewPage = () => {
                     </>
                 ) : (
                     <>
-                        <h3 className="text-3xl font-semibold text-green-600">Nəticələr</h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" fill="#8884d8" label>
-                                    {chartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <p className="text-xl text-gray-700">Doğru: {correctAnswers} | Yanlış: {incorrectAnswers}</p>
-                        <p className="text-lg text-gray-600">Başarı Oranı: {(correctAnswers / totalQuestions) * 100}%</p>
+    <div className="">
+        <h3 className="text-6xl font-bold text-indigo-600 mb-6 text-center">Nəticələr</h3>
 
-                        <div className="mt-6">
-                            <h4 className="text-2xl font-semibold text-gray-800">Ortalama Qiymət: {averageRating ? averageRating.toFixed(2) : "Henüz yorum yapılmamış."}</h4>
-                            <h4 className="text-2xl font-semibold text-gray-800">İmtahanınızı Dəyərləndirin:</h4>
-                            <div className="flex justify-center items-center space-x-2 mt-2">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                    <FaStar
-                                    size={45}
-                                        key={star}
-                                        onClick={() => handleRatingChange(star)}
-                                        color={star <= rating ? "#FFD700" : "#D3D3D3"}
-                                        className="cursor-pointer"
-                                    />
-                                ))}
-                            </div>
-                        </div>
+        <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+            <div className="w-full md:w-1/2">
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                        <Pie 
+                            data={chartData} 
+                            dataKey="value" 
+                            nameKey="name" 
+                            cx="50%" 
+                            cy="50%" 
+                            outerRadius="80%" 
+                            fill="#4f46e5" 
+                            label>
+                            {chartData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
 
-                        <div className="mt-4">
-                            <textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                className="w-full h-32 p-4 border rounded-lg"
-                                placeholder="Yorumunuzu buraya yazın..."
-                            ></textarea>
-                        </div>
+            <div className="w-full md:w-1/2 text-center">
+                <p className="text-4xl text-gray-700 mb-2">Doğru: <span className="text-green-600 font-bold">{correctAnswers}</span> | Yanlış: <span className="text-red-600 font-bold">{incorrectAnswers}</span></p>
+                <p className="text-2xl text-gray-600">Başarı Oranı: <span className="font-bold">{((correctAnswers / totalQuestions) * 100).toFixed(2)}%</span></p>
+                <p className="text-lg text-gray-600">Cavabsız suallar: <span className="font-bold text-orange-600">{totalQuestions - (correctAnswers + incorrectAnswers)}</span></p>
 
-                        <button
-                            onClick={handleSaveComment}
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 mt-4"
-                        >
-                            Şərhinizi və Qiymətinizi Yadda Saxlayın
-                        </button>
+                
+            </div>
+        </div>
 
-                        <button
-                            onClick={goToHomePage}
-                            className="w-full bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 mt-4"
-                        >
-                            Ana Səhifəyə Get
-                        </button>
+        {showResults && wrongAnswers.length > 0 && (
+            <div className="mt-8">
+                <h3 className="text-2xl font-bold text-red-600">Yanlış Cevaplar</h3>
+                <ul className="mt-4 space-y-4">
+                    {wrongAnswers.map((item, index) => (
+                        <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
+                            <p className="font-semibold text-gray-800">Sual: {item.question}</p>
+                            <p className="text-gray-600">Doğru Cevap: <span className="text-green-600 font-bold">{item.correctAnswer}</span></p>
+                            <p className="text-gray-600">Sizin Cevabınız: <span className="text-red-600 font-bold">{item.userAnswer}</span></p>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
 
-                        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
-    <>
+        <div className="mt-24 flex flex-col text-center gap-4 items-center">
+            <h4 className="text-4xl font-bold text-black ">İmtahanınızı qiymətləndirin</h4>
+            <div className="flex justify-center items-center space-x-2 mt-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                    <FaStar
+                        size={45}
+                        key={star}
+                        onClick={() => handleRatingChange(star)}
+                        color={star <= rating ? "#FFD700" : "#D3D3D3"}
+                        className="cursor-pointer"
+                    />
+                ))}
+            </div>
+
+            <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full h-32 p-4 border rounded-lg shadow-md mt-4"
+                placeholder="Yorumunuzu buraya yazın..."
+            ></textarea>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+            <button
+                onClick={handleSaveComment}
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
+                Göndər
+            </button>
+            <button
+                onClick={goToHomePage}
+                className="w-full bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600">
+                Ana Səhifəyə Get
+            </button>
+        </div>
+
         {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
-    hasCertificate ? (
-        <p className="text-green-500 text-lg font-semibold mt-4">
-            Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
-        </p>
-    ) : (
-        <CertificateGenerator
-            userName={userr.displayName}
-            examName={examId}
-            passPercentage={(correctAnswers / totalQuestions) * 100}
-            userUID={userr.uid}
-        />
-    )
-)}
+            hasCertificate ? (
+                <p className="text-green-500 text-lg font-semibold mt-4">
+                    Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
+                </p>
+            ) : (
+                <CertificateGenerator
+                    userName={userr.displayName}
+                    examName={examId}
+                    passPercentage={(correctAnswers / totalQuestions) * 100}
+                    userUID={userr.uid}
+                />
+            )
+        )}
 
-    </>
-)}
+        
+    </div>
+</>
 
-                    </>
                 )}
             </div>
         </div>
