@@ -68,7 +68,7 @@ const UserCertificates = () => {
         <p className="text-lg font-bold font-sans">Sertifikat {index + 1}</p>
         <div className="py-3">
             <span>
-                {certificate.examId}
+                {certificate.examName}
             </span>
             <p className="text-sm">
                 Sertifikatı uğurla aldınız!

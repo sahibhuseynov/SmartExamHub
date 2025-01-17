@@ -25,9 +25,42 @@ const ExamViewPage = () => {
     const [averageRating, setAverageRating] = useState(0); 
     const [showModal, setShowModal] = useState(true);  // State for modal visibility
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
+    const [hasCertificate, setHasCertificate] = useState(false); //daha once sertifikat almisimi
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
 
+
+    useEffect(() => {
+        const checkCertificate = async () => {
+            try {
+                if (userr && examId) {
+                    // Kullanıcı belgesine erişim
+                    const userDocRef = doc(db, "Users", userr.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+    
+                    if (userDocSnap.exists()) {
+                        // Certificates array'ini al
+                        const certificates = userDocSnap.data().certificates || [];
+                        
+                        // Array içinde examName kontrolü
+                        const certificateExists = certificates.some(
+                            (cert) => cert.examName === examId
+                        );
+    
+                        console.log("Certificate exists:", certificateExists);
+                        setHasCertificate(certificateExists);
+                    } else {
+                        console.log("User document does not exist.");
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking certificates:", error);
+            }
+        };
+    
+        checkCertificate();
+    }, [userr, examId]);
+    
     useEffect(() => {
         const fetchExamData = async () => {
             try {
@@ -62,50 +95,16 @@ const ExamViewPage = () => {
         fetchExamData();
     }, [categoryId, classId, examId]);
 
+    
+
+
     const handleAnswerChange = (questionIndex, selectedOption) => {
         setSelectedAnswers(prevState => ({
             ...prevState,
             [questionIndex]: selectedOption
         }));
     };
-    const saveCertificateToUser = async () => {
-        
-        if (userr) {
-            try {
-                const userRef = doc(db, "Users", userr.uid);
-                const userDoc = await getDoc(userRef); // Kullanıcı belgelerini al
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const certificates = userData.certificates || [];
-                    
-                    // Sertifikayı daha önce almış mı kontrol et
-                    const alreadyExists = certificates.some(cert => cert.examId === examId);
-                    if (alreadyExists) {
-                        console.log("Bu sertifikayı zaten aldınız.");
-                        return; // İşlemden çık
-                    }
-                }
     
-                // Sertifika ekleme
-                await setDoc(userRef, {
-                    certificates: arrayUnion({
-                        examId: examId,
-                        categoryName: categoryId,
-                        className: classId,
-                        passPercentage: (correctAnswers / totalQuestions) * 100,
-                        earnedAt: new Date(),
-                    })
-                }, { merge: true });
-    
-                console.log("Sertifika başarıyla kaydedildi.");
-            } catch (error) {
-                console.error("Sertifika kaydedilirken hata oluştu:", error);
-            }
-        } else {
-            alert("Sertifika kaydı için giriş yapmanız gerekir.");
-        }
-    };
     
     const handleSubmit = async () => {
         let correct = 0;
@@ -125,7 +124,7 @@ const ExamViewPage = () => {
     
         if (isCertifiedExam && successRate >= 80) {
             alert("Təbriklər! Sertifikat qazandınız.");
-            await saveCertificateToUser(); // Sertifika kaydetme işlevi çağrısı
+           
         } else if (isCertifiedExam) {
             alert("Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.");
         }
@@ -209,6 +208,7 @@ const ExamViewPage = () => {
             console.error("Ortalama puan güncellenirken hata oluştu:", error);
         }
     };
+    
 
     const fetchComments = async () => {
         try {
@@ -387,13 +387,26 @@ const ExamViewPage = () => {
                             Ana Səhifəyə Get
                         </button>
 
-                   {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
-    <CertificateGenerator
-        userName={userr?.displayName}
-        examName={examId}
-        passPercentage={correctAnswers / totalQuestions * 100}
-    />
+                        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+    <>
+        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+    hasCertificate ? (
+        <p className="text-green-500 text-lg font-semibold mt-4">
+            Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
+        </p>
+    ) : (
+        <CertificateGenerator
+            userName={userr.displayName}
+            examName={examId}
+            passPercentage={(correctAnswers / totalQuestions) * 100}
+            userUID={userr.uid}
+        />
+    )
 )}
+
+    </>
+)}
+
                     </>
                 )}
             </div>

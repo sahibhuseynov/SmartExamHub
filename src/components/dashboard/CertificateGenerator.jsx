@@ -4,7 +4,7 @@ import certificateTemplate from "../../assets/Sertifika.png"; // Şablon PNG dos
 import "../../assets/font/Poppins-Regular-normal";
 import { uploadFileToCloudinary } from "../../utils/cloudinary"; // Cloudinary yükleme fonksiyonu
 import { db } from  '../../firebase/config';
-import { updateDoc, arrayUnion, doc } from "firebase/firestore"; // Firestore işlemleri
+import { setDoc, arrayUnion, doc } from "firebase/firestore"; // Firestore işlemleri
 
 const CertificateGenerator = ({ userName, examName, date, userUID }) => {
     let isGenerating = false;
@@ -49,8 +49,11 @@ const CertificateGenerator = ({ userName, examName, date, userUID }) => {
 
             // Sertifikayı Firestore'a kaydet
             const userDocRef = doc(db, "Users", userUID);
-            await updateDoc(userDocRef, {
-                certificates: arrayUnion(url)
+            await setDoc(userDocRef, {
+                certificates: arrayUnion({
+                    url:url,
+                    examName: examName,
+                })
             });
             console.log("Sertifika Firebase'e kaydedildi.");
         } catch (error) {
