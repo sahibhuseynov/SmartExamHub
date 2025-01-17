@@ -29,7 +29,11 @@ const ExamViewPage = () => {
     const [hasCertificate, setHasCertificate] = useState(false); //daha once sertifikat almisimi
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
-
+    useEffect(() => {
+        if (showResults) {
+            window.scrollTo(0, 0); // Sayfa sonuçlar gösterildiğinde üst kısma kaydırılır
+        }
+    }, [showResults]);
     useEffect(() => {
         if (showModal) {
             document.body.style.overflow = "hidden";
@@ -153,6 +157,8 @@ const ExamViewPage = () => {
         }
     
         await saveExamResultsToUser(correct, incorrect);
+
+        window.scrollTo(0, 0); // This ensures the page scrolls to the top
     };
 
     const saveExamResultsToUser = async (correct, incorrect) => {
