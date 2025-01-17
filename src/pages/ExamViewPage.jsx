@@ -136,28 +136,51 @@ const ExamViewPage = () => {
     const saveExamResultsToUser = async (correct, incorrect) => {
         const user = auth.currentUser;
         if (user) {
-          try {
-            const successRate = (correct / totalQuestions) * 100;
-            const userRef = doc(db, "Users", user.uid);
-      
-            await setDoc(userRef, {
-              name: user.displayName || userr.displayName ,
-              exams: arrayUnion({
-                examId: examId,
-                correctAnswers: correct,
-                incorrectAnswers: incorrect,
-                totalQuestions: totalQuestions,
-                successRate: successRate,
-                completedAt: new Date(),
-              })
-            }, { merge: true });
-      
-            console.log("Sınav sonucu başarıyla kaydedildi.");
-          } catch (error) {
-            console.error("Sonuçlar kaydedilirken hata oluştu:", error);
-          }
+            try {
+                const userRef = doc(db, "Users", user.uid);
+                const userSnap = await getDoc(userRef);
+    
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const existingExams = userData.exams || [];
+                    
+                    // Kullanıcının bu sınava daha önce girip girmediğini kontrol et
+                    const hasAttemptedExam = existingExams.some(
+                        (exam) => exam.examId === examId
+                    );
+    
+                    if (!hasAttemptedExam) {
+                        const successRate = (correct / totalQuestions) * 100;
+    
+                        // Kullanıcının sınav sonuçlarını ekle
+                        await setDoc(
+                            userRef,
+                            {
+                                exams: arrayUnion({
+                                    examId: examId,
+                                    correctAnswers: correct,
+                                    incorrectAnswers: incorrect,
+                                    totalQuestions: totalQuestions,
+                                    successRate: successRate,
+                                    completedAt: new Date(),
+                                }),
+                            },
+                            { merge: true }
+                        );
+    
+                        console.log("Sınav sonucu başarıyla kaydedildi.");
+                    } else {
+                        console.log("Kullanıcı bu sınava daha önce girmiş.");
+                    }
+                } else {
+                    console.log("Kullanıcı belgesi bulunamadı.");
+                }
+            } catch (error) {
+                console.error("Sonuçlar kaydedilirken hata oluştu:", error);
+            }
         }
-      };
+    };
+    
       
 
     const chartData = [
