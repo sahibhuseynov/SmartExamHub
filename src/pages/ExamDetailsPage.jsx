@@ -136,7 +136,7 @@ const ExamDetailsPage = () => {
             <Navbar />
             <ToastContainer />
             <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-auto md:h-[300px] flex justify-center items-center relative">
-                <div className="max-w-6xl  flex flex-col md:grid grid-cols-3 gap-8 w-full">
+                <div className="max-w-6xl mt-10 md:mt-0 flex flex-col md:grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
                         <h2 className="text-4xl font-bold">{examId}</h2>
                     </div>
@@ -152,7 +152,7 @@ const ExamDetailsPage = () => {
                     </div>
                 </div>
 
-                <div className="absolute top-2 md:top-3 md:right-8 flex items-center space-x-2">
+                <div className="absolute top-4 md:top-3 md:right-8 flex items-center space-x-2">
                     <p className="text-lg font-semibold">Rating:</p>
                     <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -167,7 +167,7 @@ const ExamDetailsPage = () => {
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white">
+            <div className="max-w-6xl mx-auto py-8 space-y-8 bg-white">
                 <div className="flex justify-center">
                 <button
           onClick={handleStartExam}
