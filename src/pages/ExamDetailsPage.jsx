@@ -186,7 +186,7 @@ const ExamDetailsPage = () => {
             type="text"
             value={couponCode}
             onChange={handleCouponChange}
-            className="border p-2 w-full mb-4"
+            className="border bg-white p-2 w-full mb-4"
             placeholder="Kupon Kodu"
         />
         <button

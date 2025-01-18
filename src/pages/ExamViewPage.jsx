@@ -335,7 +335,7 @@ const ExamViewPage = () => {
                                                 <img
                                                     src={question.image}
                                                     alt={`Sual ${index + 1} üçün resim`}
-                                                    className="w-full h-auto md:h-96 object-contain rounded-lg "
+                                                    className="w-full h-auto md:h-80 object-contain rounded-lg "
                                                 />
                                             </div>
                                         )}
