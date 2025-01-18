@@ -27,7 +27,7 @@ const PrevArrow = ({ onClick }) => (
 
 const Carousel = () => {
   const slides = [
-    { image: sliderimg3, text: " Dünyaca məşhur Kenguru Riyaziyyat İmtahanı artıq platformamızda!" , text2: "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın."},
+    { image: sliderimg3, text: "Kenguru Riyaziyyat İmtahanı artıq platformamızda!" , text2: "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın."},
     
     { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan." },
     {
@@ -45,7 +45,7 @@ const Carousel = () => {
     slidesToScroll: 1, 
     nextArrow: <NextArrow />, 
     prevArrow: <PrevArrow />, 
-    autoplay: false, 
+    autoplay: true, 
     autoplaySpeed: 3000,
     pauseOnHover: true,
   };
