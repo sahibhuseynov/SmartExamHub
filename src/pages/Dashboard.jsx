@@ -109,7 +109,7 @@ const Dashboard = () => {
       <Slider />
       <div className="p-6 flex flex-col items-center max-w-6xl mx-auto">
         <h2 className="text-2xl text-slate-800 font-bold mb-4">İmtahan Kateqoriyaları</h2>
-        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <ul className="flex flex-row-reverse  gap-4">
           {loading ? (
             [...Array(4)].map((_, index) => (
               <li

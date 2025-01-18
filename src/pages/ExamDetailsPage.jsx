@@ -138,7 +138,7 @@ const ExamDetailsPage = () => {
             <div className="bg-gradient-to-r from-violet-500 to-purple-500 text-white p-8 text-center h-auto md:h-[300px] flex justify-center items-center relative">
                 <div className="max-w-6xl mt-10 md:mt-0 flex flex-col md:grid grid-cols-3 gap-8 w-full">
                     <div className="bg-white relative text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
-                        <h2 className="text-4xl font-bold">{examId}</h2>
+                        <h2 className="text-4xl font-bold">{examId.split(' ')[0]}</h2>
                     </div>
                     <div className="text-center flex justify-center items-center col-span-2">
                         

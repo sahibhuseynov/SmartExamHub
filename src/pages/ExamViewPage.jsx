@@ -360,7 +360,7 @@ const ExamViewPage = () => {
         <img
           src={option.optionPhoto}
           alt={`Option ${i + 1} for question ${index + 1}`}
-          className="mt-2 h-16 w-16 object-cover rounded-lg"
+          className="mt-2 h-auto  object-cover rounded-lg"
         />
       )}
     </li>

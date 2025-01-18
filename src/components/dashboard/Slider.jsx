@@ -28,8 +28,13 @@ const PrevArrow = ({ onClick }) => (
 const Carousel = () => {
   const slides = [
     { image: sliderimg3, text: " Dünyaca məşhur Kenguru Riyaziyyat İmtahanı artıq platformamızda!" , text2: "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın."},
+    
     { image: sliderimg1, text: "Canlı onlayn imtahan, yarış və müsabiqələrdə iştirak et.", text2: "Bilik yarışları, olimpiadalar və intellektual oyunlarda öz biliklərini sınayaraq uğur qazan." },
-    { image: sliderimg2, text: "Hər gün yeni onlayn imtahanlar, testlər və suallar ilə biliyini inkişaf etdir.", text2: "Online təhsil platformasındakı kurslar və yeni imtahanlar ilə öz bilik səviyyəni ölç!" },
+    {
+      image: sliderimg2,
+      text: "Bebras Challenge ilə əylənərək öyrənin!",
+      text2: "Uşaqlar üçün nəzərdə tutulmuş bu maraqlı riyaziyyat və məntiq tapşırıqları ilə bacarıqlarınızı sınayın!"
+    }    
   ];
 
   const settings = {
