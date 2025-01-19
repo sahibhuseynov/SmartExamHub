@@ -329,7 +329,13 @@ const ExamViewPage = () => {
                             questions.length > 0 ? (
                                 questions.map((question, index) => (
                                     <div key={index} className="p-6   mt-4 transition-all">
-                                        <p className="text-xl font-semibold text-gray-800">{`Sual ${index + 1}: ${question.questionText}`}</p>
+                         <p className="text-xl font-semibold text-gray-800">
+    <span 
+        dangerouslySetInnerHTML={{ 
+            __html: `Sual ${index + 1}: ${question.questionText}` 
+        }} 
+    />
+</p>
                                         {question.image && (
                                             <div className="mt-4">
                                                 <img
