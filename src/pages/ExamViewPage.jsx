@@ -9,9 +9,11 @@ import { useNavigate } from "react-router-dom";
 import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
 import { FaCertificate } from "react-icons/fa";
 import { useSelector } from 'react-redux';
+import Timer from './../components/dashboard/Timer';
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
+    const [examDuration, setExamDuration] = useState(0); // Default to 10 minutes
     const [questions, setQuestions] = useState([]);
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [loading, setLoading] = useState(true);
@@ -27,8 +29,14 @@ const ExamViewPage = () => {
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
     const [wrongAnswers, setWrongAnswers] = useState([]);
     const [hasCertificate, setHasCertificate] = useState(false); //daha once sertifikat almisimi
+    console.log(examDuration)
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
+    const handleTimeUp = () => {
+        alert('Vaxt bitdi! İmtahan avtomatik olaraq tamamlandı.');
+        handleSubmit(); // İmtahanı otomatik olarak tamamlar
+    };
+
     useEffect(() => {
         if (showResults) {
             window.scrollTo(0, 0); // Sayfa sonuçlar gösterildiğinde üst kısma kaydırılır
@@ -77,7 +85,9 @@ const ExamViewPage = () => {
     
         checkCertificate();
     }, [userr, examId]);
-    
+    useEffect(() => {
+        console.log("Updated Exam Duration:", examDuration);
+    }, [examDuration]);
     useEffect(() => {
         const fetchExamData = async () => {
             try {
@@ -85,6 +95,7 @@ const ExamViewPage = () => {
                 const examSnap = await getDoc(examRef);
 
                 if (examSnap.exists()) {
+                    const examData = examSnap.data();
                     const questionsSnapshot = await getDocs(collection(examRef, "Questions"));
                     const fetchedQuestions = questionsSnapshot.docs.map(doc => doc.data());
                     setQuestions(fetchedQuestions);
@@ -99,6 +110,9 @@ const ExamViewPage = () => {
                     setAverageRating(averageRating);
 
                     setIsCertifiedExam(examSnap.data().isCertified || false);
+                    // Fetching exam duration from Firestore
+                const examDurationFromFirestore = examData.examDuration || 10; // Default to 10 if not set
+                setExamDuration(examDurationFromFirestore);
                 } else {
                     console.error("Sınav bulunamadı.");
                 }
@@ -135,6 +149,7 @@ const ExamViewPage = () => {
                 incorrect++;
                 wrongAnswersList.push({
                     question: question.questionText,
+                    questionImage: question.image,  // Include image in wrong answer
                     correctAnswer: question.correctAnswer,
                     userAnswer: selectedAnswers[index]
                 });
@@ -144,7 +159,7 @@ const ExamViewPage = () => {
         setCorrectAnswers(correct);
         setIncorrectAnswers(incorrect);
         setShowResults(true);
-        
+    
         // Yanlış cevaplar kısmını göstermek için state güncellemesi
         setWrongAnswers(wrongAnswersList);
     
@@ -157,9 +172,10 @@ const ExamViewPage = () => {
         }
     
         await saveExamResultsToUser(correct, incorrect);
-
+    
         window.scrollTo(0, 0); // This ensures the page scrolls to the top
     };
+    
 
     const saveExamResultsToUser = async (correct, incorrect) => {
         const user = auth.currentUser;
@@ -317,7 +333,9 @@ const ExamViewPage = () => {
 
             <div className="max-w-5xl mx-auto p-8 bg-white ">
                 {!showResults ? (
+                    
                     <>
+                     <Timer initialTime={examDuration} onTimeUp={handleTimeUp} />
                         <h2 className="text-4xl font-extrabold text-center text-blue-600">{examId} İmtahanı</h2>
                         <p className="text-center text-lg text-gray-500 mt-2">Suaları cavablandırın və imtahanınızı tamamlayın!</p>
 
@@ -418,7 +436,7 @@ const ExamViewPage = () => {
 
             <div className="w-full md:w-1/2 text-center">
                 <p className="text-4xl text-gray-700 mb-2">Doğru: <span className="text-green-600 font-bold">{correctAnswers}</span> | Yanlış: <span className="text-red-600 font-bold">{incorrectAnswers}</span></p>
-                <p className="text-2xl text-gray-600">Başarı Oranı: <span className="font-bold">{((correctAnswers / totalQuestions) * 100).toFixed(2)}%</span></p>
+                <p className="text-2xl text-gray-600">Uğur Faizi: <span className="font-bold">{((correctAnswers / totalQuestions) * 100).toFixed(2)}%</span></p>
                 <p className="text-lg text-gray-600">Cavabsız suallar: <span className="font-bold text-orange-600">{totalQuestions - (correctAnswers + incorrectAnswers)}</span></p>
 
                 
@@ -426,22 +444,43 @@ const ExamViewPage = () => {
         </div>
 
         {showResults && wrongAnswers.length > 0 && (
-            <div className="mt-8">
-                <h3 className="text-2xl font-bold text-red-600">Yanlış Cevaplar</h3>
-                <ul className="mt-4 space-y-4">
-                    {wrongAnswers.map((item, index) => (
-                        <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
-                            <p className="font-semibold text-gray-800">Sual: {item.question}</p>
-                            <p className="text-gray-600">Doğru Cevap: <span className="text-green-600 font-bold">{item.correctAnswer}</span></p>
-                            <p className="text-gray-600">Sizin Cevabınız: <span className="text-red-600 font-bold">{item.userAnswer}</span></p>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+    <div className="mt-8">
+        <h3 className="text-2xl font-bold text-red-600">Yanlış Cavablar</h3>
+        <ul className="mt-4 space-y-4">
+            {wrongAnswers.map((item, index) => (
+                <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
+                    <p className="font-semibold text-gray-800">Sual: {item.question}</p>
+                    {item.questionImage && (
+                        <img
+                            src={item.questionImage}
+                            alt={`Question Image ${index + 1}`}
+                            className="mt-2 w-full h-auto md:h-80 object-contain"
+                        />
+                    )}
+                    <p className="text-gray-600">Doğru Cavab: <span className="text-green-600 font-bold">{item.correctAnswer}</span></p>
+                    <p className="text-gray-600">Sizin Cavabınız: <span className="text-red-600 font-bold">{item.userAnswer}</span></p>
+                </li>
+            ))}
+        </ul>
+    </div>
+)}
+{isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+            hasCertificate ? (
+                <p className="text-green-500 text-lg font-semibold mt-4 text-center">
+                    Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
+                </p>
+            ) : (
+                <CertificateGenerator
+                    userName={userr.displayName}
+                    examName={examId}
+                    passPercentage={(correctAnswers / totalQuestions) * 100}
+                    userUID={userr.uid}
+                />
+            )
         )}
 
         <div className="mt-24 flex flex-col text-center gap-4 items-center">
-            <h4 className="text-4xl font-bold text-black ">İmtahanınızı qiymətləndirin</h4>
+            <h4 className="text-4xl font-bold text-black ">İmtahanı qiymətləndirin</h4>
             <div className="flex justify-center items-center space-x-2 mt-2">
                 {[1, 2, 3, 4, 5].map(star => (
                     <FaStar
@@ -458,7 +497,7 @@ const ExamViewPage = () => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="w-full h-32 p-4 border rounded-lg shadow-md mt-4"
-                placeholder="Yorumunuzu buraya yazın..."
+                placeholder="Şərhinizi bura yazın..."
             ></textarea>
         </div>
 
@@ -475,20 +514,7 @@ const ExamViewPage = () => {
             </button>
         </div>
 
-        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
-            hasCertificate ? (
-                <p className="text-green-500 text-lg font-semibold mt-4">
-                    Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
-                </p>
-            ) : (
-                <CertificateGenerator
-                    userName={userr.displayName}
-                    examName={examId}
-                    passPercentage={(correctAnswers / totalQuestions) * 100}
-                    userUID={userr.uid}
-                />
-            )
-        )}
+        
 
         
     </div>

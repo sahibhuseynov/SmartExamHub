@@ -66,10 +66,10 @@ const CertificateGenerator = ({ userName, examName, date, userUID }) => {
     console.log(userUID);
 
     return (
-        <div>
-            <h2>Tebrikler, sınavı tamamladınız!</h2>
-            <button onClick={generatePDF} disabled={isGenerating}>
-                Sertifikayı İndir ve Yükle
+        <div className="text-center mt-12">
+         
+            <button onClick={generatePDF} disabled={isGenerating} className="p-4  text-2xl bg-green-600 text-white rounded-lg hover:scale-110 transition-all duration-150 ease-in">
+                Sertifikatı Yüklə
             </button>
         </div>
     );

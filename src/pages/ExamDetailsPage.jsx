@@ -200,7 +200,7 @@ const ExamDetailsPage = () => {
 
 
                 { /*  kupon end */}
-                <div className="flex flex-wrap justify-between">
+                <div className="flex flex-wrap justify-between ">
                     <div className="p-6 text-black text-center">
                         <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
                         {loading ? (
@@ -218,6 +218,18 @@ const ExamDetailsPage = () => {
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
                             <p className="text-xl">{formatDate(exam?.createdAt)}</p>
+                        )}
+                    </div>
+                    <div className="p-6 text-black text-center">
+                        <h3 className="text-2xl font-bold mb-4">Müddət</h3>
+                        {loading ? (
+                            <Skeleton count={1} height={30} width="50%" />
+                        ) : (
+<p className="text-xl">
+  {exam?.examDuration >= 3600
+    ? `${(exam?.examDuration / 3600).toFixed(0)} saat`
+    : `${(exam?.examDuration / 60).toFixed(0)} dəqiqə`}
+</p>
                         )}
                     </div>
                     <div className="p-6 text-black text-center">

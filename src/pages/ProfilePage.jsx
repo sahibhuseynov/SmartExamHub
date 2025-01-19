@@ -37,15 +37,15 @@ const ProfilePage = () => {
         <div className="w-full lg:w-1/4 bg-white p-6 shadow-md rounded-lg">
           {/* Profil Başlığı */}
           <div className="text-center flex flex-col items-center mb-8">
-            {!user.photoUrl ? (
-              <img src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
-            ) : (
-              <div className="flex items-center justify-center w-24 h-24 bg-blue-600 rounded-full">
-                <span className="text-white text-6xl font-thin">
-                  {user.displayName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+          {user.photoURL ? (
+  <img src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
+) : (
+  <div className="flex items-center justify-center w-24 h-24 bg-blue-600 rounded-full">
+    <span className="text-white text-6xl font-thin">
+      {user.displayName?.charAt(0).toUpperCase() || ""}
+    </span>
+  </div>
+)}
             <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mt-3">
               {user.displayName}
             </h2>

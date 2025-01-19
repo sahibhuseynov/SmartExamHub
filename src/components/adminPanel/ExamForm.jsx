@@ -13,25 +13,31 @@ const ExamForm = () => {
   const [examDate, setExamDate] = useState("");
   const [price, setPrice] = useState("");
   const [isCertified, setIsCertified] = useState(false);
-  const [questions, setQuestions] = useState([{
-    questionText: "",
-    options: ["", "", "", "", ""],
-    correctAnswer: "",
-    image: null,
-    imagesEnabled: false,  // A flag to track if image upload for options should be enabled
-    optionImages: [null, null, null, null, null] // Seçenekler için resimler
-  }]);
-
-  // Yeni soru ekleme
-  const handleAddQuestion = () => {
-    setQuestions([...questions, {
+  const [examDuration, setExamDuration] = useState(""); // Sınav süresi (dakika olarak)
+  const [questions, setQuestions] = useState([
+    {
       questionText: "",
       options: ["", "", "", "", ""],
       correctAnswer: "",
       image: null,
-      imagesEnabled: false,  // Başta resim alanı kapalı
-      optionImages: [null, null, null, null, null] // Yeni soru için seçenek resimleri
-    }]);
+      imagesEnabled: false, // A flag to track if image upload for options should be enabled
+      optionImages: [null, null, null, null, null], // Seçenekler için resimler
+    },
+  ]);
+
+  // Yeni soru ekleme
+  const handleAddQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        questionText: "",
+        options: ["", "", "", "", ""],
+        correctAnswer: "",
+        image: null,
+        imagesEnabled: false, // Başta resim alanı kapalı
+        optionImages: [null, null, null, null, null], // Yeni soru için seçenek resimleri
+      },
+    ]);
   };
 
   // Input değişikliklerini yönetme
@@ -76,13 +82,15 @@ const ExamForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Firebase işlemleri burada olacak (sınav, kategori ve sorular ekleme)
-      
       const categoryRef = doc(db, "Exams", categoryId);
-      await setDoc(categoryRef, {
-        categoryId,
-        description: categoryDescription,
-      }, { merge: true });
+      await setDoc(
+        categoryRef,
+        {
+          categoryId,
+          description: categoryDescription,
+        },
+        { merge: true }
+      );
 
       const classRef = doc(collection(categoryRef, "Classes"), classType);
       await setDoc(classRef, { classType }, { merge: true });
@@ -95,13 +103,12 @@ const ExamForm = () => {
         examDate,
         price: parseFloat(price),
         isCertified,
+        examDuration: parseInt(examDuration), // Sınav süresi ekleniyor
         createdAt: new Date(),
       });
 
-      // Soruları ekleme
       const questionsRef = collection(examRef, "Questions");
       for (const question of questions) {
-        // Seçeneklerin resimlerini optionPhoto olarak Firebase'e ekliyoruz
         const optionsWithImages = question.options.map((option, index) => ({
           option,
           optionPhoto: question.optionImages[index] || null, // Eğer resim eklenmemişse null
@@ -180,6 +187,13 @@ const ExamForm = () => {
             placeholder="Fiyat (AZN)"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+          />
+          <input
+            type="number"
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Sınav Süresi (Dakika)"
+            value={examDuration}
+            onChange={(e) => setExamDuration(e.target.value)}
           />
           <label className="flex items-center space-x-2">
             <input
