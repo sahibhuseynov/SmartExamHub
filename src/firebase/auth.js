@@ -84,14 +84,38 @@ export const emailSignUp = async (email, password, name, dispatch) => {
 // E-poçt və parol ilə giriş
 export const emailSignIn = async (email, password, dispatch) => {
   try {
+    // Firebase Auth ilə giriş
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    dispatch(setUser(userCredential.user));
+    const user = userCredential.user;
+
+    // Firestore-dən istifadəçi məlumatlarını al
+    const userRef = doc(db, "Users", user.uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.data();
+
+      // Redux-a tam istifadəçi məlumatlarını əlavə et
+      dispatch(setUser({
+        uid: userData.uid,
+        email: userData.email,
+        displayName: userData.displayName,
+        points: userData.points,
+        hasStarterBadge: userData.hasStarterBadge,
+        photoURL: userData.photoURL || null, // Əgər varsa, şəkil URL-ni əlavə et
+      }));
+    } else {
+      console.error("İstifadəçi məlumatları tapılmadı!");
+      return false;
+    }
+
     return true;
   } catch (error) {
     console.error("Error during email sign in: ", error.message);
     return false;
   }
 };
+
 
 // Çıxış
 export const googleSignOut = async (dispatch) => {

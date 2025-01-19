@@ -17,6 +17,7 @@ import PaymentPage from './pages/PaymentPage';
 import PaymentConditions from './pages/PaymentConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
+import LoginPage from './pages/LoginPage';
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
               <Route path="/paymentConditions" element={<PaymentConditions />} />
               <Route path="/exam/:categoryId/:classId/:examId/view" element={<ExamViewPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/privacyPolicy" element={<PrivacyPolicy />} />

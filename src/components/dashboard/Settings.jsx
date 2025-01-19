@@ -56,19 +56,19 @@ const Settings = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className=" flex flex-col md:grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label className="block font-semibold">Ad Soyad</label>
         <input
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <div>
         <label className="block font-semibold">E-poçt</label>
-        <input type="email" value={email} disabled className="input input-bordered w-full" />
+        <input type="email" value={email} disabled className="input bg-white input-bordered w-full" />
       </div>
       <div>
         <label className="block font-semibold">Telefon</label>
@@ -76,7 +76,7 @@ const Settings = () => {
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <div>
@@ -85,7 +85,7 @@ const Settings = () => {
           type="date"
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <div>
@@ -93,7 +93,7 @@ const Settings = () => {
         <select
           value={gender}
           onChange={(e) => setGender(e.target.value)}
-          className="select select-bordered w-full"
+          className="select select-bordered w-full bg-white"
         >
           <option value="">Seçin</option>
           <option value="male">Kişi</option>
@@ -110,7 +110,7 @@ const Settings = () => {
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <div>
@@ -119,7 +119,7 @@ const Settings = () => {
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <div>
@@ -128,7 +128,7 @@ const Settings = () => {
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-white"
         />
       </div>
       <button onClick={handleChangePassword} className="btn btn-primary text-white col-span-2">

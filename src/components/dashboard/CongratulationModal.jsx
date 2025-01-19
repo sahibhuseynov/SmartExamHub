@@ -71,7 +71,7 @@ const CongratulationModal = ({ isOpen, onClose }) => {
               Daha çox rozet qazanarak hədiyyələr və sürprizlərlə dolu mükafatlara sahib olun!
             </p>
 
-            <div className="flex gap-3 items-center">
+            <div className="flex flex-col md:flex-row gap-3 items-center">
               <button
                 onClick={onClose}
                 className="px-6 py-3 bg-blue-500 text-white rounded-lg text-lg hover:bg-blue-600 transition duration-300 ease-in-out"
