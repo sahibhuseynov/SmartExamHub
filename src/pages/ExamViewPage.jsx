@@ -365,7 +365,7 @@ const ExamViewPage = () => {
         <img
           src={option.optionPhoto}
           alt={`Option ${i + 1} for question ${index + 1}`}
-          className="mt-2 h-auto  object-cover rounded-lg"
+          className="mt-2 h-auto md:max-h-32 object-cover rounded-lg"
         />
       )}
     </li>
@@ -450,7 +450,7 @@ const ExamViewPage = () => {
 )}
 {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
             hasCertificate ? (
-                <p className="text-green-500 text-lg font-semibold mt-4 text-center">
+                <p className="text-green-500 text-lg font-semibold mt-12 text-center">
                     Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
                 </p>
             ) : (
