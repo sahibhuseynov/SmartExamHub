@@ -30,7 +30,7 @@ const Timer = ({ initialTime, onTimeUp }) => {
     };
 
     return (
-        <div className="timer fixed right-20 p-4 bg-blue-600 rounded-lg w-28 flex items-center justify-center">
+        <div className="timer relative  p-4 bg-blue-600 rounded-lg w-28 flex items-center justify-center">
             <p className="text-base font-bold text-white">{formatTime(timeLeft)}</p>
         </div>
     );

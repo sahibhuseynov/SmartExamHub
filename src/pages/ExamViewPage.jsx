@@ -10,6 +10,7 @@ import CertificateGenerator from '../components/dashboard/CertificateGenerator';
 import { FaCertificate } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import Timer from './../components/dashboard/Timer';
+import ExamRulesModal from './../components/dashboard/ExamRulesModal';
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -36,7 +37,7 @@ const ExamViewPage = () => {
         alert('Vaxt bitdi! İmtahan avtomatik olaraq tamamlandı.');
         handleSubmit(); // İmtahanı otomatik olarak tamamlar
     };
-
+    
     useEffect(() => {
         if (showResults) {
             window.scrollTo(0, 0); // Sayfa sonuçlar gösterildiğinde üst kısma kaydırılır
@@ -303,32 +304,12 @@ const ExamViewPage = () => {
     return (
         <div className="bg-white min-h-screen">
             {showModal && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 overflow-hidden">
-                    <div className="bg-white p-8 rounded-lg max-w-md w-full">
-                        <h2 className="text-2xl  text-center font-semibold mb-4">İmtahan Qaydaları</h2>
-                        <ul className="list-disc pl-5 mb-4">
-                            <li>İmtahanı bitirdikdən sonra nəticəni görə bilərsiniz.</li>
-                            <li>Cavab verməyə istədiyiniz sualdan başlaya bilərsiniz.</li>
-                            <li>Yanlış cavablar doğru cavablara təsir göstərmir.</li>
-                            <li>Hər doğru cavab 1 bal ilə qiymətləndirilir.</li>
-                        </ul>
-                        {isCertifiedExam && (
-                          <div className="flex gap-3">
-                                <FaCertificate  size={32} className="text-yellow-400"/>
-                                <p className="text-lg  text-gray-800 mb-4">
-                                Bu imtahanın sonunda uğur faizinizə əsasən sertifikat veriləcəkdir.
-                                </p>
-                          </div>
-                        )}
-                        <div className="flex justify-center">
-                            <button 
-                                onClick={closeModal}
-                                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">
-                                Qaydaları Oxudum, Davam Et
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ExamRulesModal
+        showModal={showModal}
+        closeModal={closeModal}
+        isCertifiedExam={isCertifiedExam}
+        isLoading = {loading}
+      />
             )}
 
             <div className="max-w-5xl mx-auto p-8 bg-white ">
@@ -449,7 +430,10 @@ const ExamViewPage = () => {
         <ul className="mt-4 space-y-4">
             {wrongAnswers.map((item, index) => (
                 <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
-                    <p className="font-semibold text-gray-800">Sual: {item.question}</p>
+                    <p 
+    className="font-semibold text-gray-800"
+    dangerouslySetInnerHTML={{ __html: `Sual: ${item.question}` }}
+/>
                     {item.questionImage && (
                         <img
                             src={item.questionImage}
