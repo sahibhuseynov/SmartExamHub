@@ -1,31 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../../firebase/config";
-import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, getDocs } from "firebase/firestore";
 import { uploadFileToCloudinary } from "../../utils/cloudinary"; // Cloudinary yükleme fonksiyonu
 
 const ExamForm = () => {
+  const [categories, setCategories] = useState([]); // Kategorileri tutmak için state
+  const [classes, setClasses] = useState([]); // Sınıfları tutmak için state
+
   const [categoryId, setCategoryId] = useState("");
-  const [categoryDescription, setCategoryDescription] = useState("");
   const [classType, setClassType] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState("");
   const [title, setTitle] = useState("");
   const [examTitle2, setExamTitle2] = useState("");
   const [description, setDescription] = useState("");
   const [examDate, setExamDate] = useState("");
   const [price, setPrice] = useState("");
   const [isCertified, setIsCertified] = useState(false);
-  const [examDuration, setExamDuration] = useState(""); // Sınav süresi (dakika olarak)
+  const [examDuration, setExamDuration] = useState("");
   const [questions, setQuestions] = useState([
     {
       questionText: "",
       options: ["", "", "", "", ""],
       correctAnswer: "",
       image: null,
-      imagesEnabled: false, // A flag to track if image upload for options should be enabled
-      optionImages: [null, null, null, null, null], // Seçenekler için resimler
+      imagesEnabled: false,
+      optionImages: [null, null, null, null, null],
     },
   ]);
 
-  // Yeni soru ekleme
+  // Firestore'dan kategori ve sınıfları çekme
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categorySnapshot = await getDocs(collection(db, "Exams"));
+      const fetchedCategories = categorySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setCategories(fetchedCategories);
+    };
+
+    if (categoryId) {
+      const fetchClasses = async () => {
+        const classSnapshot = await getDocs(collection(db, `Exams/${categoryId}/Classes`));
+        const fetchedClasses = classSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setClasses(fetchedClasses);
+      };
+      fetchClasses();
+    }
+
+    fetchCategories();
+  }, [categoryId]);
+
   const handleAddQuestion = () => {
     setQuestions([
       ...questions,
@@ -34,28 +56,26 @@ const ExamForm = () => {
         options: ["", "", "", "", ""],
         correctAnswer: "",
         image: null,
-        imagesEnabled: false, // Başta resim alanı kapalı
-        optionImages: [null, null, null, null, null], // Yeni soru için seçenek resimleri
+        imagesEnabled: false,
+        optionImages: [null, null, null, null, null],
       },
     ]);
   };
 
-  // Input değişikliklerini yönetme
   const handleChange = (index, field, value) => {
     const updatedQuestions = [...questions];
     updatedQuestions[index][field] = value;
     setQuestions(updatedQuestions);
   };
 
-  // Dosya yükleme (soru resmi)
   const handleFileUpload = async (index, event) => {
     const file = event.target.files[0];
     if (file) {
       try {
         const fileUrl = await uploadFileToCloudinary(file);
         const updatedQuestions = [...questions];
-        updatedQuestions[index].image = fileUrl; // Soru resmi
-        updatedQuestions[index].imagesEnabled = true; // Seçenekler için resim alanlarını aktif et
+        updatedQuestions[index].image = fileUrl;
+        updatedQuestions[index].imagesEnabled = true;
         setQuestions(updatedQuestions);
       } catch (error) {
         console.error("Dosya yüklenirken hata oluştu:", error);
@@ -63,14 +83,13 @@ const ExamForm = () => {
     }
   };
 
-  // Option resim yükleme
   const handleOptionFileUpload = async (index, optionIndex, event) => {
     const file = event.target.files[0];
     if (file) {
       try {
         const fileUrl = await uploadFileToCloudinary(file);
         const updatedQuestions = [...questions];
-        updatedQuestions[index].optionImages[optionIndex] = fileUrl; // Seçenek resmi
+        updatedQuestions[index].optionImages[optionIndex] = fileUrl;
         setQuestions(updatedQuestions);
       } catch (error) {
         console.error("Dosya yüklenirken hata oluştu:", error);
@@ -78,7 +97,6 @@ const ExamForm = () => {
     }
   };
 
-  // Formu gönderme
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -103,7 +121,7 @@ const ExamForm = () => {
         examDate,
         price: parseFloat(price),
         isCertified,
-        examDuration: parseInt(examDuration), // Sınav süresi ekleniyor
+        examDuration: parseInt(examDuration),
         createdAt: new Date(),
       });
 
@@ -111,14 +129,14 @@ const ExamForm = () => {
       for (const question of questions) {
         const optionsWithImages = question.options.map((option, index) => ({
           option,
-          optionPhoto: question.optionImages[index] || null, // Eğer resim eklenmemişse null
+          optionPhoto: question.optionImages[index] || null,
         }));
 
         await addDoc(questionsRef, {
           questionText: question.questionText,
-          options: optionsWithImages, // Seçeneklerin resimleri ile birlikte kaydediliyor
+          options: optionsWithImages,
           correctAnswer: question.correctAnswer,
-          image: question.image, // Soru resmi
+          image: question.image,
         });
       }
 
@@ -129,17 +147,36 @@ const ExamForm = () => {
   };
 
   return (
-    <div className="min-h-screen ">
-      <div className="   mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div className="min-h-screen">
+      <div className="mx-auto bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-center">Sınav Ekle</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
+          <select
             className="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder="Kategori ID"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-          />
+          >
+            <option value="">Kategori Seçin</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.id}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            value={classType}
+            onChange={(e) => setClassType(e.target.value)}
+          >
+            <option value="">Sınıf Seçin</option>
+            {classes.map((cls) => (
+              <option key={cls.id} value={cls.id}>
+                {cls.classType || cls.id}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
             className="w-full p-3 border border-gray-300 rounded-lg"
@@ -147,13 +184,7 @@ const ExamForm = () => {
             value={categoryDescription}
             onChange={(e) => setCategoryDescription(e.target.value)}
           />
-          <input
-            type="text"
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder="Sınıf Adı"
-            value={classType}
-            onChange={(e) => setClassType(e.target.value)}
-          />
+
           <input
             type="text"
             className="w-full p-3 border border-gray-300 rounded-lg"
@@ -231,7 +262,7 @@ const ExamForm = () => {
                   <input
                     type="text"
                     className="w-full p-3 border border-gray-300 rounded-lg mb-2"
-                    placeholder={`Seçenek ${String.fromCharCode(65 + i)}`} // 'A', 'B', 'C', etc.
+                    placeholder={`Seçenek ${String.fromCharCode(65 + i)}`}
                     value={option}
                     onChange={(e) => {
                       const updatedOptions = [...q.options];
@@ -244,7 +275,7 @@ const ExamForm = () => {
                     <input
                       type="file"
                       className="w-full p-2 mt-2"
-                      onChange={(e) => handleOptionFileUpload(index, i, e)} // Seçenek için resim yükleme
+                      onChange={(e) => handleOptionFileUpload(index, i, e)}
                       placeholder={`Seçenek ${String.fromCharCode(65 + i)} Resmi`}
                     />
                   )}

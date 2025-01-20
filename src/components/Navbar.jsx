@@ -15,7 +15,10 @@ const Navbar = () => {
     dispatch(logout());
     navigate('/');
   };
-
+const handleDifferentProfile = () => {
+  dispatch(logout());
+  navigate('/register')
+}
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -84,8 +87,8 @@ const Navbar = () => {
                   <li>
                     <Link to='/profile'>{user.displayName || 'Profile'}</Link>
                   </li>
-                  <li><a>Settings</a></li>
-                  <li><a onClick={handleLogout}>Logout</a></li>
+                  <li><Link onClick={handleDifferentProfile}>Fərqli Hesaba Keç</Link></li>
+                  <li><Link onClick={handleLogout}>Hesabdan Çıx</Link></li>
                 </ul>
               </div>
             </>

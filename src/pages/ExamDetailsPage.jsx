@@ -200,9 +200,9 @@ const ExamDetailsPage = () => {
 
 
                 { /*  kupon end */}
-                <div className="flex flex-wrap justify-between ">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  ">
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">İmtahan Tarixi</h3>
+                        <h3 className="text-2xl font-semibold mb-4">İmtahan Tarixi</h3>
                         {loading ? (
     <Skeleton count={1} height={30} width="50%" />
 ) : (
@@ -213,7 +213,7 @@ const ExamDetailsPage = () => {
 
                     </div>
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">Yaradılma Tarixi</h3>
+                        <h3 className="text-2xl font-semibold mb-4">Yaradılma Tarixi</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -221,7 +221,7 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">Müddət</h3>
+                        <h3 className="text-2xl font-semibold mb-4">Müddət</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
@@ -233,7 +233,7 @@ const ExamDetailsPage = () => {
                         )}
                     </div>
                     <div className="p-6 text-black text-center">
-                        <h3 className="text-2xl font-bold mb-4">Qiymət</h3>
+                        <h3 className="text-2xl font-semibold mb-4">Qiymət</h3>
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
