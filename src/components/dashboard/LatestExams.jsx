@@ -101,7 +101,7 @@ const LatestExams = () => {
 
   return (
     <div className="p-8 mb-4 group">
-      <h2 className="text-3xl font-bold text-slate-800 mb-6">En Son Yüklenenlər</h2>
+      <h2 className="text-3xl font-bold text-slate-800 mb-6">Son Yüklənənlər</h2>
 
       <Slider {...sliderSettings}>
         {loading ? (
