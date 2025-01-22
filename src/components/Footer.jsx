@@ -4,17 +4,16 @@ const Footer = () => {
   return (
     <div className=" w-full bg-base-200">
       <div className=" bg-base-200 max-w-6xl  mx-auto">
-      <footer className="footer bg-base-200 text-base-content p-10">
+      <footer className="footer bg-base-200 text-base-content py-10 px-7">
     <aside>
-    <Link to={'/'} className="text-3xl font-bold">Cirtdan</Link>
-      <p>Müəllif hüquqları © {new Date().getFullYear()} <br/>Bütün hüquqlar qorunur Cirtdan</p>
+    <Link to={'/'} className="text-3xl font-bold">Bala Bebir</Link>
+      <p>Müəllif hüquqları © {new Date().getFullYear()} <br/>Bütün hüquqlar qorunur Bala Bebir</p>
     </aside>
     <nav>
       <h6 className="footer-title">Servislər</h6>
       <Link to="/" className=" link-hover">İmtahanlar</Link>
-      <a className="link link-hover">Design</a>
-      <a className="link link-hover">Marketing</a>
-      <a className="link link-hover">Advertisement</a>
+      <Link to="/blog" className=" link-hover">Bloq</Link>
+      
     </nav>
     <nav>
       <h6 className="footer-title">Faydalı Linklər</h6>

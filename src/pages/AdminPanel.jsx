@@ -1,10 +1,12 @@
 import { useState } from "react";
 import ExamForm from "../components/adminPanel/ExamForm"; // Sınav formunu içeren componenti import ediyoruz
 import CouponForm from "../components/adminPanel/CouponForm"; // Kupon formunu içeren componenti import ediyoruz
+import BlogForm from "../components/adminPanel/BlogForm"; // Blog formunu içeren componenti import ediyoruz
 
 const AdminPanel = () => {
   const [isCouponFormVisible, setIsCouponFormVisible] = useState(false); // Kupon formunun görünürlüğü
   const [isExamFormVisible, setIsExamFormVisible] = useState(false); // Sınav formunun görünürlüğü
+  const [isBlogFormVisible, setIsBlogFormVisible] = useState(false); // Blog formunun görünürlüğü
 
   return (
     <div className="min-h-screen bg-gray-100 p-10">
@@ -26,12 +28,19 @@ const AdminPanel = () => {
           >
             {isCouponFormVisible ? "Kupon Formunu Kapat" : "Yeni Kupon Oluştur"}
           </button>
+
+          <button
+            onClick={() => setIsBlogFormVisible(!isBlogFormVisible)}
+            className="py-2 px-6 rounded-lg text-lg font-medium bg-purple-600 text-white hover:bg-purple-700 transition-all"
+          >
+            {isBlogFormVisible ? "Blog Formunu Kapat" : "Yeni Blog Yazısı Ekle"}
+          </button>
         </div>
 
         {/* Tab içerikleri */}
         {isExamFormVisible && <ExamForm />}  {/* Sınav ekleme formu */}
-        
         {isCouponFormVisible && <CouponForm />} {/* Kupon ekleme formu */}
+        {isBlogFormVisible && <BlogForm />} {/* Blog yazısı ekleme formu */}
       </div>
     </div>
   );

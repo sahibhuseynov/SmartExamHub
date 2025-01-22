@@ -16,8 +16,9 @@ const Navbar = () => {
     navigate('/');
   };
 const handleDifferentProfile = () => {
-  dispatch(logout());
   navigate('/register')
+  dispatch(logout());
+  
 }
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -35,13 +36,14 @@ const handleDifferentProfile = () => {
     <div className='w-full bg-white sticky top-0 z-50'>
       <div className='navbar bg-white text-black max-w-7xl mx-auto h-16 px-2 sm:px-16'>
         <div className="navbar-start w-[47%] md:w-2/4">
-          <Link to={'/'} className="text-3xl font-bold">Cirtdan</Link>
+          <Link to={'/'} className="text-3xl font-bold">Bala Bebir</Link>
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li className="text-xl"><Link to={'/'}>Ana Səhifə</Link></li>
             <li className="text-xl"><Link to={'/aboutUs'}>Haqqımızda</Link></li>
             <li className="text-xl"><Link to={'/rewards'}>Hədiyyələr</Link></li>
+            <li className="text-xl"><Link to={'/blog'}>Blog</Link></li>
           </ul>
         </div>
         <div className="navbar-end flex items-center">

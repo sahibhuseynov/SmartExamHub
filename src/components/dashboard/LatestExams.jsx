@@ -1,20 +1,20 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setTopExams, setLoading, selectTopExams } from "../../redux/topExamsSlice";
-import { collection, getDocs } from "firebase/firestore";
+import { setLatestExams, setLoading, selectLatestExams } from "../../redux/latestExamsSlice";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
-import { FaStar, FaCertificate } from "react-icons/fa";
+import { FaCertificate } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import Slider from "react-slick"; // Import react-slick
 import { MdArrowForwardIos, MdOutlineArrowBackIosNew } from "react-icons/md";
 
-
-const TopRating = () => {
-  const { topExams, loading } = useSelector(selectTopExams);
+const LatestExams = () => {
+  const { latestExams, loading } = useSelector(selectLatestExams);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const NextArrow = ({ onClick }) => (
     <div
       className="absolute top-2/4 -right-8 z-10 cursor-pointer text-black text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -32,8 +32,9 @@ const TopRating = () => {
       <MdOutlineArrowBackIosNew />
     </div>
   );
+
   useEffect(() => {
-    const fetchTopExams = async () => {
+    const fetchLatestExams = async () => {
       try {
         dispatch(setLoading(true));
         const categoriesSnapshot = await getDocs(collection(db, "Exams"));
@@ -43,55 +44,56 @@ const TopRating = () => {
           const classesSnapshot = await getDocs(collection(categoryDoc.ref, "Classes"));
 
           for (const classDoc of classesSnapshot.docs) {
-            const examsSnapshot = await getDocs(collection(classDoc.ref, "Exams"));
+            const examsSnapshot = await getDocs(query(collection(classDoc.ref, "Exams"), orderBy("createdAt", "desc")));
 
             examsSnapshot.forEach((examDoc) => {
               const examData = examDoc.data();
-              if (examData.averageRating) {
-                examsData.push({
-                  ...examData,
-                  id: examDoc.id,
-                  classId: classDoc.id,
-                  categoryId: categoryDoc.id,
-                });
-              }
+              examsData.push({
+                ...examData,
+                id: examDoc.id,
+                classId: classDoc.id,
+                categoryId: categoryDoc.id,
+                createdAt: examData.createdAt.toDate().toISOString(), // createdAt'ı ISO formatına çeviriyoruz
+              });
             });
           }
         }
 
-        examsData.sort((a, b) => b.averageRating - a.averageRating);
-        dispatch(setTopExams(examsData)); // Show top 4 exams
+        dispatch(setLatestExams(examsData.slice(0, 4))); // En son 4 sınavı gösteriyoruz
       } catch (error) {
         console.error("Error loading data:", error);
       }
     };
 
-    if (topExams.length === 0) {
-      fetchTopExams();
+    if (latestExams.length === 0) {
+      fetchLatestExams();
     } else {
-      dispatch(setLoading(false)); // Set loading to false when data is fetched
+      dispatch(setLoading(false)); // Data geldiğinde loading'i false yapıyoruz
     }
-  }, [topExams, dispatch]);
+  }, [latestExams, dispatch]);
 
   const goToExam = (categoryId, classId, examId) => {
     navigate(`/category/${categoryId}/class/${classId}/exam/${examId}/details`);
   };
 
+  // Verileri sıralama (en son yüklenen ilk gelmeli)
+  const sortedExams = [...latestExams].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   const sliderSettings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3, // Show 2 cards at a time
+    slidesToShow: 3, // 3 kart birden gösterilecek
     slidesToScroll: 1,
-    centerMode: true, // Center the current slide
-    nextArrow: <NextArrow/>, 
-    prevArrow: <PrevArrow/>, 
+    centerMode: true, // Ortalanmış şekilde göster
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     responsive: [
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1, // Show 1 card at a time on smaller screens
-          centerPadding: "10px", // Adjust space for mobile
+          slidesToShow: 1, // Küçük ekranlarda 1 kart gösterilecek
+          centerPadding: "10px", // Mobile uygun padding
         },
       },
     ],
@@ -99,7 +101,7 @@ const TopRating = () => {
 
   return (
     <div className="p-8 mb-4 group">
-      <h2 className="text-3xl font-bold text-slate-800 mb-6">Ən Sevilən</h2>
+      <h2 className="text-3xl font-bold text-slate-800 mb-6">En Son Yüklenenlər</h2>
 
       <Slider {...sliderSettings}>
         {loading ? (
@@ -120,24 +122,17 @@ const TopRating = () => {
             </div>
           ))
         ) : (
-          topExams.map((exam, index) => (
+          sortedExams.map((exam, index) => (
             <div
               key={index}
-              className="bg-white  !w-[95%]  shadow-md rounded-lg transform transition-all duration-300 relative"
-              // Add margin to create space between slides
+              className="bg-white !w-[95%] shadow-md rounded-lg transform transition-all duration-300 relative"
             >
-              {exam?.isCertified && (
-                <FaCertificate className="text-yellow-500 text-3xl absolute top-2 right-2" />
-              )}
+             
 
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 text-black">{exam.id}</h3>
                 <p className="text-gray-500 mb-4">{exam.categoryId} / {exam.classId}</p>
-                <div className="flex items-center mb-4">
-                  <FaStar className="text-yellow-400 mr-2" />
-                  <span className="text-gray-700 font-medium">{exam.averageRating.toFixed(2)} / 5</span>
-                </div>
-
+                <p className="text-gray-500 mb-4">{new Date(exam.createdAt).toLocaleString()}</p> {/* ISO formatındaki tarihi normal tarihe çeviriyoruz */}
                 <button
                   onClick={() => goToExam(exam.categoryId, exam.classId, exam.id)}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-600 transition-all"
@@ -149,9 +144,8 @@ const TopRating = () => {
           ))
         )}
       </Slider>
-      
     </div>
   );
 };
 
-export default TopRating;
+export default LatestExams;

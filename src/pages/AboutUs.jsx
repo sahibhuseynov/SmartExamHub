@@ -19,7 +19,7 @@ const AboutUs = () => {
             className="text-4xl font-extrabold text-blue-600 mb-6"
             
           >
-            <span className="text-black">Cirtdan</span> Online İmtahan Platforması
+            <span className="text-black">Bala Bebir</span> Online İmtahan Platforması
           </h1>
 
           <motion.p
@@ -28,14 +28,14 @@ const AboutUs = () => {
             animate={{ opacity: 1 }} // Hedef animasyon
             transition={{ duration: 1 }} // Geçiş süresi
           >
-            Cirtdan onlayn sınaq imtahanları, yarışlar, müsabiqələr və test bazası ilə hər kəs üçün təhsil imkanı yaradır. Layihəmiz magistrlərdən ibtidai siniflərə, abituriyentlərdən müəllimlərə qədər geniş bir auditoriya üçün nəzərdə tutulub. Cirtdan-ın əsas məqsədi onlayn təhsilin inkişafını dəstəkləmək və müasir təhsil mühitində rəqabət qabiliyyətli iştirakçıları yetişdirməkdir.
+            Bala Bebir onlayn sınaq imtahanları, yarışlar, müsabiqələr və test bazası ilə hər kəs üçün təhsil imkanı yaradır. Layihəmiz magistrlərdən ibtidai siniflərə, abituriyentlərdən müəllimlərə qədər geniş bir auditoriya üçün nəzərdə tutulub. Cirtdan-ın əsas məqsədi onlayn təhsilin inkişafını dəstəkləmək və müasir təhsil mühitində rəqabət qabiliyyətli iştirakçıları yetişdirməkdir.
           </motion.p>
 
           <h2
             className="text-3xl font-semibold text-gray-800 mt-12 mb-6"
             
           >
-            Cirtdanı Nə Fərqləndirir?
+            Bala Bebiri Nə Fərqləndirir?
           </h2>
 
           <div className="grid md:grid-cols-3 gap-12 mb-16">

@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc, addDoc, getDocs } from "firebase/firestore";
-import { uploadFileToCloudinary } from "../../utils/cloudinary"; // Cloudinary yükleme fonksiyonu
+import { uploadFileToCloudinary } from "../../utils/cloudinary";
 
 const ExamForm = () => {
   const [categories, setCategories] = useState([]); // Kategorileri tutmak için state
   const [classes, setClasses] = useState([]); // Sınıfları tutmak için state
 
   const [categoryId, setCategoryId] = useState("");
+  const [newCategory, setNewCategory] = useState("");
   const [classType, setClassType] = useState("");
+  const [newClass, setNewClass] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [title, setTitle] = useState("");
   const [examTitle2, setExamTitle2] = useState("");
@@ -47,6 +49,34 @@ const ExamForm = () => {
 
     fetchCategories();
   }, [categoryId]);
+
+  const handleAddCategory = async () => {
+    if (newCategory) {
+      try {
+        const categoryRef = doc(db, "Exams", newCategory);
+        await setDoc(categoryRef, { description: categoryDescription });
+        setCategories([...categories, { id: newCategory, description: categoryDescription }]);
+        setCategoryId(newCategory);
+        setNewCategory("");
+      } catch (error) {
+        console.error("Kategori eklenirken hata oluştu: ", error);
+      }
+    }
+  };
+
+  const handleAddClass = async () => {
+    if (newClass && categoryId) {
+      try {
+        const classRef = doc(collection(db, `Exams/${categoryId}/Classes`), newClass);
+        await setDoc(classRef, { classType: newClass });
+        setClasses([...classes, { id: newClass, classType: newClass }]);
+        setClassType(newClass);
+        setNewClass("");
+      } catch (error) {
+        console.error("Sınıf eklenirken hata oluştu: ", error);
+      }
+    }
+  };
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -151,31 +181,63 @@ const ExamForm = () => {
       <div className="mx-auto bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-center">Sınav Ekle</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <select
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-          >
-            <option value="">Kategori Seçin</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.id}
-              </option>
-            ))}
-          </select>
+          <div>
+            <select
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+            >
+              <option value="">Kategori Seçin</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.id}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Yeni Kategori"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            <button
+              type="button"
+              className="w-full bg-green-500 text-white py-2 rounded-lg mt-2"
+              onClick={handleAddCategory}
+            >
+              Yeni Kategori Ekle
+            </button>
+          </div>
 
-          <select
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            value={classType}
-            onChange={(e) => setClassType(e.target.value)}
-          >
-            <option value="">Sınıf Seçin</option>
-            {classes.map((cls) => (
-              <option key={cls.id} value={cls.id}>
-                {cls.classType || cls.id}
-              </option>
-            ))}
-          </select>
+          <div>
+            <select
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              value={classType}
+              onChange={(e) => setClassType(e.target.value)}
+            >
+              <option value="">Sınıf Seçin</option>
+              {classes.map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.classType || cls.id}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Yeni Sınıf"
+              value={newClass}
+              onChange={(e) => setNewClass(e.target.value)}
+            />
+            <button
+              type="button"
+              className="w-full bg-green-500 text-white py-2 rounded-lg mt-2"
+              onClick={handleAddClass}
+            >
+              Yeni Sınıf Ekle
+            </button>
+          </div>
 
           <input
             type="text"

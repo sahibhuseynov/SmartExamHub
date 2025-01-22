@@ -15,6 +15,8 @@ import TopRating from './../components/dashboard/TopRating';
 import TopUsersLeaderboard from './../components/dashboard/TopUsersLeaderboard';
 import Footer from './../components/Footer';
 import CongratulationModal from "../components/dashboard/CongratulationModal"; // Modalı dahil ediyoruz
+import LatestExams from "../components/dashboard/LatestExams";
+import LatestBlogs from './../components/dashboard/LatestBlogs';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -140,8 +142,12 @@ const Dashboard = () => {
 
       <div className="max-w-6xl mx-auto mb-12">
         <TopRating />
+       
+        <LatestExams />
+        
         {/* <CompletedExams /> */}
         <TopUsersLeaderboard />
+        <LatestBlogs />
       </div>
       
       <Footer />

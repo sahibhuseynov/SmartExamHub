@@ -18,6 +18,8 @@ import PaymentConditions from './pages/PaymentConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import LoginPage from './pages/LoginPage';
+import BlogPage from './pages/BlogPage';
+import BlogDetailPage from './pages/BlogDetailPage';
 
 const App = () => {
   return (
@@ -42,7 +44,8 @@ const App = () => {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
               <Route path="/termsOfUse" element={<TermsOfUse />} />
-              
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogDetailPage />} />
             </Routes>
           </AnimatePresence>
         </Router>

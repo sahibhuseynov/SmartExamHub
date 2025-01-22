@@ -81,7 +81,7 @@ const TopUsersLeaderboard = () => {
                 <span className="font-semibold text-lg">{user.name}</span>
               </div>
               <span className="text-xl font-bold text-gray-700">
-                {user.totalPoints} Puan
+                {user.totalPoints} Bal
               </span>
             </li>
           ))
