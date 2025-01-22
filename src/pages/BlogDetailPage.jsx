@@ -73,7 +73,7 @@ const BlogDetailPage = () => {
                   <div key={index} className="space-y-6">
                     {section.type === "image" && (
                       <div
-                        className={`flex items-center gap-6 border-4 bg-slate-200 border-blue-700 rounded-lg overflow-hidden ${
+                        className={`flex flex-col md:flex-row items-center gap-6 border-4 bg-slate-200 border-blue-700 rounded-lg overflow-hidden ${
                           index % 2 === 0 ? "" : "flex-row-reverse"
                         }`}
                       >
