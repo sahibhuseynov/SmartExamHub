@@ -41,6 +41,7 @@ const BlogDetailPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+        
       <Navbar />
       <div className="flex-grow py-16 px-4 lg:px-0">
         <div className="max-w-6xl mx-auto">
@@ -81,18 +82,35 @@ const BlogDetailPage = () => {
                             src={section.url}
                             alt={section.alt}
                             className="w-full h-auto object-cover"
+                            loading="lazy"
                           />
                         </div>
                         <div className="w-full md:w-1/2 p-4">
-                          <p className="text-gray-800 text-lg">{section.text}</p>
+                        <p
+  className="text-gray-800 text-lg"
+  dangerouslySetInnerHTML={{ __html: section.text.replace(
+    /<h4>/g,
+    '<h4 class="text-2xl font-semibold mb-4">'
+  ) }}
+></p>
+
                         </div>
                       </div>
                     )}
-                    {section.type === "text" && (
-                      <div>
-                        <p className="text-gray-800">{section.content}</p>
-                      </div>
-                    )}
+                   {section.type === "text" && (
+  <div className="border-4 bg-slate-200 border-blue-700 rounded-lg p-8 text-center">
+    <p
+      className="text-gray-800"
+      dangerouslySetInnerHTML={{
+        __html: section.content.replace(
+          /<h4>/g,
+          '<h4 class="text-2xl font-semibold mb-4">'
+        )
+      }}
+    />
+  </div>
+)}
+
                   </div>
                 ))}
               </div>

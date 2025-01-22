@@ -14,6 +14,7 @@ const BlogForm = () => {
   const [imageText, setImageText] = useState("");
   const [coverImage, setCoverImage] = useState(null); // Kapak fotoğrafı
   const [coverImageUrl, setCoverImageUrl] = useState(""); // Kapak fotoğrafı URL'si
+  const [newText, setNewText] = useState(""); // Yeni metin eklemek için
 
   const handleImageUpload = async () => {
     if (newImage) {
@@ -82,6 +83,16 @@ const BlogForm = () => {
     } catch (error) {
       console.error("Blog eklenirken hata oluştu:", error);
       alert("Blog eklenirken bir hata oluştu.");
+    }
+  };
+
+  const handleAddText = () => {
+    if (newText.trim()) {
+      const newSection = { type: "text", content: newText };
+      setSections([...sections, newSection]);
+      setNewText("");
+    } else {
+      alert("Lütfen geçerli bir metin girin.");
     }
   };
 
@@ -154,6 +165,23 @@ const BlogForm = () => {
               className="w-full bg-green-500 text-white py-2 rounded-lg"
             >
               Resmi Yükle
+            </button>
+          </div>
+
+          {/* Metin Ekleme Alanı */}
+          <div className="space-y-2">
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Metin ekleyin"
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={handleAddText}
+              className="w-full bg-blue-500 text-white py-2 rounded-lg"
+            >
+              Metin Ekle
             </button>
           </div>
 
