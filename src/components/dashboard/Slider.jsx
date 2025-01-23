@@ -1,6 +1,6 @@
 import Slider from 'react-slick';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; 
-import sliderimg1 from '../../assets/slider1.jpg';
+import sliderimg1 from '../../assets/slider1.webp';
 import sliderimg2 from '../../assets/slider2.webp';
 import sliderimg3 from '../../assets/slider3.webp';
 import 'slick-carousel/slick/slick.css';
