@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { db } from "../firebase/config"; // Firebase bağlantısı
 import { useParams } from "react-router-dom"; // URL parametrelerini almak için
 import { collection, query, where, getDocs } from "firebase/firestore"; // Firestore'dan veri almak için
-import Skeleton from "react-loading-skeleton"; // Skeleton import
-import "react-loading-skeleton/dist/skeleton.css"; // Skeleton CSS
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -41,20 +39,13 @@ const BlogDetailPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-        
       <Navbar />
       <div className="flex-grow py-16 px-4 lg:px-0">
         <div className="max-w-6xl mx-auto">
           {loading ? (
-            <>
-              {/* Skeleton Başlık */}
-              <Skeleton height={40} width={`60%`} className="mb-8" />
-              {/* Skeleton Metin */}
-              <Skeleton count={3} className="mb-4" />
-              {/* Skeleton Resim/Metin Bloğu */}
-              <Skeleton height={200} className="mb-4" />
-              <Skeleton height={200} className="mb-4" />
-            </>
+            <div className="flex justify-center items-center h-64">
+              <span className="loading loading-spinner loading-lg text-gray-400"></span>
+            </div>
           ) : error ? (
             <p>{error}</p>
           ) : (
@@ -86,31 +77,31 @@ const BlogDetailPage = () => {
                           />
                         </div>
                         <div className="w-full md:w-1/2 p-4">
-                        <p
-  className="text-gray-800 text-lg"
-  dangerouslySetInnerHTML={{ __html: section.text.replace(
-    /<h4>/g,
-    '<h4 class="text-2xl font-semibold mb-4">'
-  ) }}
-></p>
-
+                          <p
+                            className="text-gray-800 text-lg"
+                            dangerouslySetInnerHTML={{
+                              __html: section.text.replace(
+                                /<h4>/g,
+                                '<h4 class="text-2xl font-semibold mb-4">'
+                              ),
+                            }}
+                          ></p>
                         </div>
                       </div>
                     )}
-                   {section.type === "text" && (
-  <div className="border-4 bg-slate-200 border-blue-700 rounded-lg p-8 text-center">
-    <p
-      className="text-gray-800"
-      dangerouslySetInnerHTML={{
-        __html: section.content.replace(
-          /<h4>/g,
-          '<h4 class="text-2xl font-semibold mb-4">'
-        )
-      }}
-    />
-  </div>
-)}
-
+                    {section.type === "text" && (
+                      <div className="border-4 bg-slate-200 border-blue-700 rounded-lg p-8 text-center">
+                        <p
+                          className="text-gray-800"
+                          dangerouslySetInnerHTML={{
+                            __html: section.content.replace(
+                              /<h4>/g,
+                              '<h4 class="text-2xl font-semibold mb-4">'
+                            ),
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
