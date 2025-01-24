@@ -2,11 +2,11 @@ import { motion } from 'framer-motion'; // Framer Motion import edildi
 import Navbar from "../components/Navbar";
 import ChatWithUs from './../components/ChatWithUs';
 import Footer from "../components/Footer";
-import RankBadgeImg from '../assets/rankbadge.png' 
-import VictoryCupImg from '../assets/Victorycup.png' 
-import Aiİconİmg from '../assets/Aiİcon.png' 
-import CertificatIconImg from '../assets/certificatIcon.png'
-import notificationsImg from '../assets/notifications.png'
+import RankBadgeImg from '../assets/rankbadge.webp' 
+import VictoryCupImg from '../assets/Victorycup.webp' 
+import Aiİconİmg from '../assets/Aiİcon.webp' 
+import CertificatIconImg from '../assets/certificatIcon.webp'
+import notificationsImg from '../assets/notifications.webp'
 const AboutUs = () => {
   return (
     <div className="bg-gray-50">

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
-import rankBadgeImg from '../../assets/rankbadge.png';
+import rankBadgeImg from '../../assets/rankbadge.webp';
 import { useSelector } from "react-redux";
 
 const CongratulationModal = ({ isOpen, onClose }) => {
