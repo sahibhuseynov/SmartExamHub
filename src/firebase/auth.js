@@ -53,7 +53,7 @@ export const emailSignUp = async (email, password, name, dispatch) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-
+    
     const userName = name || 'Bilinmeyen Kullanıcı';
     const userRef = doc(db, "Users", user.uid);
 
@@ -94,7 +94,7 @@ export const emailSignIn = async (email, password, dispatch) => {
 
     if (userSnapshot.exists()) {
       const userData = userSnapshot.data();
-
+        console.log(userData)
       // Redux-a tam istifadəçi məlumatlarını əlavə et
       dispatch(setUser({
         uid: userData.uid,

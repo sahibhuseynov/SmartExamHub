@@ -5,7 +5,7 @@ import categoryReducer from './categorySlice';
 import classReducer from './classSlice';
 import topExamsReducer from "./topExamsSlice";
 import latestExamsReducer from "./latestExamsSlice";
-import storage from 'redux-persist/lib/storage'; // LocalStorage kullanımı için
+import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
 
