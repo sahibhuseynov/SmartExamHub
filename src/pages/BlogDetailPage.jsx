@@ -5,6 +5,23 @@ import { collection, query, where, getDocs } from "firebase/firestore"; // Fires
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+// Smooth Loading Image Component
+const SmoothImage = ({ src, alt, lazy }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`w-full h-auto object-cover transition-opacity duration-700 ${
+        loaded ? "opacity-100" : "opacity-0"
+      }`}
+      loading={lazy ? "lazy" : "eager"} // İlk şəkil eager, digərləri lazy yüklənir
+      onLoad={() => setLoaded(true)}
+    />
+  );
+};
+
 const BlogDetailPage = () => {
   const { slug } = useParams(); // URL parametre (slug)
   const [blog, setBlog] = useState(null); // Blog verisi
@@ -69,11 +86,10 @@ const BlogDetailPage = () => {
                         }`}
                       >
                         <div className="w-full md:w-1/2">
-                          <img
+                          <SmoothImage
                             src={section.url}
                             alt={section.alt}
-                            className="w-full h-auto object-cover"
-                            loading="lazy"
+                            lazy={index !== 0} // İlk şəkil eager, qalanları lazy yüklənir
                           />
                         </div>
                         <div className="w-full md:w-1/2 p-4">
