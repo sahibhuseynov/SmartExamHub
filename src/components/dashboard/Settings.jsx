@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { db, auth } from "../../firebase/config";
 import { updateDoc, doc } from "firebase/firestore";
 import { updatePassword } from "firebase/auth";
+import { setUser } from "../../redux/userSlice";
 
 const Settings = () => {
   const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [email, setEmail] = useState(user?.email || "");
-  const [phone, setPhone] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [birthDate, setBirthDate] = useState(user?.birthDate || "");
+  const [gender, setGender] = useState(user?.gender || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,7 +20,14 @@ const Settings = () => {
   const showToast = (message, type) => {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
+  // Hata durumunda kırmızı renk, başarı durumunda yeşil renk
+  if (type === 'success') {
     toast.innerHTML = `<div class="alert alert-success bg-green-500 text-white"><span>${message}</span></div>`;
+  } else if (type === 'error') {
+    toast.innerHTML = `<div class="alert alert-error bg-red-500 text-white"><span>${message}</span></div>`;
+  } else {
+    toast.innerHTML = `<div class="alert alert-warning bg-yellow-500 text-black"><span>${message}</span></div>`;
+  }
 
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
@@ -33,6 +42,14 @@ const Settings = () => {
         birthDate,
         gender,
       });
+       // Kullanıcı verileri güncellendikten sonra Redux store'undaki verileri de güncelle
+    dispatch(setUser({
+      ...user,  // mevcut kullanıcı bilgilerini koruyalım
+      displayName,
+      phone,
+      birthDate,
+      gender,
+    }));
       showToast("Profil məlumatlarınız uğurla yeniləndi!", "success");
     } catch (error) {
       console.error(error);

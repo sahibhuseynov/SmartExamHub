@@ -12,11 +12,14 @@ import { setCategories, updateCategoryDescription } from "../redux/categorySlice
 import { setClasses } from "../redux/classSlice";
 // import CompletedExams from "../components/dashboard/CompletedExams";
 import TopRating from './../components/dashboard/TopRating';
-import TopUsersLeaderboard from './../components/dashboard/TopUsersLeaderboard';
-import Footer from './../components/Footer';
 import CongratulationModal from "../components/dashboard/CongratulationModal"; // Modalı dahil ediyoruz
 import LatestExams from "../components/dashboard/LatestExams";
-import LatestBlogs from './../components/dashboard/LatestBlogs';
+import { useMemo } from "react";
+import { lazy, Suspense } from "react";
+const Footer = lazy(() => import("../components/Footer"));
+const LatestBlogs = lazy(() => import("../components/dashboard/LatestBlogs"));
+const TopUsersLeaderboard = lazy(() => import("../components/dashboard/TopUsersLeaderboard"));
+
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -25,7 +28,17 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false); // Modal durumu
   const userId = useSelector((state) => state.user.user?.uid); // Kullanıcı ID'sini alıyoruz
-
+  const categoryList = useMemo(() => (
+    categories.map((category) => (
+      <li
+        key={category.id}
+        className="p-4 bg-blue-500 text-white shadow-md rounded-lg text-center cursor-pointer hover:bg-blue-600 transition duration-300 w-40 h-14 flex items-center justify-center"
+        onClick={() => handleExamClick(category.id, category.id)}
+      >
+        {category.id}
+      </li>
+    ))
+  ), [categories]);
   useEffect(() => {
     
     const fetchCategoriesAndClasses = async () => {
@@ -112,31 +125,18 @@ const Dashboard = () => {
       <div className="p-6 flex flex-col items-center max-w-6xl mx-auto">
         <h2 className="text-2xl text-slate-800 font-bold mb-4">İmtahan Kateqoriyaları</h2>
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {loading ? (
-            [...Array(4)].map((_, index) => (
-              <li
-                key={index}
-                className="p-4 shadow-lg rounded-lg w-40 h-14 flex items-center justify-center"
-              >
-                <Skeleton
-                  width="100%"
-                  height="100%"
-                  className="rounded-lg"
-                  style={{ display: "block" }}
-                />
-              </li>
-            ))
-          ) : (
-            categories.map((category) => (
-              <li
-                key={category.id}
-                className="p-4 bg-blue-500 text-white shadow-md rounded-lg text-center cursor-pointer hover:bg-blue-600 transition duration-300 w-40 h-14 flex items-center justify-center"
-                onClick={() => handleExamClick(category.id, category.id)}
-              >
-                {category.id}
-              </li>
-            ))
-          )}
+        {loading ? (
+  [...Array(4)].map((_, index) => (
+    <li
+      key={index}
+      className="p-4 shadow-lg rounded-lg w-40 h-14 flex items-center justify-center"
+    >
+      <Skeleton width="100%" height="100%" className="rounded-lg" />
+    </li>
+  ))
+) : (
+  categoryList // Burada artıq `map()` işləməyəcək, `useMemo` sayəsində cache-dən götürüləcək
+)}
         </ul>
       </div>
 
@@ -146,11 +146,15 @@ const Dashboard = () => {
         <LatestExams />
         
         {/* <CompletedExams /> */}
-        <TopUsersLeaderboard />
-        <LatestBlogs />
+        <Suspense fallback={<div>Loading...</div>}>
+          <TopUsersLeaderboard />
+          <LatestBlogs />
+        </Suspense>
       </div>
       
-      <Footer />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Footer />
+      </Suspense>
 
       {/* Tebrik modalını ekliyoruz */}
       <CongratulationModal isOpen={showModal} onClose={() => setShowModal(false)} />

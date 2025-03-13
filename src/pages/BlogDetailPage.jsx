@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"; // URL parametrelerini almak için
 import { collection, query, where, getDocs } from "firebase/firestore"; // Firestore'dan veri almak için
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import LatestBlogs from './../components/dashboard/LatestBlogs';
 
 // Smooth Loading Image Component
 const SmoothImage = ({ src, alt, lazy }) => {
@@ -125,6 +126,7 @@ const BlogDetailPage = () => {
           )}
         </div>
       </div>
+   
       <Footer />
     </div>
   );
