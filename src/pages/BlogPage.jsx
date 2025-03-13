@@ -57,7 +57,7 @@ const BlogPage = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="p-2 border rounded-lg"
+              className="select  border border-gray-300 "
             >
               {categories.map((category) => (
                 <option key={category} value={category}>

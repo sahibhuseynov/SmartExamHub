@@ -11,6 +11,32 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from "react-redux";
 
 const ExamDetailsPage = () => {
+    //serh tarixini göstərmək üçün funksiya yazırıq bugunki gunden nece gun evvel olduguniude göstərəcək
+    const formatDateRelative = (timestamp) => {
+        if (!timestamp?.seconds) return "Bilinmiyor";
+    
+        const date = new Date(timestamp.seconds * 1000);
+        const now = new Date();
+        const timeDiff = now - date; // milisaniye farkı
+        const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24)); // Gün cinsinden fark
+    
+        if (daysDiff < 1) {
+            return "Bugün"; // Eğer 1 günden azsa "Bugün" göster
+        } else if (daysDiff === 1) {
+            return "1 gün əvvəl"; // Eğer 1 gün önce yazıldıysa
+        } else if (daysDiff < 7) {
+            return `${daysDiff} gün əvvəl`; // 1-6 gün arası
+        } else if (daysDiff < 30) {
+            const weeks = Math.floor(daysDiff / 7);
+            return `${weeks} həftə əvvəl`; // 1 ay olmadan önce yazılmışsa hafta cinsinden göster
+        } else if (daysDiff < 365) {
+            const months = Math.floor(daysDiff / 30);
+            return `${months} ay əvvəl`; // 1 yıl olmadan önce yazılmışsa ay cinsinden göster
+        } else {
+            const years = Math.floor(daysDiff / 365);
+            return `${years} il əvvəl`; // 1 yıldan eski ise yıl cinsinden göster
+        }
+    };
     const { categoryId, classId, examId } = useParams();
     const [exam, setExam] = useState(null);
     const [comments, setComments] = useState([]);
@@ -244,8 +270,8 @@ const ExamDetailsPage = () => {
 
                 {/* 💬 Yorumlar */}
                 <div className="p-6 bg-white text-black mt-8">
-                    <h3 className="text-2xl font-bold mb-4">💬 Rəylər</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <h3 className="text-2xl font-bold mb-4">Rəylər</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ">
                         {loading ? (
                             [...Array(3)].map((_, index) => (
                                 <div key={index} className="p-4 border rounded-lg shadow-sm">
@@ -256,22 +282,29 @@ const ExamDetailsPage = () => {
                             ))
                         ) : (
                             comments.length > 0 ? (
-                                comments.map((comment, index) => (
-                                    <div key={index} className="p-4 border rounded-lg shadow-sm">
-                                        <p><strong>{comment.Username}</strong></p>
-                                        <p>{comment.comment}</p>
-                                        <div className="flex items-center space-x-1 mt-2">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <FaStar
-                                                    key={star}
-                                                    size={20}
-                                                    color={comment.rating >= star ? "#FFD700" : "#D3D3D3"}
-                                                />
-                                            ))}
+                                comments
+                                    .filter(comment => comment.comment && comment.rating)  // Sadece yorum ve rating olanları filtrele
+                                    .map((comment, index) => (
+                                        <div key={index} className="p-4 border  shadow-sm">
+                                            <p><strong>{comment.Username}</strong></p>
+                                            <div className="flex items-center space-x-1 mb-2">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <FaStar
+                                                        key={star}
+                                                        size={15}
+                                                        color={comment.rating >= star ? "#0cbb5b" : "#D3D3D3"}
+                                                    />
+                                                ))}
+                                                <div>
+                                                    {comment.createdAt && (
+                                                        <p className="text-sm text-gray-500">{formatDateRelative(comment.createdAt)}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <p>{comment.comment}</p>
+                                          
                                         </div>
-                                        <p className="text-sm mt-1">⭐ {comment.rating} / 5</p>
-                                    </div>
-                                ))
+                                    ))
                             ) : (
                                 <p>Henüz yorum yok.</p>
                             )
