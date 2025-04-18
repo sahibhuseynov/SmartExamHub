@@ -2,11 +2,9 @@ import { motion } from 'framer-motion'; // Framer Motion import edildi
 import Navbar from "../components/Navbar";
 import ChatWithUs from './../components/ChatWithUs';
 import Footer from "../components/Footer";
-import RankBadgeImg from '../assets/rankbadge.webp' 
-import VictoryCupImg from '../assets/Victorycup.webp' 
-import Aiİconİmg from '../assets/Aiİcon.webp' 
-import CertificatIconImg from '../assets/certificatIcon.webp'
-import notificationsImg from '../assets/notifications.webp'
+import { BsTwitterX } from "react-icons/bs";
+import { FaLinkedinIn } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 const AboutUs = () => {
   return (
     <div className="bg-gray-50">
@@ -46,7 +44,7 @@ const AboutUs = () => {
             
             >
               <motion.img
-                src={Aiİconİmg}
+                src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012778/cko94fzoa42ersupyttm.webp"}
                 alt="ListIcon"
                 className="w-36 h-36 object-cover"
                 initial={{ rotate: 0 }} // Başlangıç animasyonu
@@ -64,7 +62,7 @@ const AboutUs = () => {
               
               
             >
-              <img src={RankBadgeImg} alt="rankbadge" className="w-36 h-36 object-cover" />
+              <img src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012873/whbchj8jav5kvdqsgd2q.webp"} alt="rankbadge" className="w-36 h-36 object-cover" />
               <h3 className="text-xl font-semibold text-gray-800">Rozet Sistemimiz</h3>
               <p className="text-gray-500 mt-2">
                 Yeni rozetlər əldə edərək, müxtəlif hədiyyələr qazanma imkanı əldə edin!
@@ -88,7 +86,7 @@ const AboutUs = () => {
               
             >
               <motion.img
-                src={VictoryCupImg}
+                src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745013027/kiwsfdvawugzlljexdqd.webp"}
                 alt="victorycup"
                 className="w-36 h-36 object-cover"
                 initial={{ rotate: 0, y: 0 }}
@@ -107,7 +105,7 @@ const AboutUs = () => {
               
             >
               <motion.img
-                src={notificationsImg}
+                src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012779/zfahqljjn5y5hyr7vamp.webp"}
                 alt="victorycup"
                 className="w-36 h-36 object-cover"
                 initial={{ rotate: 0, y: 0 }}
@@ -126,7 +124,7 @@ transition={{ duration: 1.2, ease: "easeInOut",  }}
               
             >
               <motion.img
-                src={CertificatIconImg}
+                src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012778/lrehuf0ddcabu51fe3d3.webp"}
                 alt="victorycup"
                 className="w-36 h-36 object-cover"
                 initial={{ rotate: 0, y: 0 }}
@@ -142,7 +140,7 @@ transition={{ duration: 1.2, ease: "easeInOut",  }}
           </div>
 
           <motion.h2
-            className="text-3xl font-bold mb-8"
+            className="text-3xl font-bold mb-24 mt-24"
             initial={{ opacity: 0, y: 50 }} // Başlangıç animasyonu
             animate={{ opacity: 1, y: 0 }} // Hedef animasyon
             transition={{ duration: 0.8 }} // Geçiş süresi
@@ -153,49 +151,125 @@ transition={{ duration: 1.2, ease: "easeInOut",  }}
           <div className="grid md:grid-cols-3 gap-12">
             {/* Kartlar */}
             <motion.div
-              className="bg-white p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
-              initial={{ opacity: 0, scale: 0.9 }} // Başlangıç animasyonu
-              animate={{ opacity: 1, scale: 1 }} // Hedef animasyon
-              transition={{ duration: 0.5 }} // Geçiş süresi
-            >
-              <img
-                src="https://via.placeholder.com/100"
-                alt="John Doe"
-                className="rounded-full mx-auto mb-4"
-              />
-              <p className="text-xl font-semibold text-gray-800">John Doe</p>
-              <p className="text-gray-500">CEO & Kurucu</p>
-            </motion.div>
+  className="relative bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out group"
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  {/* Profil Şəkli */}
+  <div className="w-40 h-40 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-white -mt-20 group-hover:scale-105  transition-transform duration-300">
+    <img
+      src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1745010685/o91ouqdqw6cctovymjah.png"
+      alt="Hüseynov"
+      className="w-full h-full object-cover"
+    />
+  </div>
 
-            <motion.div
-              className="bg-white p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
-              initial={{ opacity: 0, scale: 0.9 }} // Başlangıç animasyonu
-              animate={{ opacity: 1, scale: 1 }} // Hedef animasyon
-              transition={{ duration: 0.5 }} // Geçiş süresi
-            >
-              <motion.img
-                src="https://via.placeholder.com/100"
-                alt="Jane Smith"
-                className="rounded-full mx-auto mb-4"
-              />
-              <p className="text-xl font-semibold text-gray-800">Jane Smith</p>
-              <p className="text-gray-500">Teknik Müdür</p>
-            </motion.div>
+  {/* Ad və Pozisiya */}
+  <div className="mt-6 text-center">
+    <h3 className="text-xl font-bold text-gray-800  duration-300">Huseynov</h3>
+    <p className="text-sm text-gray-500">CEO & Qurucu</p>
+  </div>
 
-            <motion.div
-              className="bg-white p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-xl"
-              initial={{ opacity: 0, scale: 0.9 }} // Başlangıç animasyonu
-              animate={{ opacity: 1, scale: 1 }} // Hedef animasyon
-              transition={{ duration: 0.5 }} // Geçiş süresi
-            >
-              <img
-                src="https://via.placeholder.com/100"
-                alt="Michael Brown"
-                className="rounded-full mx-auto mb-4"
-              />
-              <p className="text-xl font-semibold text-gray-800">Michael Brown</p>
-              <p className="text-gray-500">Tasarımcı</p>
-            </motion.div>
+  {/* Bio (istəyə bağlı əlavə) */}
+  <p className="text-sm text-gray-600 text-center mt-3 px-2">
+    Rəqəmsal transformasiya üzrə lider. Komandanı motivasiya edən ilhamverici şəxsiyyət.
+  </p>
+
+  {/* Sosial Media İkonları */}
+  <div className="mt-4 flex justify-center gap-4">
+    <a href="#" className="text-gray-400 hover:text-blue-500 transition-colors text-xl">
+    <BsTwitterX />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-blue-700 transition-colors text-xl">
+      <FaLinkedinIn />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-gray-800 transition-colors text-xl">
+      <FaGithub />
+    </a>
+  </div>
+</motion.div>
+
+
+<motion.div
+  className="relative bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out group"
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  {/* Profil Şəkli */}
+  <div className="w-40 h-40 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-white -mt-20 group-hover:scale-105  transition-transform duration-300">
+    <img
+      src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012243/fwvafck1vi3lozvrd7hf.png"
+      alt="Hüseynov"
+      className="w-full h-full object-cover"
+    />
+  </div>
+
+  {/* Ad və Pozisiya */}
+  <div className="mt-6 text-center">
+    <h3 className="text-xl font-bold text-gray-800  duration-300">İslamova</h3>
+    <p className="text-sm text-gray-500">UI/UX</p>
+  </div>
+
+  {/* Bio (istəyə bağlı əlavə) */}
+  <p className="text-sm text-gray-600 text-center mt-3 px-2">
+  Gözoxşayan interfeyslər və axıcı təcrübələrin yaradıcısı.
+  </p>
+
+  {/* Sosial Media İkonları */}
+  <div className="mt-4 flex justify-center gap-4">
+    <a href="#" className="text-gray-400 hover:text-blue-500 transition-colors text-xl">
+    <BsTwitterX />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-blue-700 transition-colors text-xl">
+      <FaLinkedinIn />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-gray-800 transition-colors text-xl">
+      <FaGithub />
+    </a>
+  </div>
+</motion.div>
+
+<motion.div
+  className="relative bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out group"
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  {/* Profil Şəkli */}
+  <div className="w-40 h-40 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-white -mt-20 group-hover:scale-105  transition-transform duration-300">
+    <img
+      src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1745011870/qvtptqcjcco66ydegmvp.png"
+      alt="Quliyeva"
+      className="w-full h-full object-cover"
+    />
+  </div>
+
+  {/* Ad və Pozisiya */}
+  <div className="mt-6 text-center">
+    <h3 className="text-xl font-bold text-gray-800  duration-300">Quliyeva</h3>
+    <p className="text-sm text-gray-500">Developer</p>
+  </div>
+
+  {/* Bio (istəyə bağlı əlavə) */}
+  <p className="text-sm text-gray-600 text-center mt-3 px-2">
+  Müasir veb interfeyslərin hazırlanmasında ixtisaslaşmış frontend developer.
+  </p>
+
+  {/* Sosial Media İkonları */}
+  <div className="mt-4 flex justify-center gap-4">
+    <a href="#" className="text-gray-400 hover:text-blue-500 transition-colors text-xl">
+    <BsTwitterX />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-blue-700 transition-colors text-xl">
+      <FaLinkedinIn />
+    </a>
+    <a href="#" className="text-gray-400 hover:text-gray-800 transition-colors text-xl">
+      <FaGithub />
+    </a>
+  </div>
+</motion.div>
           </div>
         </div>
       </div>

@@ -1,9 +1,6 @@
 import { useState } from "react";
 import Slider from "react-slick";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import sliderimg1 from "../../assets/slider1.webp";
-import sliderimg2 from "../../assets/slider2.webp";
-import sliderimg3 from "../../assets/slider3.webp";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -29,35 +26,41 @@ const PrevArrow = ({ onClick }) => (
 // Smooth Loading üçün Şəkil Komponenti
 const SmoothImage = ({ src, alt }) => {
   const [loaded, setLoaded] = useState(false);
+  const optimizeCloudinaryUrl = (url) => {
+    if (!url.includes("res.cloudinary.com")) return url;
+    return url.replace("/upload/", "/upload/f_auto,q_auto,w_800/");
+  };
 
+  const optimizedSrc = optimizeCloudinaryUrl(src);
   return (
     <img
-      src={src}
-      alt={alt}
-      className={`w-full h-full object-cover rounded-lg transition-opacity duration-700 ${
-        loaded ? "opacity-100" : "opacity-0"
-      }`}
-      onLoad={() => setLoaded(true)}
-    />
-  );
+    src={optimizedSrc}
+    alt={alt}
+    loading="lazy"
+    className={`w-full h-full object-cover rounded-lg transition-opacity duration-700 ${
+      loaded ? "opacity-100" : "opacity-0"
+    }`}
+    onLoad={() => setLoaded(true)}
+  />
+);
 };
 
 const Carousel = () => {
   const slides = [
     {
-      image: sliderimg1,
+      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745008754/dzubtxs8c22gqm1djypy.webp",
       text: "Şir Balası ilə Macəraya Hazır Ol!",
       text2:
         "Ağıllı və bacarıqlı uşaqlar üçün misilsiz tapşırıqlar. Öyrən, əylən və zirvəyə yüksəl!",
     },
     {
-      image: sliderimg3,
+      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745009062/fmjppgjibokcnmkuq4es.webp",
       text: "Kenguru Riyaziyyat İmtahanı artıq platformamızda!",
       text2:
         "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın.",
     },
     {
-      image: sliderimg2,
+      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745009062/mkopjmgox6nafm3q5ka4.webp",
       text: "Bebras Challenge ilə əylənərək öyrənin!",
       text2:
         "Uşaqlar üçün nəzərdə tutulmuş bu maraqlı riyaziyyat və məntiq tapşırıqları ilə bacarıqlarınızı sınayın!",
@@ -66,7 +69,7 @@ const Carousel = () => {
 
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: true, 
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,

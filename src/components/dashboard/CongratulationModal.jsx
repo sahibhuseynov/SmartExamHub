@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
-import rankBadgeImg from '../../assets/rankbadge.webp';
 import { useSelector } from "react-redux";
 
 const CongratulationModal = ({ isOpen, onClose }) => {
@@ -58,7 +57,7 @@ const CongratulationModal = ({ isOpen, onClose }) => {
             </motion.h2>
             <div className="mb-2">
               <img
-                src={rankBadgeImg}
+                src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012873/whbchj8jav5kvdqsgd2q.webp"}
                 alt="Başlanğıc Rozeti"
                 className="w-32 h-32 object-cover mx-auto"
               />

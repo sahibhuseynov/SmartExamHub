@@ -46,32 +46,41 @@ const Dashboard = () => {
         setLoading(false);
         return;
       }
-
+    
       try {
         const categoriesSnapshot = await getDocs(collection(db, "Exams"));
         const categoriesData = categoriesSnapshot.docs.map((doc) => ({
           id: doc.id,
           description: doc.data().description || "Açıklama bulunmamaktadır.",
         }));
-
+    
         dispatch(setCategories(categoriesData));
-
-        const allClasses = [];
-        for (const category of categoriesData) {
-          const classesSnapshot = await getDocs(collection(db, `Exams/${category.id}/Classes`));
+    
+        // Paralel class sorguları
+        const classPromises = categoriesData.map(async (category) => {
+          const classesSnapshot = await getDocs(
+            collection(db, `Exams/${category.id}/Classes`)
+          );
+    
           const classesData = classesSnapshot.docs.map((doc) => ({
             id: doc.id,
             categoryId: category.id,
             ...doc.data(),
           }));
-          allClasses.push(...classesData);
-
-          dispatch(updateCategoryDescription({
-            categoryId: category.id,
-            description: category.description,
-          }));
-        }
-
+    
+          // Redux-a description güncellemesi
+          dispatch(
+            updateCategoryDescription({
+              categoryId: category.id,
+              description: category.description,
+            })
+          );
+    
+          return classesData;
+        });
+    
+        const allClassesNested = await Promise.all(classPromises);
+        const allClasses = allClassesNested.flat();
         dispatch(setClasses(allClasses));
       } catch (error) {
         console.error("Veri yüklenirken hata oluştu:", error);
@@ -79,6 +88,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+    
 
     fetchCategoriesAndClasses();
   }, [dispatch, categories.length]);

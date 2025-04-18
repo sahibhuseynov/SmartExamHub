@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import paymentIcon from '../assets/payment.png';
 import Navbar from './../components/Navbar';
 import ChatWithUs from './../components/ChatWithUs';
 import Footer from './../components/Footer';
@@ -40,7 +39,7 @@ const PaymentPage = () => {
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left gap-6">
         <img 
         loading='lazy'
-  src={paymentIcon} 
+  src={"https://res.cloudinary.com/dwvmtepwh/image/upload/v1745012780/dhx177wkfraxotl7xl4y.png"} 
   alt="Payment Icon" 
   className="w-32 h-32 lg:w-64 lg:h-64 object-cover animate-fadein"
 />
