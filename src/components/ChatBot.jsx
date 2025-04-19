@@ -11,7 +11,7 @@ const ChatBot = () => {
   const messagesEndRef = useRef(null);
 
   // Gemini AI Konfigürasyonu
-  const genAI = new GoogleGenerativeAI("AIzaSyBbGLdnzIgaeYaFRJ22wFnfvCAIsWvSlCI");
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-latest' });
 
   // Mesajları otomatik aşağı kaydır
