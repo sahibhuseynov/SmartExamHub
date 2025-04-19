@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, collection, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { FaFacebook, FaStar,FaWhatsapp } from "react-icons/fa";
+import {  FaStar } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { auth } from "../firebase/config"; // Firebase Authentication importu
 import { useNavigate } from "react-router-dom";
 import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
-import { FaCertificate } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import Timer from './../components/dashboard/Timer';
 import ExamRulesModal from './../components/dashboard/ExamRulesModal';

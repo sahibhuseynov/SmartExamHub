@@ -9,8 +9,10 @@ import { FaStar } from "react-icons/fa";
 import { handleCompleteExam } from "../services/firebaseService"; 
 import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from "react-redux";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 const ExamDetailsPage = () => {
+    const [open, setOpen] = useState(false);
     //serh tarixini göstərmək üçün funksiya yazırıq bugunki gunden nece gun evvel olduguniude göstərəcək
     const formatDateRelative = (timestamp) => {
         if (!timestamp?.seconds) return "Bilinmiyor";
@@ -172,7 +174,37 @@ const ExamDetailsPage = () => {
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
                             <p className="text-lg font-semibold"> {exam?.isCertified && (
-                              <h2 className="font-bold text-2xl mb-2">İmtahan sonunda <span className="text-yellow-300">RƏQƏMSAL SERTİFİKAT</span> qazan!</h2>
+                               <>
+                                    <h2 className="font-bold text-2xl mb-2 flex-col items-center gap-2 sm:flex">
+                                    İmtahan sonunda
+                                    <span className="text-yellow-300 flex flex-col items-center gap-1 sm:flex-row">
+                                      RƏQƏMSAL SERTİFİKAT QAZAN
+                                      <button onClick={() => setOpen(true)}>
+                                        <AiOutlineInfoCircle className="text-white ml-2 hover:scale-125 ease-in-out transition-all" size={25} />
+                                      </button>
+                                    </span>
+                                  </h2>
+                                  {open && (
+  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white text-black p-8 rounded-lg shadow-lg max-w-lg w-full transform transition-all ">
+      <h3 className="font-semibold text-2xl text-center text-primary mb-4">Rəqəmsal Sertifikat Necə Qazanılır?</h3>
+      <p className="text-lg text-gray-700 mb-6">
+        İmtahanı uğurla tamamladıqdan sonra (80% və ya daha yüksək nəticə ilə), sizin profilinizə avtomatik olaraq rəqəmsal sertifikat əlavə olunur. Sertifikatı PDF formatında yükləyə və paylaşa bilərsiniz.
+      </p>
+      <div className="flex justify-center">
+        <button 
+          onClick={() => setOpen(false)} 
+          className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-300 ease-in-out"
+        >
+          Bağla
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+                               </>
+                              
                             )}{exam?.description || "Açıklama yok."}</p>
                         )}
                     </div>
