@@ -22,6 +22,7 @@ module.exports = {
       width: {
         'responsive': 'clamp(10rem, 25vw, 100%)',
       },
+      
     },
     fontFamily: {
       sans: ['Poppins', 'sans-serif'], // Varsayılan sans-serif ailesi olarak Poppins
