@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Toplanan Məlumat</h2>
             <p className="text-lg leading-relaxed">
-              <span className="font-bold">Cirtdan.az</span> saytı üzərindən qeydiyyatdan keçən istifadəçilərdən ad, soyad, email ünvanı kimi məlumatlar toplanır. 
+              <span className="font-bold">Balabebir.az</span> saytı üzərindən qeydiyyatdan keçən istifadəçilərdən ad, soyad, email ünvanı kimi məlumatlar toplanır. 
               Bu məlumatlar yalnız istifadəçi təcrübəsini yaxşılaşdırmaq və xidmətlərimizi təkmilləşdirmək məqsədilə istifadə olunur.
             </p>
           </section>
@@ -21,7 +21,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Məlumatların Təhlükəsizliyi</h2>
             <p className="text-lg leading-relaxed">
-              İstifadəçi məlumatları yüksək təhlükəsizlik tədbirləri ilə qorunur. <span className="font-bold">Cirtdan.az</span> mütəmadi olaraq məlumat təhlükəsizliyini izləyir
+              İstifadəçi məlumatları yüksək təhlükəsizlik tədbirləri ilə qorunur. <span className="font-bold">Balabebir.az</span> mütəmadi olaraq məlumat təhlükəsizliyini izləyir
               və yeni təhlükəsizlik risklərinə qarşı tədbirlər alır.
             </p>
           </section>
@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Məlumatların Üçüncü Tərəflərə Verilməsi</h2>
             <p className="text-lg leading-relaxed">
-              <span className="font-bold">Cirtdan.az</span> tərəfindən toplanan məlumatlar üçüncü tərəflərə yalnız qanuni əsaslarla və ya dövlət orqanlarının tələbi ilə verilə bilər.
+              <span className="font-bold">Balabebir.az</span> tərəfindən toplanan məlumatlar üçüncü tərəflərə yalnız qanuni əsaslarla və ya dövlət orqanlarının tələbi ilə verilə bilər.
               Bu halda, məlumatların verilməsi yalnız müvafiq qanunvericiliyə uyğun şəkildə həyata keçirilir.
             </p>
           </section>
@@ -52,7 +52,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Dəyişikliklər</h2>
             <p className="text-lg leading-relaxed">
-              Məxfilik siyasətində edilən dəyişikliklər <span className="font-bold">Cirtdan.az</span> saytında yerləşdiriləcək və istifadəçilərə bu barədə xəbər veriləcəkdir.
+              Məxfilik siyasətində edilən dəyişikliklər <span className="font-bold">Balabebir.az</span> saytında yerləşdiriləcək və istifadəçilərə bu barədə xəbər veriləcəkdir.
             </p>
           </section>
         </div>

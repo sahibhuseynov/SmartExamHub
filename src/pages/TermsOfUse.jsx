@@ -13,7 +13,7 @@ const TermsOfUse = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Ümumi Məlumat</h2>
             <p className="text-lg leading-relaxed">
-              Bu İstifadə Şərtləri "Cirtdan.az" platformasından istifadə edən hər bir istifadəçi üçün tətbiq olunur. Saytı ziyarət edərək və ya bu platformada qeydiyyatdan keçərək istifadəçi, bu şərtləri qəbul etmiş sayılır.
+              Bu İstifadə Şərtləri "Balabebir.az" platformasından istifadə edən hər bir istifadəçi üçün tətbiq olunur. Saytı ziyarət edərək və ya bu platformada qeydiyyatdan keçərək istifadəçi, bu şərtləri qəbul etmiş sayılır.
             </p>
           </section>
 
@@ -48,21 +48,21 @@ const TermsOfUse = () => {
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Şərtlərdə Dəyişikliklər</h2>
             <p className="text-lg leading-relaxed">
-              "Cirtdan.az" platforması, bu İstifadə Şərtlərini istənilən vaxt dəyişdirmək hüququna malikdir. Dəyişikliklər saytda yayımlandığı andan etibarən qüvvəyə minir və istifadəçilər dəyişiklikləri izləmək məsuliyyətini daşıyırlar.
+              "Balabebir.az" platforması, bu İstifadə Şərtlərini istənilən vaxt dəyişdirmək hüququna malikdir. Dəyişikliklər saytda yayımlandığı andan etibarən qüvvəyə minir və istifadəçilər dəyişiklikləri izləmək məsuliyyətini daşıyırlar.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Məsuliyyət</h2>
             <p className="text-lg leading-relaxed">
-              Sayt üzərindəki məlumatların doğruluğu və ya istifadəçi təcrübəsi ilə bağlı yaranan problemlər üçün "Cirtdan.az" məsuliyyət daşımır. Sayt istifadəçilərindən tələb olunan hər hansı bir məlumat, yalnız istifadəçinin öz riskləri ilə qəbul edilir.
+              Sayt üzərindəki məlumatların doğruluğu və ya istifadəçi təcrübəsi ilə bağlı yaranan problemlər üçün "Balabebir.az" məsuliyyət daşımır. Sayt istifadəçilərindən tələb olunan hər hansı bir məlumat, yalnız istifadəçinin öz riskləri ilə qəbul edilir.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="text-xl lg:text-2xl font-semibold mb-4">Əlaqə</h2>
             <p className="text-lg leading-relaxed">
-              İstifadəçilər, saytla əlaqə qurmaq və ya hər hansı bir sual vermək üçün <span className="font-bold">info@cirtdan.az</span> ünvanından istifadə edə bilərlər.
+              İstifadəçilər, saytla əlaqə qurmaq və ya hər hansı bir sual vermək üçün <span className="font-bold">info@balabebir.az</span> ünvanından istifadə edə bilərlər.
             </p>
           </section>
         </div>

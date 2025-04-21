@@ -26,7 +26,7 @@ const AboutUs = () => {
             animate={{ opacity: 1 }} // Hedef animasyon
             transition={{ duration: 1 }} // Geçiş süresi
           >
-            Bala Bebir onlayn sınaq imtahanları, yarışlar, müsabiqələr və test bazası ilə hər kəs üçün təhsil imkanı yaradır. Layihəmiz magistrlərdən ibtidai siniflərə, abituriyentlərdən müəllimlərə qədər geniş bir auditoriya üçün nəzərdə tutulub. Cirtdan-ın əsas məqsədi onlayn təhsilin inkişafını dəstəkləmək və müasir təhsil mühitində rəqabət qabiliyyətli iştirakçıları yetişdirməkdir.
+            Bala Bebir onlayn sınaq imtahanları, yarışlar, müsabiqələr və test bazası ilə hər kəs üçün təhsil imkanı yaradır. Layihəmiz magistrlərdən ibtidai siniflərə, abituriyentlərdən müəllimlərə qədər geniş bir auditoriya üçün nəzərdə tutulub. Balabebir-in əsas məqsədi onlayn təhsilin inkişafını dəstəkləmək və müasir təhsil mühitində rəqabət qabiliyyətli iştirakçıları yetişdirməkdir.
           </motion.p>
 
           <h2
@@ -53,7 +53,7 @@ const AboutUs = () => {
               />
               <h3 className="text-xl font-semibold text-gray-800">Aİ ilə Gəlişmiş İstatistiklər</h3>
               <p className="text-gray-500 mt-2">
-              Cirtdan, yapay zeka desteğiyle istifadəçi nəticələrini analiz edir və daha dəqiq nəticələr təqdim edir. 
+              Balabebir, Ai dəstəyi ilə istifadəçi nəticələrini analiz edir və daha dəqiq nəticələr təqdim edir. 
               </p>
             </div>
 
