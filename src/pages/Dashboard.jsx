@@ -52,7 +52,7 @@
           const categoriesSnapshot = await getDocs(collection(db, "Exams"));
           const categoriesData = categoriesSnapshot.docs.map((doc) => ({
             id: doc.id,
-            description: doc.data().description || "Açıklama bulunmamaktadır.",
+            description: doc.data().description || "Açıqlama mövcud deyil.",
           }));
       
           dispatch(setCategories(categoriesData));
