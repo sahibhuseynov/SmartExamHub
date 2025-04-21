@@ -4,7 +4,6 @@ import { emailSignIn, googleSignIn } from "../firebase/auth";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
-import loginImg from '../assets/registr.webp';
 import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -52,7 +51,7 @@ const LoginPage = () => {
   return (
     <div className="h-screen bg-gradient-to-b from-violet-700 to-indigo-600 flex items-center justify-center p-8">
       <div className="flex h-auto bg-gray-100 w-full max-w-4xl rounded-lg shadow-lg overflow-hidden">
-        <div className="hidden md:flex w-1/2 bg-cover bg-center" style={{ backgroundImage: `url(${loginImg})` }}></div>
+        <div className="hidden md:flex w-1/2 bg-cover bg-center" style={{ backgroundImage: `url("https://res.cloudinary.com/dwvmtepwh/image/upload/v1745182033/nbwosusokjwc4ga6vqv9.png")` }}></div>
 
         <div className="flex flex-col w-full md:w-1/2 items-center justify-center p-8">
           <h1 className="text-3xl font-bold mb-6 text-center">Xoş Gəlmisiniz!</h1>

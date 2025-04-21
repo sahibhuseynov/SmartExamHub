@@ -32,7 +32,7 @@ const ExamsPage = () => {
           const categorySnap = await getDoc(categoryRef);
           if (categorySnap.exists()) {
             const categoryData = categorySnap.data();
-            setDescription(categoryData.description || "Açıklama bulunmamaktadır.");
+            setDescription(categoryData.description || "Açıqlama mövcud deyil.");
             const categoryClassesRef = collection(db, `Exams/${categoryId}/Classes`);
             const querySnapshot = await getDocs(categoryClassesRef);
             const classesData = querySnapshot.docs.map(doc => ({
@@ -147,10 +147,10 @@ const ExamsPage = () => {
               >
                 <h3 className="text-xl font-bold">{exam.id}</h3>
                 <p className="text-gray-600">
-                  {exam.description ? exam.title2 : "Açıklama bulunmamaktadır."}
+                  {exam.description ? exam.title2 : "Açıqlama mövcud deyil."}
                 </p>
                 <p className="mt-2 text-lg font-semibold">
-                  {exam.price ? `${exam.price} AZN` : "Ücretsiz"}
+                  {exam.price ? `${exam.price} AZN` : "Pulsuz"}
                 </p>
                 {exam.isCertified && (
                   <div className="absolute top-4 right-4">

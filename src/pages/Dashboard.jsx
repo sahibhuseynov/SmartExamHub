@@ -130,8 +130,14 @@
 
     return (
       <div className="bg-gray-50">
-        <ChatBot/>
-        {/* <ChatWithUs /> */}
+        <div className="chatbot-container md:block hidden">
+    <ChatBot />
+  </div>
+
+  {/* Show ChatWithUs for smaller screens */}
+  <div className="chatwithus-container md:hidden block">
+    <ChatWithUs />
+  </div>
         <Navbar />
         <Slider />
         <div className="p-6 flex flex-col items-center max-w-6xl mx-auto">
