@@ -25,7 +25,6 @@ const RegisterPage = () => {
       try {
         const isSuccessful = await emailSignUp(values.email, values.password, values.name, dispatch);
         if (isSuccessful) {
-          alert('Qeydiyyat uğurla tamamlandı!');
           navigate("/");
         }
       } catch (error) {
