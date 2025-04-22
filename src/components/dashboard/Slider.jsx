@@ -48,6 +48,12 @@ const SmoothImage = ({ src, alt }) => {
 const Carousel = () => {
   const slides = [
     {
+      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745009062/mkopjmgox6nafm3q5ka4.webp",
+      text: "Bebras Challenge ilə əylənərək öyrənin!",
+      text2:
+        "Uşaqlar üçün nəzərdə tutulmuş bu maraqlı riyaziyyat və məntiq tapşırıqları ilə bacarıqlarınızı sınayın!",
+    },
+    {
       image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745008754/dzubtxs8c22gqm1djypy.webp",
       text: "Şir Balası ilə Macəraya Hazır Ol!",
       text2:
@@ -59,12 +65,7 @@ const Carousel = () => {
       text2:
         "Riyaziyyat biliklərinizi sınamaq və fərqlənmək şansı üçün buradan başlayın.",
     },
-    {
-      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745009062/mkopjmgox6nafm3q5ka4.webp",
-      text: "Bebras Challenge ilə əylənərək öyrənin!",
-      text2:
-        "Uşaqlar üçün nəzərdə tutulmuş bu maraqlı riyaziyyat və məntiq tapşırıqları ilə bacarıqlarınızı sınayın!",
-    },
+    
   ];
 
   const settings = {

@@ -65,9 +65,8 @@ const handleDifferentProfile = () => {
                     <div className="p-4">
                       <h3 className="font-bold text-lg">Bildirişlər</h3>
                       <ul>
-                        <li className="py-2 border-b">Yeni imtahan nəticəniz hazırdır!</li>
-                        <li className="py-2 border-b">Yeni bir hədiyyə qazandınız!</li>
-                        <li className="py-2">Hesab məlumatlarınızı yeniləyin.</li>
+                        <li className="py-2 border-b">Balabebir ailəsinə xoş gelmisiniz!</li>
+                        
                       </ul>
                     </div>
                   </div>
