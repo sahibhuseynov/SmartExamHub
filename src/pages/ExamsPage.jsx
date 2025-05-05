@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useDispatch, useSelector } from "react-redux";
 import { setClasses } from "../redux/classSlice";
-import { FaCertificate } from "react-icons/fa"; // Sertifika simgesi
+import { FaCertificate } from "react-icons/fa";
 
 const ExamsPage = () => {
   const { categoryId } = useParams();
@@ -21,6 +21,7 @@ const ExamsPage = () => {
   const [examsLoading, setExamsLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [exams, setExams] = useState([]);
+  const [filter, setFilter] = useState("all"); // "all", "free", "paid"
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,6 +97,14 @@ const ExamsPage = () => {
     }
   }, [displayedClasses, selectedClass]);
 
+  // Filter exams based on selected filter
+  const filteredExams = exams.filter(exam => {
+    if (filter === "all") return true;
+    if (filter === "free") return !exam.price || exam.price === 0;
+    if (filter === "paid") return exam.price && exam.price > 0;
+    return true;
+  });
+
   return (
     <div>
       <Navbar />
@@ -130,16 +139,36 @@ const ExamsPage = () => {
         )}
       </div>
 
-      <div className="max-w-6xl mx-auto py-6 h-screen bg-white ">
+      {/* Filter select dropdown */}
+      <div className="max-w-6xl mx-auto  bg-white flex ">
+        <div className="relative w-full md:w-64">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">Bütün imtahanlar</option>
+            <option value="free">Pulsuz imtahanlar</option>
+            <option value="paid">Ödənişli imtahanlar</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto py-6 h-screen bg-white">
         {examsLoading ? (
-          <div className="flex flex-wrap gap-4 ">
+          <div className="flex flex-wrap gap-4">
             {[...Array(3)].map((_, index) => (
               <Skeleton key={index} height={100} width={300} className="rounded-lg" />
             ))}
           </div>
-        ) : exams.length > 0 ? (
+        ) : filteredExams.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {exams.map(exam => (
+            {filteredExams.map(exam => (
               <div
                 key={exam.id}
                 className="border border-gray-300 shadow-lg rounded-lg p-6 cursor-pointer hover:shadow-xl transition-all relative"
@@ -149,19 +178,25 @@ const ExamsPage = () => {
                 <p className="text-gray-600">
                   {exam.description ? exam.title2 : "Açıqlama mövcud deyil."}
                 </p>
-                <p className="mt-2 text-lg font-semibold">
+                <p className={`mt-2 text-lg font-semibold ${exam.price ? "text-purple-600" : "text-green-600"}`}>
                   {exam.price ? `${exam.price} AZN` : "Pulsuz"}
                 </p>
                 {exam.isCertified && (
                   <div className="absolute top-4 right-4">
-                    <FaCertificate className="text-yellow-500 text-2xl "  title="Sertifikalı Sınav" />
+                    <FaCertificate className="text-yellow-500 text-2xl" title="Sertifikalı Sınav" />
                   </div>
                 )}
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center text-lg">Bu sinifdə hələ imtahan mövcud deyil..</p>
+          <p className="text-center text-lg">
+            {filter === "all" 
+              ? "Bu sinifdə hələ imtahan mövcud deyil." 
+              : filter === "free" 
+                ? "Bu sinifdə pulsuz imtahan mövcud deyil." 
+                : "Bu sinifdə ödənişli imtahan mövcud deyil."}
+          </p>
         )}
       </div>
     </div>
