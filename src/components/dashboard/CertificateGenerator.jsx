@@ -8,7 +8,14 @@ import {  arrayUnion, doc, updateDoc } from "firebase/firestore"; // Firestore i
 
 const CertificateGenerator = ({ userName, examName, date, userUID }) => {
     let isGenerating = false;
-    
+    const today = new Date();
+const formattedDate = today.toLocaleDateString("az-AZ", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+});
+
+const finalDate = date ?? formattedDate;
     const generatePDF = async () => {
         if (isGenerating) return;
         isGenerating = true;
@@ -27,7 +34,7 @@ const CertificateGenerator = ({ userName, examName, date, userUID }) => {
         pdfDoc.text(capitalizeName, 220, 180);
 
         const wrappedText = pdfDoc.splitTextToSize(
-            `Təşkilatımız tərəfindən ${date} tarixində keçirilən "${examName}" Təhsil proqramını tamamlayaraq bu sənədi almağa haqq qazandı.`,
+            `Təşkilatımız tərəfindən ${finalDate} tarixində keçirilən "${examName}" Təhsil proqramını tamamlayaraq bu sənədi almağa haqq qazandı.`,
             480
         );
 
