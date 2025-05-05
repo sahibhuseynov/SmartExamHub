@@ -130,7 +130,7 @@ const LatestExams = () => {
              
 
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-black">{exam.id}</h3>
+                <h3 className="line-clamp-1 text-xl font-semibold mb-2 text-black">{exam.id}</h3>
                 <p className="text-gray-500 mb-4">{exam.categoryId} / {exam.classId}</p>
                 <p className="text-gray-500 mb-4">{new Date(exam.createdAt).toLocaleString()}</p> {/* ISO formatındaki tarihi normal tarihe çeviriyoruz */}
                 <button

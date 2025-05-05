@@ -343,6 +343,14 @@ const ExamViewPage = () => {
                                                 />
                                             </div>
                                         )}
+                                        {question.audio && (
+    <div className="mt-4">
+        <audio controls>
+            <source src={question.audio} type="audio/mp3" />
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+)}
                                   <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
   {question.options.map((option, i) => (
     <li 

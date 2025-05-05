@@ -338,7 +338,7 @@ const ExamDetailsPage = () => {
                                         </div>
                                     ))
                             ) : (
-                                <p>Henüz yorum yok.</p>
+                                <p>Rəy yoxdur.</p>
                             )
                         )}
                     </div>

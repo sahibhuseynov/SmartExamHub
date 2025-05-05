@@ -27,6 +27,7 @@ const ExamForm = () => {
       image: null,
       imagesEnabled: false,
       optionImages: [null, null, null, null, null],
+      audio: null, 
     },
   ]);
 
@@ -63,7 +64,20 @@ const ExamForm = () => {
       }
     }
   };
-
+  const handleAudioUpload = async (index, event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const fileUrl = await uploadFileToCloudinary(file); // Cloudinary’ye yükleme
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].audio = fileUrl;
+        setQuestions(updatedQuestions);
+      } catch (error) {
+        console.error("Ses dosyası yüklenirken hata oluştu:", error);
+      }
+    }
+  };
+  
   const handleAddClass = async () => {
     if (newClass && categoryId) {
       try {
@@ -167,6 +181,7 @@ const ExamForm = () => {
           options: optionsWithImages,
           correctAnswer: question.correctAnswer,
           image: question.image,
+          audio: question.audio || null, // 🔈 Yeni alan
         });
       }
 
@@ -308,6 +323,7 @@ const ExamForm = () => {
                 onChange={(e) => handleChange(index, "questionText", e.target.value)}
               />
 
+
               <input
                 type="file"
                 className="w-full p-2 mt-2"
@@ -318,7 +334,19 @@ const ExamForm = () => {
               {q.image && (
                 <div className="mt-2 text-sm text-gray-500">Soru resmi yüklendi.</div>
               )}
-
+<input
+  type="file"
+  accept="audio/*"
+  className="w-full p-2 mt-2"
+  onChange={(e) => handleAudioUpload(index, e)}
+  placeholder="Ses Dosyası"
+/>
+{q.audio && (
+  <div className="mt-2 text-sm text-green-600">
+    Ses dosyası yüklendi.
+    <audio controls src={q.audio} className="mt-1" />
+  </div>
+)}
               {q.options.map((option, i) => (
                 <div key={i} className="mb-4">
                   <input
