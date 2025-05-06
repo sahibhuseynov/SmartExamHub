@@ -54,7 +54,7 @@ const Carousel = () => {
         "Uşaqlar üçün nəzərdə tutulmuş bu maraqlı riyaziyyat və məntiq tapşırıqları ilə bacarıqlarınızı sınayın!",
     },
     {
-      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1745354589/tgzw6lawq9xuw4wzoucu.png",
+      image: "https://res.cloudinary.com/dwvmtepwh/image/upload/v1746566582/e2nrotwdyox3mcujaivy.png",
       text: "Şir Balası ilə Macəraya Hazır Ol!",
       text2:
         "Ağıllı və bacarıqlı uşaqlar üçün misilsiz tapşırıqlar. Öyrən, əylən və zirvəyə yüksəl!",
