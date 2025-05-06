@@ -131,7 +131,7 @@ const TopRating = () => {
               )}
 
               <div className="p-6">
-                <h3 className="line-clamp-1p text-xl font-semibold mb-2 text-black">{exam.id}</h3>
+                <h3 className="line-clamp-1 text-xl font-semibold mb-2 text-black">{exam.id}</h3>
                 <p className="text-gray-500 mb-4">{exam.categoryId} / {exam.classId}</p>
                 <div className="flex items-center mb-4">
                   <FaStar className="text-yellow-400 mr-2" />
