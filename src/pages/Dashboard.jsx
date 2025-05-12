@@ -16,7 +16,6 @@
   import LatestExams from "../components/dashboard/LatestExams";
   import { useMemo } from "react";
   import { lazy, Suspense } from "react";
-  import ChatBot from "../components/ChatBot";
   const Footer = lazy(() => import("../components/Footer"));
   const LatestBlogs = lazy(() => import("../components/dashboard/LatestBlogs"));
   const TopUsersLeaderboard = lazy(() => import("../components/dashboard/TopUsersLeaderboard"));
@@ -131,7 +130,7 @@
     return (
       <div className="bg-gray-50">
         <div className="chatbot-container md:block hidden">
-    <ChatBot />
+      <ChatWithUs />
   </div>
 
   {/* Show ChatWithUs for smaller screens */}
