@@ -295,7 +295,7 @@ const ExamDetailsPage = () => {
                         {loading ? (
                             <Skeleton count={1} height={30} width="50%" />
                         ) : (
-                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : "Gösterilmedi"}</p>
+                            <p className="text-xl">{exam?.price ? `${exam.price} AZN` : <span className="text-green-500">Pulsuz</span> }</p>
                         )}
                     </div>
                 </div>

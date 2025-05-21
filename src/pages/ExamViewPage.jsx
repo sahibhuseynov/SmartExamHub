@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, collection, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/config";
-import {  FaStar } from "react-icons/fa";
+import { FaStar, FaChevronRight, FaChevronLeft, FaList, FaHome } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { auth } from "../firebase/config"; // Firebase Authentication importu
+import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
-import CertificateGenerator from '../components/dashboard/CertificateGenerator';  // Import the CertificateGenerator component
+import CertificateGenerator from '../components/dashboard/CertificateGenerator';
 import { useSelector } from 'react-redux';
 import Timer from './../components/dashboard/Timer';
 import ExamRulesModal from './../components/dashboard/ExamRulesModal';
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
-    const [examDuration, setExamDuration] = useState(0); // Default to 10 minutes
+    const [examDuration, setExamDuration] = useState(0);
     const [questions, setQuestions] = useState([]);
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [loading, setLoading] = useState(true);
@@ -21,27 +21,31 @@ const ExamViewPage = () => {
     const [incorrectAnswers, setIncorrectAnswers] = useState(0);
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [comment, setComment] = useState('');
-    const [rating, setRating] = useState(0); 
+    const [rating, setRating] = useState(0);
     const [showResults, setShowResults] = useState(false);
     const [comments, setComments] = useState([]);
-    const [averageRating, setAverageRating] = useState(0); 
-    const [showModal, setShowModal] = useState(true);  // State for modal visibility
-    const [isCertifiedExam, setIsCertifiedExam] = useState(false);  // Check if the exam has certification
+    const [averageRating, setAverageRating] = useState(0);
+    const [showModal, setShowModal] = useState(true);
+    const [isCertifiedExam, setIsCertifiedExam] = useState(false);
     const [wrongAnswers, setWrongAnswers] = useState([]);
-    const [hasCertificate, setHasCertificate] = useState(false); //daha once sertifikat almisimi
-    console.log(examDuration)
+    const [hasCertificate, setHasCertificate] = useState(false);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [showAnswerSheet, setShowAnswerSheet] = useState(false);
+    
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
+
     const handleTimeUp = () => {
         alert('Vaxt bitdi! İmtahan avtomatik olaraq tamamlandı.');
-        handleSubmit(); // İmtahanı otomatik olarak tamamlar
+        handleSubmit();
     };
     
     useEffect(() => {
         if (showResults) {
-            window.scrollTo(0, 0); // Sayfa sonuçlar gösterildiğinde üst kısma kaydırılır
+            window.scrollTo(0, 0);
         }
     }, [showResults]);
+
     useEffect(() => {
         if (showModal) {
             document.body.style.overflow = "hidden";
@@ -49,7 +53,6 @@ const ExamViewPage = () => {
             document.body.style.overflow = "auto";
         }
     
-        // Cleanup için: Modal kapandığında scroll özelliğini geri yükle
         return () => {
             document.body.style.overflow = "auto";
         };
@@ -59,23 +62,15 @@ const ExamViewPage = () => {
         const checkCertificate = async () => {
             try {
                 if (userr && examId) {
-                    // Kullanıcı belgesine erişim
                     const userDocRef = doc(db, "Users", userr.uid);
                     const userDocSnap = await getDoc(userDocRef);
     
                     if (userDocSnap.exists()) {
-                        // Certificates array'ini al
                         const certificates = userDocSnap.data().certificates || [];
-                        
-                        // Array içinde examName kontrolü
                         const certificateExists = certificates.some(
                             (cert) => cert.examName === examId
                         );
-    
-                        console.log("Certificate exists:", certificateExists);
                         setHasCertificate(certificateExists);
-                    } else {
-                        console.log("User document does not exist.");
                     }
                 }
             } catch (error) {
@@ -85,9 +80,7 @@ const ExamViewPage = () => {
     
         checkCertificate();
     }, [userr, examId]);
-    useEffect(() => {
-        console.log("Updated Exam Duration:", examDuration);
-    }, [examDuration]);
+
     useEffect(() => {
         const fetchExamData = async () => {
             try {
@@ -106,15 +99,9 @@ const ExamViewPage = () => {
                     const fetchedComments = commentsSnapshot.docs.map(doc => doc.data());
                     setComments(fetchedComments);
 
-                    const averageRating = examSnap.data().averageRating || 0;
-                    setAverageRating(averageRating);
-
+                    setAverageRating(examSnap.data().averageRating || 0);
                     setIsCertifiedExam(examSnap.data().isCertified || false);
-                    // Fetching exam duration from Firestore
-                const examDurationFromFirestore = examData.examDuration || 10; // Default to 10 if not set
-                setExamDuration(examDurationFromFirestore);
-                } else {
-                    console.error("Sınav bulunamadı.");
+                    setExamDuration(examData.examDuration || 10);
                 }
             } catch (error) {
                 console.error("Veriler alınırken hata oluştu:", error);
@@ -126,9 +113,6 @@ const ExamViewPage = () => {
         fetchExamData();
     }, [categoryId, classId, examId]);
 
-    
-
-
     const handleAnswerChange = (questionIndex, selectedOption) => {
         setSelectedAnswers(prevState => ({
             ...prevState,
@@ -136,12 +120,11 @@ const ExamViewPage = () => {
         }));
     };
     
-    
     const handleSubmit = async () => {
         let correct = 0;
         let incorrect = 0;
-        let wrongAnswersList = []; // Yanlış cevapları tutacak bir liste
-    
+        let wrongAnswersList = [];
+
         questions.forEach((question, index) => {
             if (selectedAnswers[index] === question.correctAnswer) {
                 correct++;
@@ -149,7 +132,7 @@ const ExamViewPage = () => {
                 incorrect++;
                 wrongAnswersList.push({
                     question: question.questionText,
-                    questionImage: question.image,  // Include image in wrong answer
+                    questionImage: question.image,
                     correctAnswer: question.correctAnswer,
                     userAnswer: selectedAnswers[index]
                 });
@@ -159,10 +142,8 @@ const ExamViewPage = () => {
         setCorrectAnswers(correct);
         setIncorrectAnswers(incorrect);
         setShowResults(true);
-    
-        // Yanlış cevaplar kısmını göstermek için state güncellemesi
         setWrongAnswers(wrongAnswersList);
-    
+
         const successRate = (correct / totalQuestions) * 100;
     
         if (isCertifiedExam && successRate >= 80) {
@@ -172,11 +153,8 @@ const ExamViewPage = () => {
         }
     
         await saveExamResultsToUser(correct, incorrect);
-    
-        window.scrollTo(0, 0); // This ensures the page scrolls to the top
     };
     
-
     const saveExamResultsToUser = async (correct, incorrect) => {
         const user = auth.currentUser;
         if (user) {
@@ -188,7 +166,6 @@ const ExamViewPage = () => {
                     const userData = userSnap.data();
                     const existingExams = userData.exams || [];
                     
-                    // Kullanıcının bu sınava daha önce girip girmediğini kontrol et
                     const hasAttemptedExam = existingExams.some(
                         (exam) => exam.examId === examId
                     );
@@ -196,7 +173,6 @@ const ExamViewPage = () => {
                     if (!hasAttemptedExam) {
                         const successRate = (correct / totalQuestions) * 100;
     
-                        // Kullanıcının sınav sonuçlarını ekle
                         await setDoc(
                             userRef,
                             {
@@ -211,21 +187,34 @@ const ExamViewPage = () => {
                             },
                             { merge: true }
                         );
-    
-                        console.log("Sınav sonucu başarıyla kaydedildi.");
-                    } else {
-                        console.log("Kullanıcı bu sınava daha önce girmiş.");
                     }
-                } else {
-                    console.log("Kullanıcı belgesi bulunamadı.");
                 }
             } catch (error) {
                 console.error("Sonuçlar kaydedilirken hata oluştu:", error);
             }
         }
     };
-    
-      
+
+    const handleNextQuestion = () => {
+        if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }
+    };
+
+    const handlePrevQuestion = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(currentQuestionIndex - 1);
+        }
+    };
+
+    const toggleAnswerSheet = () => {
+        setShowAnswerSheet(!showAnswerSheet);
+    };
+
+    const jumpToQuestion = (index) => {
+        setCurrentQuestionIndex(index);
+        setShowAnswerSheet(false);
+    };
 
     const chartData = [
         { name: 'Doğru', value: correctAnswers },
@@ -249,9 +238,10 @@ const ExamViewPage = () => {
                 alert("Yorumunuz kaydedildi!");
                 await updateAverageRating();
                 fetchComments();
+                setComment('');
+                setRating(0);
             } catch (error) {
                 console.error("Yorum kaydedilirken hata oluştu:", error);
-                alert("Bir hata oluştu, lütfen tekrar deneyin.");
             }
         } else {
             alert("Yorum yapabilmek için giriş yapmanız gerekir.");
@@ -269,13 +259,11 @@ const ExamViewPage = () => {
             const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
             await setDoc(examRef, { averageRating }, { merge: true });
 
-            console.log("Ortalama puan başarıyla güncellendi!");
             setAverageRating(averageRating);
         } catch (error) {
             console.error("Ortalama puan güncellenirken hata oluştu:", error);
         }
     };
-    
 
     const fetchComments = async () => {
         try {
@@ -288,8 +276,8 @@ const ExamViewPage = () => {
         }
     };
 
-    const handleRatingChange = (rating) => {
-        setRating(rating);
+    const handleRatingChange = (newRating) => {
+        setRating(newRating);
     };
 
     const goToHomePage = () => {
@@ -304,213 +292,271 @@ const ExamViewPage = () => {
         <div className="bg-white min-h-screen">
             {showModal && (
                 <ExamRulesModal
-        showModal={showModal}
-        closeModal={closeModal}
-        isCertifiedExam={isCertifiedExam}
-        isLoading = {loading}
-      />
+                    showModal={showModal}
+                    closeModal={closeModal}
+                    isCertifiedExam={isCertifiedExam}
+                    isLoading={loading}
+                />
             )}
 
-            <div className="max-w-5xl mx-auto p-8 bg-white ">
+            <div className="max-w-5xl mx-auto p-4 md:p-8 bg-white relative">
                 {!showResults ? (
-                    
                     <>
-                     <Timer initialTime={examDuration} onTimeUp={handleTimeUp} />
-                        <h2 className="text-4xl font-extrabold text-center text-blue-600">{examId} İmtahanı</h2>
-                        <p className="text-center text-lg text-gray-500 mt-2">Suaları cavablandırın və imtahanınızı tamamlayın!</p>
+                        <div className="flex justify-between items-center mb-4">
+                            <Timer initialTime={examDuration * 60} onTimeUp={handleTimeUp} />
+                            <button 
+                                onClick={toggleAnswerSheet}
+                                className="p-2 bg-blue-500 text-white rounded-lg flex items-center gap-2 hover:bg-blue-600 transition"
+                            >
+                                <FaList /> Cavab Kartı
+                            </button>
+                        </div>
 
+                        <h2 className="text-2xl md:text-4xl font-extrabold text-center text-blue-600 mb-4">{examId} İmtahanı</h2>
+                        
                         {loading ? (
                             <div className="flex justify-center mt-8">
                                 <p className="text-xl text-gray-500">Yükleniyor...</p>
                             </div>
-                        ) : (
-                            questions.length > 0 ? (
-                                questions.map((question, index) => (
-                                    <div key={index} className="p-6   mt-4 transition-all">
-                         <p className="text-xl font-semibold text-gray-800">
-    <span 
-        dangerouslySetInnerHTML={{ 
-            __html: `Sual ${index + 1}: ${question.questionText}` 
-        }} 
-    />
-</p>
-                                        {question.image && (
-                                            <div className="mt-4">
-                                                <img
-                                                    src={question.image}
-                                                    alt={`Sual ${index + 1} üçün resim`}
-                                                    className="w-full md:max-w-xl mx-auto h-auto md:h-80 object-contain rounded-lg "
-                                                />
-                                            </div>
-                                        )}
-                                        {question.audio && (
-    <div className="mt-4">
-        <audio controls>
-            <source src={question.audio} type="audio/mp3" />
-            Your browser does not support the audio element.
-        </audio>
-    </div>
-)}
-                                  <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  {question.options.map((option, i) => (
-    <li 
-      key={i} 
-      className="flex flex-col items-start p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow"
-    >
-      <label className="cursor-pointer flex items-center space-x-2 w-full">
-        <input
-          type="radio"
-          name={`question${index}`}
-          value={option.option}
-          checked={selectedAnswers[index] === option.option}
-          onChange={() => handleAnswerChange(index, option.option)}
-          className="radio radio-primary"
-        />
-        <span className="text-gray-700">{option.option}</span>
-      </label>
-      {option.optionPhoto && (
-        <img
-          src={option.optionPhoto}
-          alt={`Option ${i + 1} for question ${index + 1}`}
-          className="mt-2 h-auto md:max-h-32 object-cover rounded-lg"
-        />
-      )}
-    </li>
-  ))}
-</ul>
-
-
+                        ) : questions.length > 0 ? (
+                            <div className="relative">
+                                {/* Cevap kartı paneli */}
+                                {showAnswerSheet && (
+                                    <div className="absolute right-0 top-0 bg-white p-4 rounded-lg shadow-lg z-10 border border-gray-200 w-64">
+                                        <h3 className="font-bold mb-2">Cevap Kartı</h3>
+                                        <div className="grid grid-cols-5 gap-2">
+                                            {questions.map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => jumpToQuestion(index)}
+                                                    className={`w-8 h-8 rounded flex items-center justify-center ${
+                                                        selectedAnswers[index] 
+                                                            ? 'bg-green-500 text-white' 
+                                                            : 'bg-gray-200'
+                                                    } ${
+                                                        index === currentQuestionIndex 
+                                                            ? 'border-2 border-blue-500' 
+                                                            : ''
+                                                    }`}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-center text-gray-500 mt-8">Bu sınavda soru bulunmamaktadır.</p>
-                            )
-                        )}
+                                )}
 
-                        <button
-                            onClick={handleSubmit}
-                            className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all mt-8"
-                        >
-                            İmtahanı Bitir
-                        </button>
+                                {/* Tek soru görünümü */}
+                                <div className="p-6 border rounded-lg shadow-md">
+                                    <p className="text-xl font-semibold text-gray-800">
+                                        <span dangerouslySetInnerHTML={{ 
+                                            __html: `Sual ${currentQuestionIndex + 1}: ${questions[currentQuestionIndex].questionText}` 
+                                        }} />
+                                    </p>
+                                    
+                                    {questions[currentQuestionIndex].image && (
+                                        <div className="mt-4">
+                                            <img
+                                                src={questions[currentQuestionIndex].image}
+                                                alt={`Sual ${currentQuestionIndex + 1} üçün resim`}
+                                                className="w-full max-h-64 object-contain rounded-lg"
+                                            />
+                                        </div>
+                                    )}
+                                    
+                                    {questions[currentQuestionIndex].audio && (
+                                        <div className="mt-4">
+                                            <audio controls>
+                                                <source src={questions[currentQuestionIndex].audio} type="audio/mp3" />
+                                            </audio>
+                                        </div>
+                                    )}
+                                    
+                                <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">  {/* Bu satırı değiştiriyoruz */}
+    {questions[currentQuestionIndex].options.map((option, i) => (
+        <li key={i} className="flex items-center p-3 border rounded hover:bg-gray-50">
+            <label className="cursor-pointer flex items-center space-x-3 w-full">
+                <input
+                    type="radio"
+                    name={`question${currentQuestionIndex}`}
+                    value={option.option}
+                    checked={selectedAnswers[currentQuestionIndex] === option.option}
+                    onChange={() => handleAnswerChange(currentQuestionIndex, option.option)}
+                    className="radio radio-primary"
+                />
+                <span className="text-gray-700">{option.option}</span>
+                {option.optionPhoto && (
+                    <img
+                        src={option.optionPhoto}
+                        alt={`Option ${i + 1}`}
+                        className="ml-2 h-16 object-contain"
+                    />
+                )}
+            </label>
+        </li>
+    ))}
+</ul>
+                                    
+                                    <div className="flex justify-between mt-6">
+                                        <button
+                                            onClick={handlePrevQuestion}
+                                            disabled={currentQuestionIndex === 0}
+                                            className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
+                                        >
+                                            <FaChevronLeft /> Əvvəlki
+                                        </button>
+                                        
+                                        {currentQuestionIndex < questions.length - 1 ? (
+                                            <button
+                                                onClick={handleNextQuestion}
+                                                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                            >
+                                                Növbəti <FaChevronRight />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={handleSubmit}
+                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                                            >
+                                                İmtahanı Bitir
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500 mt-8">Bu sınavda soru bulunmamaktadır.</p>
+                        )}
                     </>
                 ) : (
-                    <>
-    <div className="">
-        <h3 className="text-6xl font-bold text-indigo-600 mb-6 text-center">Nəticələr</h3>
+                    <div className="mt-8">
+                        <h3 className="text-4xl font-bold text-indigo-600 mb-6 text-center">Nəticələr</h3>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-8">
-            <div className="w-full md:w-1/2">
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie 
-                            data={chartData} 
-                            dataKey="value" 
-                            nameKey="name" 
-                            cx="50%" 
-                            cy="50%" 
-                            outerRadius="80%" 
-                            fill="#4f46e5" 
-                            label>
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
+                        <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-8">
+                            <div className="w-full md:w-1/2">
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie 
+                                            data={chartData} 
+                                            dataKey="value" 
+                                            nameKey="name" 
+                                            cx="50%" 
+                                            cy="50%" 
+                                            outerRadius="80%" 
+                                            fill="#4f46e5" 
+                                            label>
+                                            {chartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
 
-            <div className="w-full md:w-1/2 text-center">
-                <p className="text-4xl text-gray-700 mb-2">Doğru: <span className="text-green-600 font-bold">{correctAnswers}</span> | Yanlış: <span className="text-red-600 font-bold">{incorrectAnswers}</span></p>
-                <p className="text-2xl text-gray-600">Uğur Faizi: <span className="font-bold">{((correctAnswers / totalQuestions) * 100).toFixed(2)}%</span></p>
-                <p className="text-lg text-gray-600">Cavabsız suallar: <span className="font-bold text-orange-600">{totalQuestions - (correctAnswers + incorrectAnswers)}</span></p>
+                            <div className="w-full md:w-1/2 text-center">
+                                <p className="text-2xl md:text-3xl text-gray-700 mb-2">
+                                    Doğru: <span className="text-green-600 font-bold">{correctAnswers}</span> | 
+                                    Yanlış: <span className="text-red-600 font-bold">{incorrectAnswers}</span>
+                                </p>
+                                <p className="text-xl md:text-2xl text-gray-600 mb-2">
+                                    Uğur Faizi: <span className="font-bold">{((correctAnswers / totalQuestions) * 100).toFixed(2)}%</span>
+                                </p>
+                                <p className="text-lg text-gray-600">
+                                    Cavabsız suallar: <span className="font-bold text-orange-600">{totalQuestions - (correctAnswers + incorrectAnswers)}</span>
+                                </p>
+                            </div>
+                        </div>
 
-                
-            </div>
-        </div>
+                        {wrongAnswers.length > 0 && (
+                            <div className="mt-8">
+                                <h3 className="text-2xl font-bold text-red-600 mb-4">Yanlış Cavablar</h3>
+                                <ul className="space-y-4">
+                                    {wrongAnswers.map((item, index) => (
+                                        <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
+                                            <p 
+                                                className="font-semibold text-gray-800"
+                                                dangerouslySetInnerHTML={{ __html: `Sual: ${item.question}` }}
+                                            />
+                                            {item.questionImage && (
+                                                <img
+                                                    src={item.questionImage}
+                                                    alt={`Question Image ${index + 1}`}
+                                                    className="mt-2 w-full h-auto md:max-h-80 object-contain"
+                                                />
+                                            )}
+                                            <p className="text-gray-600 mt-2">
+                                                Doğru Cavab: <span className="text-green-600 font-bold">{item.correctAnswer}</span>
+                                            </p>
+                                            <p className="text-gray-600">
+                                                Sizin Cavabınız: <span className="text-red-600 font-bold">{item.userAnswer || "Cavab verilməyib"}</span>
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
-        {showResults && wrongAnswers.length > 0 && (
-    <div className="mt-8">
-        <h3 className="text-2xl font-bold text-red-600">Yanlış Cavablar</h3>
-        <ul className="mt-4 space-y-4">
-            {wrongAnswers.map((item, index) => (
-                <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
-                    <p 
-    className="font-semibold text-gray-800"
-    dangerouslySetInnerHTML={{ __html: `Sual: ${item.question}` }}
-/>
-                    {item.questionImage && (
-                        <img
-                            src={item.questionImage}
-                            alt={`Question Image ${index + 1}`}
-                            className="mt-2 w-full h-auto md:h-80 object-contain"
-                        />
-                    )}
-                    <p className="text-gray-600">Doğru Cavab: <span className="text-green-600 font-bold">{item.correctAnswer}</span></p>
-                    <p className="text-gray-600">Sizin Cavabınız: <span className="text-red-600 font-bold">{item.userAnswer}</span></p>
-                </li>
-            ))}
-        </ul>
-    </div>
-)}
-{isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
-            hasCertificate ? (
-                <p className="text-green-500 text-lg font-semibold mt-12 text-center">
-                    Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
-                </p>
-            ) : (
-                <CertificateGenerator
-                    userName={userr.displayName}
-                    examName={examId}
-                    passPercentage={(correctAnswers / totalQuestions) * 100}
-                    userUID={userr.uid}
-                />
-            )
-        )}
+                        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+                            <div className="mt-8 text-center">
+                                {hasCertificate ? (
+                                    <p className="text-green-500 text-lg font-semibold">
+                                        Siz daha əvvəl bu sertifikatı qazanmısınız. Profildən əldə edə bilərsiniz.
+                                    </p>
+                                ) : (
+                                    <CertificateGenerator
+                                        userName={userr.displayName}
+                                        examName={examId}
+                                        passPercentage={(correctAnswers / totalQuestions) * 100}
+                                        userUID={userr.uid}
+                                    />
+                                )}
+                            </div>
+                        )}
 
-        <div className="mt-24 flex flex-col text-center gap-4 items-center">
-            <h4 className="text-4xl font-bold text-black ">İmtahanı qiymətləndirin</h4>
-            <div className="flex justify-center items-center space-x-2 mt-2">
-                {[1, 2, 3, 4, 5].map(star => (
-                    <FaStar
-                        size={45}
-                        key={star}
-                        onClick={() => handleRatingChange(star)}
-                        color={star <= rating ? "#FFD700" : "#D3D3D3"}
-                        className="cursor-pointer"
-                    />
-                ))}
-            </div>
-
-            <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="w-full h-32 p-4 border rounded-lg shadow-md mt-4"
-                placeholder="Şərhinizi bura yazın..."
-            ></textarea>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <button
-                onClick={handleSaveComment}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
-                Göndər
-            </button>
-            <button
-                onClick={goToHomePage}
-                className="w-full bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600">
-                Ana Səhifəyə Get
-            </button>
-        </div>
-
-        
-
-        
-    </div>
-</>
-
+                        <div className="mt-12">
+                            <h4 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
+                                İmtahanı qiymətləndirin
+                            </h4>
+                            
+                            <div className="flex flex-col items-center">
+                                <div className="flex justify-center items-center space-x-2 mb-4">
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <FaStar
+                                            size={32}
+                                            key={star}
+                                            onClick={() => handleRatingChange(star)}
+                                            color={star <= rating ? "#FFD700" : "#D3D3D3"}
+                                            className="cursor-pointer hover:scale-110 transition"
+                                        />
+                                    ))}
+                                </div>
+                                
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    className="w-full max-w-2xl h-32 p-4 border rounded-lg shadow-md mb-4"
+                                    placeholder="Şərhinizi bura yazın..."
+                                ></textarea>
+                                
+                                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
+                                    <button
+                                        onClick={handleSaveComment}
+                                        className="flex-1 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2"
+                                    >
+                                        Göndər
+                                    </button>
+                                    <button
+                                        onClick={goToHomePage}
+                                        className="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition flex items-center justify-center gap-2"
+                                    >
+                                        <FaHome /> Ana Səhifəyə Get
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

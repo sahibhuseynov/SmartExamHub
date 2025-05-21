@@ -17,9 +17,9 @@ const RegisterPage = () => {
       password: '',
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Ad Soyad gerekli'),
-      email: Yup.string().email('Geçerli bir e-posta girin').required('E-posta gerekli'),
-      password: Yup.string().min(6, 'Şifre en az 6 karakter olmalıdır').required('Şifre gerekli'),
+      name: Yup.string().required('Ad və soyad mütləqdir!'),
+      email: Yup.string().email('Etibarlı bir e-poçt ünvanı daxil edin.').required('E-poçt mütləqdir.'),
+      password: Yup.string().min(6, 'Şifrə ən azı 6 simvoldan ibarət olmalıdır.').required('Şifrə mütləqdir.'),
     }),
     onSubmit: async (values) => {
       try {
@@ -29,7 +29,7 @@ const RegisterPage = () => {
         }
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-          alert('Bu e-posta adresi zaten kayıtlı!');
+          alert('Bu e-poçt ünvanı artıq qeydiyyatdan keçib!');
         } else {
           alert('Qeydiyyatda səhv baş verdi. Zəhmət olmasa, yenidən cəhd edin.');
         }
@@ -42,7 +42,7 @@ const RegisterPage = () => {
   const handleGoogleSignIn = async () => {
     const isSuccessful = await googleSignIn(dispatch);
     if (isSuccessful) {
-      alert('Google ilə uğurla giriş edildi!');
+      
       navigate("/");
     } else {
       alert('Google ilə girişdə səhv baş verdi.');
@@ -50,9 +50,28 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-b from-violet-700 to-indigo-600  flex items-center justify-center p-8">
-      <div className="flex h-auto bg-white  w-full max-w-4xl rounded-lg shadow-lg overflow-hidden">
-        <div className="hidden md:flex w-1/2 bg-cover bg-center" style={{ backgroundImage: `url("https://res.cloudinary.com/dwvmtepwh/image/upload/v1745182033/nbwosusokjwc4ga6vqv9.png")` }}></div>
+    <div className="h-screen   flex items-center justify-center p-8">
+      <div className="flex h-auto bg-white  w-full max-w-4xl rounded-3xl shadow-lg overflow-hidden">
+        <div className="hidden  items-center p-8 md:flex flex-col w-1/2 text-white bg-blue-600">
+        <h2 className='font-bold text-2xl text-center mb-4'>BalaBebir Ailəsinə Xoş Gəlmisiniz!</h2>
+        <div className='w-40 h-40 rounded-3xl  relative bg-white mb-8'>
+           <img
+          src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1747848141/vavgvj1x9isuexhht9je.png"
+          alt="BalaBebir maskotu"
+          className="w-full h-full absolute top-8"
+         
+        />
+        </div>
+        <div>
+          <p className='text-center text-lg text-gray-50 font-medium'>Daxil olmaq üçün əvvəlcə qeydiyyatdan keçmək lazımdır.</p>
+        </div>
+        
+          <div className='w-40 h-40 '>
+            <img className='w-full h-full object-cover filter invert brightness-0' src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1747850868/xavdbvx3h2sziim2e9ji.png" alt="" />
+          </div>
+          
+        
+        </div>
 
         <div className="flex flex-col w-full md:w-1/2 items-center justify-center p-8">
           <h1 className="text-3xl font-bold mb-6">Hesab Yaradın</h1>

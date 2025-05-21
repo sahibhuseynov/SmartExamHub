@@ -17,16 +17,17 @@ const ExamForm = () => {
   const [description, setDescription] = useState("");
   const [examDate, setExamDate] = useState("");
   const [price, setPrice] = useState("");
+  const [bulkQuestions, setBulkQuestions] = useState("");
   const [isCertified, setIsCertified] = useState(false);
   const [examDuration, setExamDuration] = useState("");
   const [questions, setQuestions] = useState([
     {
       questionText: "",
-      options: ["", "", "", "", ""],
+      options: ["", "", "", "", ],
       correctAnswer: "",
       image: null,
       imagesEnabled: false,
-      optionImages: [null, null, null, null, null],
+      optionImages: [null, null, null, null, ],
       audio: null, 
     },
   ]);
@@ -50,6 +51,87 @@ const ExamForm = () => {
 
     fetchCategories();
   }, [categoryId]);
+const handleBulkAddQuestions = () => {
+  if (!bulkQuestions.trim()) return;
+
+  const lines = bulkQuestions.split('\n');
+  const newQuestions = [];
+  let currentQuestion = null;
+  let questionCounter = 0;
+
+  lines.forEach((line, index) => {
+    const trimmedLine = line.trim();
+    const nextLine = lines[index + 1] ? lines[index + 1].trim() : "";
+
+    // Talimat satırlarını tespit et (soru değil)
+    const isInstructionLine = /^(choose the correct option\.?|doğru seçeneği seçin\.?)$/i.test(trimmedLine);
+
+    // Yeni soru başlangıcını tespit et
+    const isNewQuestion =
+      !isInstructionLine && (
+        trimmedLine.endsWith('?') ||
+        /^soru:/i.test(trimmedLine) ||
+        (!/^[A-Da-d][.)]\s/.test(trimmedLine) && /^[A-Da-d][.)]\s/.test(nextLine)) ||
+        (trimmedLine && (index === 0 || lines[index - 1].trim() === "") && !/^[A-Da-d][.)]\s/.test(trimmedLine))
+      );
+
+    // Yeni soruya geç
+    if (isNewQuestion) {
+      // Önceki geçerli soruyu kaydet
+      if (currentQuestion && currentQuestion.questionText) {
+        newQuestions.push(currentQuestion);
+        questionCounter++; // sadece geçerli sorular sayılır
+      }
+
+      // Yeni soru nesnesi oluştur
+      currentQuestion = {
+        questionText: trimmedLine.replace(/^soru:/i, '').trim(),
+        options: ["", "", "", ""],
+        correctAnswer: "",
+        image: null,
+        imagesEnabled: false,
+        optionImages: [null, null, null, null],
+        audio: null
+      };
+    }
+
+    // Seçenek satırı (A-D)
+    else if (currentQuestion && /^[A-Da-d][.)]?\s/.test(trimmedLine)) {
+      const optionIndex = trimmedLine.toUpperCase().charCodeAt(0) - 65;
+      if (optionIndex >= 0 && optionIndex < 4) {
+        const optionText = trimmedLine.replace(/^[A-Da-d][.)]?\s/, '').trim();
+        currentQuestion.options[optionIndex] = optionText;
+
+        // (doğru) veya ✓ içeriyorsa, doğru cevap olarak kaydet
+        if (trimmedLine.includes("(doğru)") || trimmedLine.includes("✓")) {
+          currentQuestion.correctAnswer = optionText;
+        }
+      }
+    }
+
+    // Doğru cevap satırı (örnek: Cavab: B)
+    else if (currentQuestion && /^(doğru cevap:|Cavab:|correct answer:|cevap:)/i.test(trimmedLine)) {
+      currentQuestion.correctAnswer = trimmedLine.replace(/^(doğru cevap:|Cavab:|correct answer:|cevap:)/i, '').trim();
+    }
+
+    // Son satırdaysak ve geçerli bir soru varsa ekle
+    if (index === lines.length - 1 && currentQuestion && currentQuestion.questionText) {
+      newQuestions.push(currentQuestion);
+      questionCounter++;
+    }
+  });
+
+  if (newQuestions.length > 0) {
+    setQuestions([...questions, ...newQuestions]);
+    setBulkQuestions("");
+    alert(`${newQuestions.length} soru eklendi! (${questionCounter} soru algılandı)`);
+  } else {
+    alert("Soru formatı tanınamadı! Lütfen örnek formata uygun girin.");
+  }
+};
+
+
+
 
   const handleAddCategory = async () => {
     if (newCategory) {
@@ -97,11 +179,11 @@ const ExamForm = () => {
       ...questions,
       {
         questionText: "",
-        options: ["", "", "", "", ""],
+        options: ["", "", "", ""],
         correctAnswer: "",
         image: null,
         imagesEnabled: false,
-        optionImages: [null, null, null, null, null],
+        optionImages: [null, null, null, null],
       },
     ]);
   };
@@ -311,7 +393,47 @@ const ExamForm = () => {
             />
             <span>Sertifikalı Sınav</span>
           </label>
+{/* Toplu Soru Ekleme Alanı */}
+{/* Toplu Soru Ekleme Alanı */}
+<div className="p-4 mb-6 border rounded-lg bg-gray-50">
+  <h3 className="text-lg font-semibold mb-2">Toplu Soru Ekle (Metinsel Cevap)</h3>
+  <textarea
+    className="w-full p-3 border rounded mb-2 h-40 font-mono text-sm"
+    placeholder={`Örnek format (Cevap metniyle):
 
+1. Hangi dil konuşulur?
+A) İngilizce (doğru)
+B) Fransızca
+C) Türkçe
+D) Almanca
+E) İtalyanca
+Cevap: İngilizce
+
+2. En büyük gezegen?
+A) Mars
+B) Jüpiter ✓
+C) Dünya
+D) Venüs
+E) Satürn
+Doğru Cevap: Jüpiter
+
+3. 2x3 kaçtır?
+A) 4
+B) 5
+C) 6 (doğru)
+D) 7
+E) 8`}
+    value={bulkQuestions}
+    onChange={(e) => setBulkQuestions(e.target.value)}
+  />
+  <button
+    type="button"
+    onClick={handleBulkAddQuestions}
+    className="bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600"
+  >
+    Soruları Ekle (Metinsel Cevap)
+  </button>
+</div>
           <h3 className="text-xl font-semibold mt-6">Sorular:</h3>
           {questions.map((q, index) => (
             <div key={index} className="p-4 border rounded-lg bg-gray-50 mb-4">
@@ -347,31 +469,31 @@ const ExamForm = () => {
     <audio controls src={q.audio} className="mt-1" />
   </div>
 )}
-              {q.options.map((option, i) => (
-                <div key={i} className="mb-4">
-                  <input
-                    type="text"
-                    className="w-full p-3 border border-gray-300 rounded-lg mb-2"
-                    placeholder={`Seçenek ${String.fromCharCode(65 + i)}`}
-                    value={option}
-                    onChange={(e) => {
-                      const updatedOptions = [...q.options];
-                      updatedOptions[i] = e.target.value;
-                      handleChange(index, "options", updatedOptions);
-                    }}
-                  />
+            {/* 5 yerine 4 seçenek için döngü */}
+{Array.from({ length: 4 }).map((_, i) => (
+  <div key={i} className="mb-4">
+    <input
+      type="text"
+      className="w-full p-3 border border-gray-300 rounded-lg mb-2"
+      placeholder={`Seçenek ${String.fromCharCode(65 + i)}`} // A,B,C,D
+      value={q.options[i] || ""}
+      onChange={(e) => {
+        const updatedOptions = [...q.options];
+        updatedOptions[i] = e.target.value;
+        handleChange(index, "options", updatedOptions);
+      }}
+    />
 
-                  {q.imagesEnabled && (
-                    <input
-                      type="file"
-                      className="w-full p-2 mt-2"
-                      onChange={(e) => handleOptionFileUpload(index, i, e)}
-                      placeholder={`Seçenek ${String.fromCharCode(65 + i)} Resmi`}
-                    />
-                  )}
-                </div>
-              ))}
-
+    {q.imagesEnabled && (
+      <input
+        type="file"
+        className="w-full p-2 mt-2"
+        onChange={(e) => handleOptionFileUpload(index, i, e)}
+        placeholder={`Seçenek ${String.fromCharCode(65 + i)} Resmi`}
+      />
+    )}
+  </div>
+))}
               <input
                 type="text"
                 className="w-full p-3 border border-gray-300 rounded-lg"
@@ -403,3 +525,4 @@ const ExamForm = () => {
 };
 
 export default ExamForm;
+ 
