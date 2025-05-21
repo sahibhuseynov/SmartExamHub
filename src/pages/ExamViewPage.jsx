@@ -10,6 +10,7 @@ import CertificateGenerator from '../components/dashboard/CertificateGenerator';
 import { useSelector } from 'react-redux';
 import Timer from './../components/dashboard/Timer';
 import ExamRulesModal from './../components/dashboard/ExamRulesModal';
+import Swal from 'sweetalert2';
 
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
@@ -36,7 +37,12 @@ const ExamViewPage = () => {
     const userr = useSelector(state => state.user.user);
 
     const handleTimeUp = () => {
-        alert('Vaxt bitdi! İmtahan avtomatik olaraq tamamlandı.');
+        Swal.fire({
+            title: 'Vaxt bitdi!',
+            text: 'İmtahan avtomatik olaraq tamamlandı.',
+            icon: 'info',
+            confirmButtonText: 'Tamam'
+        });
         handleSubmit();
     };
     
@@ -121,6 +127,36 @@ const ExamViewPage = () => {
     };
     
     const handleSubmit = async () => {
+        const unansweredCount = totalQuestions - Object.keys(selectedAnswers).length;
+        
+       const result = await Swal.fire({
+  title: 'İmtahanı bitirmək istədiyinizə əminsiniz?',
+  html: `
+    <div class="text-left">
+      <p class="mb-2">Cevaplanmamış suallar: <strong>${unansweredCount}</strong></p>
+      ${unansweredCount > 0 ? 
+        '<p class="text-red-600">Cavab vermədiyiniz suallar var!</p>' : 
+        '<p class="text-green-600">✓ Bütün suallara cavab verdiniz</p>'
+      }
+    </div>
+  `,
+  icon: 'question',
+  showCancelButton: true,
+  confirmButtonText: 'Bəli, Bitir',
+  cancelButtonText: 'Xeyr, Geri Dön',
+  customClass: {
+    popup: 'rounded-lg shadow-xl',
+    actions: '!gap-4', // !important ile kesin uygula
+    confirmButton: '!ml-4 order-2 !px-4 !py-2 bg-blue-500 hover:bg-blue-600 rounded !text-white',
+    cancelButton: 'order-1 !px-4 !py-2 bg-gray-300 hover:bg-gray-400 rounded'
+  },
+  buttonsStyling: false,
+  reverseButtons: true
+});
+        if (!result.isConfirmed) {
+            return;
+        }
+
         let correct = 0;
         let incorrect = 0;
         let wrongAnswersList = [];
@@ -146,10 +182,28 @@ const ExamViewPage = () => {
 
         const successRate = (correct / totalQuestions) * 100;
     
-        if (isCertifiedExam && successRate >= 80) {
-            alert("Təbriklər! Sertifikat qazandınız.");
-        } else if (isCertifiedExam) {
-            alert("Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.");
+        if (isCertifiedExam) {
+            if (successRate >= 80) {
+                await Swal.fire({
+                    title: 'Təbriklər!',
+                    text: 'Sertifikat qazandınız!',
+                    icon: 'success',
+                    confirmButtonText: 'Tamam',
+                    customClass: {
+                        popup: 'rounded-lg shadow-xl'
+                    }
+                });
+            } else {
+                await Swal.fire({
+                    title: 'Diqqət',
+                    text: 'Sertifikat üçün uğur faiziniz ən az 80% olmalıdır.',
+                    icon: 'warning',
+                    confirmButtonText: 'Tamam',
+                    customClass: {
+                        popup: 'rounded-lg shadow-xl'
+                    }
+                });
+            }
         }
     
         await saveExamResultsToUser(correct, incorrect);
@@ -235,7 +289,12 @@ const ExamViewPage = () => {
                     createdAt: new Date()       
                 });
 
-                alert("Yorumunuz kaydedildi!");
+                Swal.fire({
+                    title: 'Uğurlu!',
+                    text: 'Rəyiniz qeyd olundu!',
+                    icon: 'success',
+                    confirmButtonText: 'Geri dön'
+                });
                 await updateAverageRating();
                 fetchComments();
                 setComment('');
@@ -244,7 +303,12 @@ const ExamViewPage = () => {
                 console.error("Yorum kaydedilirken hata oluştu:", error);
             }
         } else {
-            alert("Yorum yapabilmek için giriş yapmanız gerekir.");
+            Swal.fire({
+                title: 'Xəbərdarlıq',
+                text: 'Yorum yapabilmek için giriş yapmanız gerekir.',
+                icon: 'warning',
+                confirmButtonText: 'Tamam'
+            });
         }
     };
 
@@ -308,7 +372,7 @@ const ExamViewPage = () => {
                                 onClick={toggleAnswerSheet}
                                 className="p-2 bg-blue-500 text-white rounded-lg flex items-center gap-2 hover:bg-blue-600 transition"
                             >
-                                <FaList /> Cavab Kartı
+                                <FaList /> Cevap Kartı
                             </button>
                         </div>
 
@@ -320,7 +384,6 @@ const ExamViewPage = () => {
                             </div>
                         ) : questions.length > 0 ? (
                             <div className="relative">
-                                {/* Cevap kartı paneli */}
                                 {showAnswerSheet && (
                                     <div className="absolute right-0 top-0 bg-white p-4 rounded-lg shadow-lg z-10 border border-gray-200 w-64">
                                         <h3 className="font-bold mb-2">Cevap Kartı</h3>
@@ -346,7 +409,6 @@ const ExamViewPage = () => {
                                     </div>
                                 )}
 
-                                {/* Tek soru görünümü */}
                                 <div className="p-6 border rounded-lg shadow-md">
                                     <p className="text-xl font-semibold text-gray-800">
                                         <span dangerouslySetInnerHTML={{ 
@@ -372,30 +434,30 @@ const ExamViewPage = () => {
                                         </div>
                                     )}
                                     
-                                <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">  {/* Bu satırı değiştiriyoruz */}
-    {questions[currentQuestionIndex].options.map((option, i) => (
-        <li key={i} className="flex items-center p-3 border rounded hover:bg-gray-50">
-            <label className="cursor-pointer flex items-center space-x-3 w-full">
-                <input
-                    type="radio"
-                    name={`question${currentQuestionIndex}`}
-                    value={option.option}
-                    checked={selectedAnswers[currentQuestionIndex] === option.option}
-                    onChange={() => handleAnswerChange(currentQuestionIndex, option.option)}
-                    className="radio radio-primary"
-                />
-                <span className="text-gray-700">{option.option}</span>
-                {option.optionPhoto && (
-                    <img
-                        src={option.optionPhoto}
-                        alt={`Option ${i + 1}`}
-                        className="ml-2 h-16 object-contain"
-                    />
-                )}
-            </label>
-        </li>
-    ))}
-</ul>
+                                    <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {questions[currentQuestionIndex].options.map((option, i) => (
+                                            <li key={i} className="flex items-center p-3 border rounded hover:bg-gray-50">
+                                                <label className="cursor-pointer flex items-center space-x-3 w-full">
+                                                    <input
+                                                        type="radio"
+                                                        name={`question${currentQuestionIndex}`}
+                                                        value={option.option}
+                                                        checked={selectedAnswers[currentQuestionIndex] === option.option}
+                                                        onChange={() => handleAnswerChange(currentQuestionIndex, option.option)}
+                                                        className="radio radio-primary"
+                                                    />
+                                                    <span className="text-gray-700">{option.option}</span>
+                                                    {option.optionPhoto && (
+                                                        <img
+                                                            src={option.optionPhoto}
+                                                            alt={`Option ${i + 1}`}
+                                                            className="ml-2 h-16 object-contain"
+                                                        />
+                                                    )}
+                                                </label>
+                                            </li>
+                                        ))}
+                                    </ul>
                                     
                                     <div className="flex justify-between mt-6">
                                         <button
