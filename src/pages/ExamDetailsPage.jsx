@@ -266,7 +266,7 @@ const fetchExamDetails = async () => {
                         />
                         <button
                             onClick={checkCouponValidity}
-                            className="bg-emerald-500 text-white p-3 w-full rounded"
+                            className="bg-green-500 text-white p-3 w-full rounded"
                         >
                             Kuponu İstifadə Et
                         </button>
