@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 const ExamViewPage = () => {
     const { categoryId, classId, examId } = useParams();
     const [examDuration, setExamDuration] = useState(0);
-    const [questions, setQuestions] = useState([]);
+    const [sections, setSections] = useState([]);
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [loading, setLoading] = useState(true);
     const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -24,15 +24,18 @@ const ExamViewPage = () => {
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState(0);
     const [showResults, setShowResults] = useState(false);
+    const [showFullResults, setShowFullResults] = useState(false); // Yeni state
     const [comments, setComments] = useState([]);
     const [averageRating, setAverageRating] = useState(0);
     const [showModal, setShowModal] = useState(true);
     const [isCertifiedExam, setIsCertifiedExam] = useState(false);
     const [wrongAnswers, setWrongAnswers] = useState([]);
     const [hasCertificate, setHasCertificate] = useState(false);
+    const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [showAnswerSheet, setShowAnswerSheet] = useState(false);
-    
+    const [isFreeExam, setIsFreeExam] = useState(false);
+      const [currentWrongAnswerIndex, setCurrentWrongAnswerIndex] = useState(0);
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
 
@@ -41,7 +44,7 @@ const ExamViewPage = () => {
             title: 'Vaxt bitdi!',
             text: 'İmtahan avtomatik olaraq tamamlandı.',
             icon: 'info',
-            confirmButtonText: 'Tamam'
+            confirmButtonText: 'Geri dön'
         });
         handleSubmit();
     };
@@ -88,71 +91,109 @@ const ExamViewPage = () => {
     }, [userr, examId]);
 
     useEffect(() => {
-        const fetchExamData = async () => {
-            try {
-                const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
-                const examSnap = await getDoc(examRef);
+      const fetchExamData = async () => {
+    try {
+        const examRef = doc(db, "Exams", categoryId, "Classes", classId, "Exams", examId);
+        const examSnap = await getDoc(examRef);
 
-                if (examSnap.exists()) {
-                    const examData = examSnap.data();
-                    const questionsSnapshot = await getDocs(collection(examRef, "Questions"));
-                    const fetchedQuestions = questionsSnapshot.docs.map(doc => doc.data());
-                    setQuestions(fetchedQuestions);
-                    setTotalQuestions(fetchedQuestions.length);
-
-                    const commentsRef = collection(examRef, "Comments");
-                    const commentsSnapshot = await getDocs(commentsRef);
-                    const fetchedComments = commentsSnapshot.docs.map(doc => doc.data());
-                    setComments(fetchedComments);
-
-                    setAverageRating(examSnap.data().averageRating || 0);
-                    setIsCertifiedExam(examSnap.data().isCertified || false);
-                    setExamDuration(examData.examDuration || 10);
+        if (examSnap.exists()) {
+            const examData = examSnap.data();
+            
+            // Fetch sections
+            const sectionsRef = collection(examRef, "Sections");
+            const sectionsSnapshot = await getDocs(sectionsRef);
+            let fetchedSections = [];
+            
+            if (sectionsSnapshot.size > 0) {
+                // If there are sections, process them normally
+                for (const sectionDoc of sectionsSnapshot.docs) {
+                    const sectionData = sectionDoc.data();
+                    const questionsRef = collection(sectionDoc.ref, "Questions");
+                    const questionsSnapshot = await getDocs(questionsRef);
+                    const questions = questionsSnapshot.docs.map(doc => doc.data());
+                    
+                    fetchedSections.push({
+                        id: sectionDoc.id,
+                        name: sectionData.name,
+                        questions: questions
+                    });
                 }
-            } catch (error) {
-                console.error("Veriler alınırken hata oluştu:", error);
-            } finally {
-                setLoading(false);
+            } else {
+                // If no sections exist, create a default section with all questions
+                const questionsRef = collection(examRef, "Questions");
+                const questionsSnapshot = await getDocs(questionsRef);
+                const questions = questionsSnapshot.docs.map(doc => doc.data());
+                
+                if (questions.length > 0) {
+                    fetchedSections.push({
+                        id: 'default-section',
+                        name: 'Questions',
+                        questions: questions
+                    });
+                }
             }
-        };
+            
+            setSections(fetchedSections);
+            
+            // Calculate total questions
+            const total = fetchedSections.reduce((sum, section) => sum + section.questions.length, 0);
+            setTotalQuestions(total);
+
+            const commentsRef = collection(examRef, "Comments");
+            const commentsSnapshot = await getDocs(commentsRef);
+            const fetchedComments = commentsSnapshot.docs.map(doc => doc.data());
+            setComments(fetchedComments);
+
+            setAverageRating(examSnap.data().averageRating || 0);
+            setIsCertifiedExam(examSnap.data().isCertified || false);
+            setIsFreeExam(examSnap.data().isFree || false);
+            setExamDuration(examData.examDuration || 10);
+        }
+    } catch (error) {
+        console.error("Veriler alınırken hata oluştu:", error);
+    } finally {
+        setLoading(false);
+    }
+};
 
         fetchExamData();
     }, [categoryId, classId, examId]);
 
-    const handleAnswerChange = (questionIndex, selectedOption) => {
+    const handleAnswerChange = (sectionId, questionIndex, selectedOption) => {
         setSelectedAnswers(prevState => ({
             ...prevState,
-            [questionIndex]: selectedOption
+            [`${sectionId}-${questionIndex}`]: selectedOption
         }));
     };
     
     const handleSubmit = async () => {
         const unansweredCount = totalQuestions - Object.keys(selectedAnswers).length;
         
-       const result = await Swal.fire({
-  title: 'İmtahanı bitirmək istədiyinizə əminsiniz?',
-  html: `
-    <div class="text-left">
-      <p class="mb-2">Cevaplanmamış suallar: <strong>${unansweredCount}</strong></p>
-      ${unansweredCount > 0 ? 
-        '<p class="text-red-600">Cavab vermədiyiniz suallar var!</p>' : 
-        '<p class="text-green-600">✓ Bütün suallara cavab verdiniz</p>'
-      }
-    </div>
-  `,
-  icon: 'question',
-  showCancelButton: true,
-  confirmButtonText: 'Bəli, Bitir',
-  cancelButtonText: 'Xeyr, Geri Dön',
-  customClass: {
-    popup: 'rounded-lg shadow-xl',
-    actions: '!gap-4', // !important ile kesin uygula
-    confirmButton: '!ml-4 order-2 !px-4 !py-2 bg-blue-500 hover:bg-blue-600 rounded !text-white',
-    cancelButton: 'order-1 !px-4 !py-2 bg-gray-300 hover:bg-gray-400 rounded'
-  },
-  buttonsStyling: false,
-  reverseButtons: true
-});
+        const result = await Swal.fire({
+            title: 'İmtahanı bitirmək istədiyinizə əminsiniz?',
+            html: `
+                <div class="text-left">
+                    <p class="mb-2">Cavablanmamış suallar: <strong>${unansweredCount}</strong></p>
+                    ${unansweredCount > 0 ? 
+                        '<p class="text-red-600">Cavab vermədiyiniz suallar var!</p>' : 
+                        '<p class="text-green-600">✓ Bütün suallara cavab verdiniz</p>'
+                    }
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Bəli, Bitir',
+            cancelButtonText: 'Xeyr, Geri Dön',
+            customClass: {
+                popup: 'rounded-lg shadow-xl',
+                actions: '!gap-4',
+                confirmButton: '!ml-4 order-2 !px-4 !py-2 bg-blue-500 hover:bg-blue-600 rounded !text-white',
+                cancelButton: 'order-1 !px-4 !py-2 bg-gray-300 hover:bg-gray-400 rounded'
+            },
+            buttonsStyling: false,
+            reverseButtons: true
+        });
+        
         if (!result.isConfirmed) {
             return;
         }
@@ -161,18 +202,22 @@ const ExamViewPage = () => {
         let incorrect = 0;
         let wrongAnswersList = [];
 
-        questions.forEach((question, index) => {
-            if (selectedAnswers[index] === question.correctAnswer) {
-                correct++;
-            } else {
-                incorrect++;
-                wrongAnswersList.push({
-                    question: question.questionText,
-                    questionImage: question.image,
-                    correctAnswer: question.correctAnswer,
-                    userAnswer: selectedAnswers[index]
-                });
-            }
+        sections.forEach(section => {
+            section.questions.forEach((question, index) => {
+                const answerKey = `${section.id}-${index}`;
+                if (selectedAnswers[answerKey] === question.correctAnswer) {
+                    correct++;
+                } else {
+                    incorrect++;
+                    wrongAnswersList.push({
+                        question: question.questionText,
+                        questionImage: question.image,
+                        correctAnswer: question.correctAnswer,
+                        userAnswer: selectedAnswers[answerKey],
+                        sectionName: section.name
+                    });
+                }
+            });
         });
     
         setCorrectAnswers(correct);
@@ -182,7 +227,7 @@ const ExamViewPage = () => {
 
         const successRate = (correct / totalQuestions) * 100;
     
-        if (isCertifiedExam) {
+        if (isCertifiedExam && !isFreeExam) {
             if (successRate >= 80) {
                 await Swal.fire({
                     title: 'Təbriklər!',
@@ -211,7 +256,7 @@ const ExamViewPage = () => {
     
     const saveExamResultsToUser = async (correct, incorrect) => {
         const user = auth.currentUser;
-        if (user) {
+        if (user && !isFreeExam) {
             try {
                 const userRef = doc(db, "Users", user.uid);
                 const userSnap = await getDoc(userRef);
@@ -250,23 +295,46 @@ const ExamViewPage = () => {
     };
 
     const handleNextQuestion = () => {
-        if (currentQuestionIndex < questions.length - 1) {
+        const currentSection = sections[currentSectionIndex];
+        
+        // Check if there's a next question in current section
+        if (currentQuestionIndex < currentSection.questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
+        } 
+        // Otherwise move to next section
+        else if (currentSectionIndex < sections.length - 1) {
+            setCurrentSectionIndex(currentSectionIndex + 1);
+            setCurrentQuestionIndex(0);
         }
     };
 
     const handlePrevQuestion = () => {
+        // Check if we can go to previous question in current section
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
+        } 
+        // Otherwise move to previous section
+        else if (currentSectionIndex > 0) {
+            setCurrentSectionIndex(currentSectionIndex - 1);
+            const prevSection = sections[currentSectionIndex - 1];
+            setCurrentQuestionIndex(prevSection.questions.length - 1);
         }
     };
 
     const toggleAnswerSheet = () => {
         setShowAnswerSheet(!showAnswerSheet);
     };
-
-    const jumpToQuestion = (index) => {
-        setCurrentQuestionIndex(index);
+// Komponentin başında bu funksiyanı əlavə edin
+const calculateQuestionOffset = (sectionIndex) => {
+  let offset = 0;
+  for (let i = 0; i < sectionIndex; i++) {
+    offset += sections[i].questions.length;
+  }
+  return offset;
+};
+    const jumpToQuestion = (sectionIndex, questionIndex) => {
+        setCurrentSectionIndex(sectionIndex);
+        setCurrentQuestionIndex(questionIndex);
         setShowAnswerSheet(false);
     };
 
@@ -352,6 +420,23 @@ const ExamViewPage = () => {
         setShowModal(false);
     };
 
+    const getNextButtonText = () => {
+        const currentSection = sections[currentSectionIndex];
+        
+        // If last question of last section
+        if (currentSectionIndex === sections.length - 1 && 
+            currentQuestionIndex === currentSection.questions.length - 1) {
+            return "İmtahanı Bitir";
+        }
+        
+        // If last question of current section but not last section
+        if (currentQuestionIndex === currentSection.questions.length - 1) {
+            return `Sonrakı Bölüm (${sections[currentSectionIndex + 1].name})`;
+        }
+        
+        return "Növbəti";
+    };
+
     return (
         <div className="bg-white min-h-screen">
             {showModal && (
@@ -367,14 +452,24 @@ const ExamViewPage = () => {
                 {!showResults ? (
                     <>
                         <div className="flex justify-between items-center mb-4">
-                            <Timer initialTime={examDuration * 60} onTimeUp={handleTimeUp} />
-                            <button 
-                                onClick={toggleAnswerSheet}
-                                className="p-2 bg-blue-500 text-white rounded-lg flex items-center gap-2 hover:bg-blue-600 transition"
-                            >
-                                <FaList /> Cevap Kartı
-                            </button>
-                        </div>
+  <Timer initialTime={examDuration * 60} onTimeUp={handleTimeUp} />
+  
+  <div className="flex gap-2">
+    <button 
+      onClick={toggleAnswerSheet}
+      className="p-4 text-black shadow-lg rounded-lg flex items-center gap-2 hover:bg-blue-600 hover:text-white transition"
+    >
+      <FaList /> Cavab Kartı
+    </button>
+    
+    <button
+      onClick={handleSubmit}
+      className="p-4  text-black shadow-lg rounded-lg flex items-center gap-2 hover:bg-red-600 hover:text-white transition"
+    >
+      İmtahanı Bitir
+    </button>
+  </div>
+</div>
 
                         <h2 className="text-2xl md:text-4xl font-extrabold text-center text-blue-600 mb-4">{examId} İmtahanı</h2>
                         
@@ -382,68 +477,91 @@ const ExamViewPage = () => {
                             <div className="flex justify-center mt-8">
                                 <p className="text-xl text-gray-500">Yükleniyor...</p>
                             </div>
-                        ) : questions.length > 0 ? (
+                        ) : sections.length > 0 ? (
                             <div className="relative">
                                 {showAnswerSheet && (
-                                    <div className="absolute right-0 top-0 bg-white p-4 rounded-lg shadow-lg z-10 border border-gray-200 w-64">
-                                        <h3 className="font-bold mb-2">Cevap Kartı</h3>
-                                        <div className="grid grid-cols-5 gap-2">
-                                            {questions.map((_, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => jumpToQuestion(index)}
-                                                    className={`w-8 h-8 rounded flex items-center justify-center ${
-                                                        selectedAnswers[index] 
-                                                            ? 'bg-green-500 text-white' 
-                                                            : 'bg-gray-200'
-                                                    } ${
-                                                        index === currentQuestionIndex 
-                                                            ? 'border-2 border-blue-500' 
-                                                            : ''
-                                                    }`}
-                                                >
-                                                    {index + 1}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+  <div className="absolute right-0 top-0 bg-white p-4 rounded-lg shadow-lg z-10 border border-gray-200 w-64 max-h-[80vh] overflow-y-auto">
+    
+    {sections.map((section, sectionIndex) => {
+      const offset = calculateQuestionOffset(sectionIndex);
+      return (
+        <div key={section.id} className="mb-4">
+          <h4 className="font-semibold text-sm mb-2">{section.name}</h4>
+          <div className="grid grid-cols-5 gap-2">
+            {section.questions.map((_, questionIndex) => {
+              const globalQuestionNumber = offset + questionIndex + 1;
+              return (
+                <button
+                  key={questionIndex}
+                  onClick={() => jumpToQuestion(sectionIndex, questionIndex)}
+                  className={`w-8 h-8 rounded flex items-center justify-center ${
+                    selectedAnswers[`${section.id}-${questionIndex}`] 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-gray-200'
+                  } ${
+                    sectionIndex === currentSectionIndex && 
+                    questionIndex === currentQuestionIndex 
+                      ? 'border-2 border-blue-500' 
+                      : ''
+                  }`}
+                >
+                  {globalQuestionNumber}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
 
                                 <div className="p-6 border rounded-lg shadow-md">
-                                    <p className="text-xl font-semibold text-gray-800">
-                                        <span dangerouslySetInnerHTML={{ 
-                                            __html: `Sual ${currentQuestionIndex + 1}: ${questions[currentQuestionIndex].questionText}` 
-                                        }} />
-                                    </p>
+                                   {sections.length > 1 && (
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold text-blue-700">
+                        {sections[currentSectionIndex].name}
+                    </h3>
+                    <span className="text-sm text-gray-500">
+                        Bölüm {currentSectionIndex + 1}/{sections.length}
+                    </span>
+                </div>
+            )}
                                     
-                                    {questions[currentQuestionIndex].image && (
+                                    <p className="text-xl font-semibold text-gray-800">
+  <span dangerouslySetInnerHTML={{ 
+    __html: `Sual ${calculateQuestionOffset(currentSectionIndex) + currentQuestionIndex + 1}: ${sections[currentSectionIndex].questions[currentQuestionIndex].questionText}` 
+  }} />
+</p>
+                                    
+                                    {sections[currentSectionIndex].questions[currentQuestionIndex].image && (
                                         <div className="mt-4">
                                             <img
-                                                src={questions[currentQuestionIndex].image}
+                                                src={sections[currentSectionIndex].questions[currentQuestionIndex].image}
                                                 alt={`Sual ${currentQuestionIndex + 1} üçün resim`}
                                                 className="w-full max-h-64 object-contain rounded-lg"
                                             />
                                         </div>
                                     )}
                                     
-                                    {questions[currentQuestionIndex].audio && (
+                                    {sections[currentSectionIndex].questions[currentQuestionIndex].audio && (
                                         <div className="mt-4">
                                             <audio controls>
-                                                <source src={questions[currentQuestionIndex].audio} type="audio/mp3" />
+                                                <source src={sections[currentSectionIndex].questions[currentQuestionIndex].audio} type="audio/mp3" />
                                             </audio>
                                         </div>
                                     )}
                                     
                                     <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {questions[currentQuestionIndex].options.map((option, i) => (
+                                        {sections[currentSectionIndex].questions[currentQuestionIndex].options.map((option, i) => (
                                             <li key={i} className="flex items-center p-3 border rounded hover:bg-gray-50">
                                                 <label className="cursor-pointer flex items-center space-x-3 w-full">
                                                     <input
                                                         type="radio"
-                                                        name={`question${currentQuestionIndex}`}
+                                                        name={`question-${sections[currentSectionIndex].id}-${currentQuestionIndex}`}
                                                         value={option.option}
-                                                        checked={selectedAnswers[currentQuestionIndex] === option.option}
-                                                        onChange={() => handleAnswerChange(currentQuestionIndex, option.option)}
+                                                        checked={selectedAnswers[`${sections[currentSectionIndex].id}-${currentQuestionIndex}`] === option.option}
+                                                        onChange={() => handleAnswerChange(sections[currentSectionIndex].id, currentQuestionIndex, option.option)}
                                                         className="radio radio-primary"
                                                     />
                                                     <span className="text-gray-700">{option.option}</span>
@@ -462,27 +580,26 @@ const ExamViewPage = () => {
                                     <div className="flex justify-between mt-6">
                                         <button
                                             onClick={handlePrevQuestion}
-                                            disabled={currentQuestionIndex === 0}
+                                            disabled={currentSectionIndex === 0 && currentQuestionIndex === 0}
                                             className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
                                         >
                                             <FaChevronLeft /> Əvvəlki
                                         </button>
                                         
-                                        {currentQuestionIndex < questions.length - 1 ? (
-                                            <button
-                                                onClick={handleNextQuestion}
-                                                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                                            >
-                                                Növbəti <FaChevronRight />
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={handleSubmit}
-                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                                            >
-                                                İmtahanı Bitir
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={
+                                                currentSectionIndex === sections.length - 1 && 
+                                                currentQuestionIndex === sections[currentSectionIndex].questions.length - 1
+                                                    ? handleSubmit
+                                                    : handleNextQuestion
+                                            }
+                                            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                        >
+                                            {getNextButtonText()} 
+                                            {!(currentSectionIndex === sections.length - 1 && 
+                                              currentQuestionIndex === sections[currentSectionIndex].questions.length - 1) && 
+                                              <FaChevronRight />}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -531,36 +648,116 @@ const ExamViewPage = () => {
                             </div>
                         </div>
 
-                        {wrongAnswers.length > 0 && (
-                            <div className="mt-8">
-                                <h3 className="text-2xl font-bold text-red-600 mb-4">Yanlış Cavablar</h3>
-                                <ul className="space-y-4">
-                                    {wrongAnswers.map((item, index) => (
-                                        <li key={index} className="p-4 border rounded-lg shadow-md bg-white">
-                                            <p 
-                                                className="font-semibold text-gray-800"
-                                                dangerouslySetInnerHTML={{ __html: `Sual: ${item.question}` }}
-                                            />
-                                            {item.questionImage && (
-                                                <img
-                                                    src={item.questionImage}
-                                                    alt={`Question Image ${index + 1}`}
-                                                    className="mt-2 w-full h-auto md:max-h-80 object-contain"
-                                                />
-                                            )}
-                                            <p className="text-gray-600 mt-2">
-                                                Doğru Cavab: <span className="text-green-600 font-bold">{item.correctAnswer}</span>
-                                            </p>
-                                            <p className="text-gray-600">
-                                                Sizin Cavabınız: <span className="text-red-600 font-bold">{item.userAnswer || "Cavab verilməyib"}</span>
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                      {wrongAnswers.length > 0 && (
+  <div className="mt-8">
+    <div className="flex justify-between items-center mb-4">
+      <h3 className="text-2xl font-bold text-red-600">
+        Yanlış Cavablar ({currentWrongAnswerIndex + 1}/{wrongAnswers.length})
+      </h3>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setCurrentWrongAnswerIndex(prev => Math.max(prev - 1, 0))}
+          disabled={currentWrongAnswerIndex === 0}
+          className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-lg disabled:opacity-50 hover:bg-gray-200 transition text-sm"
+        >
+          <FaChevronLeft className="text-xs" /> Əvvəlki
+        </button>
+        <button
+          onClick={() => setCurrentWrongAnswerIndex(prev => Math.min(prev + 1, wrongAnswers.length - 1))}
+          disabled={currentWrongAnswerIndex === wrongAnswers.length - 1}
+          className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-lg disabled:opacity-50 hover:bg-gray-200 transition text-sm"
+        >
+          Növbəti <FaChevronRight className="text-xs" />
+        </button>
+      </div>
+    </div>
 
-                        {isCertifiedExam && correctAnswers / totalQuestions >= 0.8 && (
+    {/* Modern answer card */}
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+      <div className="p-5">
+        <div className="flex justify-between items-start">
+          <div>
+            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+              {wrongAnswers[currentWrongAnswerIndex].sectionName}
+            </span>
+            <h4 className="mt-2 text-lg font-semibold text-gray-800" dangerouslySetInnerHTML={{ 
+              __html: wrongAnswers[currentWrongAnswerIndex].question 
+            }} />
+          </div>
+          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+            Sual {currentWrongAnswerIndex + 1}
+          </span>
+        </div>
+
+        {wrongAnswers[currentWrongAnswerIndex].questionImage && (
+          <div className="mt-4 flex justify-center">
+            <img
+              src={wrongAnswers[currentWrongAnswerIndex].questionImage}
+              alt="Sual şəkli"
+              className="max-h-64 rounded-lg border border-gray-200"
+            />
+          </div>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+            <h5 className="text-sm font-medium text-green-800 mb-1">Doğru cavab</h5>
+            <p className="text-green-700 font-semibold">
+              {wrongAnswers[currentWrongAnswerIndex].correctAnswer}
+            </p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+            <h5 className="text-sm font-medium text-red-800 mb-1">Sizin cavabınız</h5>
+            <p className="text-red-700 font-semibold">
+              {wrongAnswers[currentWrongAnswerIndex].userAnswer || "Cavab verilməyib"}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Modern answer sheet */}
+    <div className="mt-8">
+      <h4 className="text-lg font-semibold mb-3 flex items-center gap-2">
+        <FaList className="text-blue-500" />
+        Cavab Kartı
+      </h4>
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex flex-wrap gap-2">
+          {wrongAnswers.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentWrongAnswerIndex(index)}
+              className={`
+                w-10 h-10 rounded-lg flex items-center justify-center transition-all
+                ${index === currentWrongAnswerIndex 
+                  ? 'bg-blue-600 text-white shadow-md transform scale-105' 
+                  : 'bg-gray-100 hover:bg-gray-200'}
+                ${selectedAnswers[`${wrongAnswers[index].sectionId}-${wrongAnswers[index].questionIndex}`] 
+                  ? 'ring-2 ring-offset-2 ring-blue-400' 
+                  : ''}
+              `}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+            <span>Hazırkı sual</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-blue-400 ring-2 ring-offset-2 ring-blue-200"></div>
+            <span>Cavablandırılıb</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+                        {isCertifiedExam && !isFreeExam && correctAnswers / totalQuestions >= 0.8 && (
                             <div className="mt-8 text-center">
                                 {hasCertificate ? (
                                     <p className="text-green-500 text-lg font-semibold">

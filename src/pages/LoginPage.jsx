@@ -51,7 +51,7 @@ const LoginPage = () => {
 
   return (
     <div className="h-screen  flex items-center justify-center p-8">
-      <div className="flex h-auto bg-gray-100 w-full max-w-4xl rounded-lg shadow-lg overflow-hidden">
+      <div className="flex h-auto bg-gray-100 w-full max-w-4xl rounded-3xl shadow-lg overflow-hidden">
           <div className="hidden  items-center p-8 md:flex flex-col w-1/2 text-white bg-blue-600">
                <h2 className='font-bold text-2xl text-center mb-4'>BalaBebir Ailəsinə Xoş Gəlmisiniz!</h2>
                <div className='w-40 h-40 rounded-3xl  relative bg-white mb-8'>
