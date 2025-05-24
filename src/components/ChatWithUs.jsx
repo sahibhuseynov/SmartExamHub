@@ -1,9 +1,9 @@
-import { useState } from 'react'; // Arrow Down Icon
+import { useState } from 'react';
 import { RiArrowDownWideFill } from "react-icons/ri";
-import { FaAngleRight } from "react-icons/fa6"; // Arrow Down Icon
+import { FaAngleRight } from "react-icons/fa6";
 import { BsChatRightFill } from "react-icons/bs";
-import { FaWhatsapp } from "react-icons/fa"; // Chat Icon
-import { motion } from 'framer-motion'; // Framer Motion import
+import { FaWhatsapp } from "react-icons/fa";
+import { motion } from 'framer-motion';
 
 const ChatWithUs = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -11,44 +11,71 @@ const ChatWithUs = () => {
 
   const handleChatButtonClick = () => {
     setShowPopup(!showPopup);
-    setIconChange(!iconChange); // Icon değişimini sağlar
+    setIconChange(!iconChange);
   };
 
   return (
     <div>
-      {/* Chat Button (Daire şeklinde) */}
-      <div
+      {/* Floating Action Button */}
+      <motion.div
         onClick={handleChatButtonClick}
-        className="fixed z-50 bottom-7 right-4 bg-green-500 text-white p-4 rounded-full border border-white shadow-lg cursor-pointer transition-all hover:bg-green-600"
+        className="fixed z-50 bottom-7 right-7 bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-full shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
         {iconChange ? (
-          <RiArrowDownWideFill size={20} />
+          <motion.div
+            initial={{ rotate: 0 }}
+            animate={{ rotate: 180 }}
+            transition={{ duration: 0.3 }}
+          >
+            <RiArrowDownWideFill size={22} />
+          </motion.div>
         ) : (
-          <BsChatRightFill size={20} />
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <BsChatRightFill size={20} />
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Popup with Framer Motion Animation */}
       {showPopup && (
-       <motion.div
-       className="fixed z-50 border-2 border-black  bottom-28 right-4 bg-white p-6 rounded-3xl shadow-lg max-w-sm w-full"
-       initial={{ opacity: 0, y: 20 }} // Başlangıçta opaklık 0 ve 20px aşağıda
-       animate={{ opacity: 1, y: 0 }} // Animasyon sırasında opaklık 1 ve yukarı doğru
-       exit={{ opacity: 0, y: 20 }} // Kapanırken opaklık 0 ve 20px aşağıya
-       transition={{ duration: 0.5, ease: 'easeInOut' }} // Animasyon süresi ve geçiş türü
-     >
-      
-          <div className="text-center">
-            <p className="text-black text-lg font-bold">
-            Veb saytını yoxladım və bir neçə sualım var.
+        <motion.div
+          className="fixed z-40 bottom-24 right-7 bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full border border-gray-100"
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+          transition={{ 
+            type: "spring",
+            damping: 25,
+            stiffness: 300,
+            duration: 0.3
+          }}
+        >
+          <div className="text-center space-y-4">
+            <p className="text-gray-800 text-md font-semibold">
+              Veb saytını yoxladım və bir neçə sualım var.
             </p>
-            <a href="https://wa.me/994509834972" target="_blank" rel="noreferrer">
-              <div className='flex  items-center cursor-pointer text-white justify-between mt-4 p-4 rounded-xl bg-black group transition-colorss'>
-                <FaWhatsapp size={30} />
-                <span className='group-hover:text-green-500 transition-all '>Bizimlə söhbət et</span>   
-                <FaAngleRight size={20} />
+            
+            <motion.a 
+              href="https://wa.me/994509834972" 
+              target="_blank" 
+              rel="noreferrer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className='flex items-center justify-between mt-4 p-3 px-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white group transition-all duration-200 hover:shadow-md'>
+                <div className="flex items-center space-x-3">
+                  <FaWhatsapp size={24} className="text-white" />
+                  <span className='font-medium'>Bizimlə söhbət et</span>
+                </div>
+                <FaAngleRight size={16} className="opacity-80 group-hover:translate-x-1 transition-transform" />
               </div>
-            </a>
+            </motion.a>
           </div>
         </motion.div>
       )}

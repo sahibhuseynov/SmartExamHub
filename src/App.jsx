@@ -20,6 +20,7 @@ import TermsOfUse from './pages/TermsOfUse';
 import LoginPage from './pages/LoginPage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
+import ContactPage from './pages/ContactPage';
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
               <Route path="/termsOfUse" element={<TermsOfUse />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogDetailPage />} />
+              <Route path="/contact" element={<ContactPage />}  />
             </Routes>
           </AnimatePresence>
         </Router>
