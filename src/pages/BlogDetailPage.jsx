@@ -1,52 +1,61 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase/config"; // Firebase bağlantısı
-import { useParams } from "react-router-dom"; // URL parametrelerini almak için
-import { collection, query, where, getDocs } from "firebase/firestore"; // Firestore'dan veri almak için
+import { db } from "../firebase/config";
+import { useParams } from "react-router-dom";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import LatestBlogs from './../components/dashboard/LatestBlogs';
+import { FiClock, FiFolder, } from "react-icons/fi";
+import { motion } from "framer-motion";
 
-// Smooth Loading Image Component
-const SmoothImage = ({ src, alt, lazy }) => {
+// Təkmilləşdirilmiş Şəkil Komponenti
+const SmoothImage = ({ src, alt, lazy, className = "" }) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={`w-full h-auto object-cover transition-opacity duration-700 ${
-        loaded ? "opacity-100" : "opacity-0"
-      }`}
-      loading={lazy ? "lazy" : "eager"} // İlk şəkil eager, digərləri lazy yüklənir
-      onLoad={() => setLoaded(true)}
-    />
+    <div className={`relative overflow-hidden ${className}`}>
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover transition-all duration-700 ${
+          loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+        }`}
+        loading={lazy ? "lazy" : "eager"}
+        onLoad={() => setLoaded(true)}
+      />
+      {!loaded && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+      )}
+    </div>
   );
 };
 
 const BlogDetailPage = () => {
-  const { slug } = useParams(); // URL parametre (slug)
-  const [blog, setBlog] = useState(null); // Blog verisi
-  const [loading, setLoading] = useState(true); // Yükleniyor durumu
-  const [error, setError] = useState(null); // Hata durumu
+  const { slug } = useParams();
+  const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchBlog = async () => {
       setLoading(true);
-      setError(null); // Hata durumunu sıfırlıyoruz
+      setError(null);
 
       try {
-        const q = query(collection(db, "blogs"), where("slug", "==", slug)); // slug ile sorgulama
+        const q = query(collection(db, "blogs"), where("slug", "==", slug));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
           const blogDoc = querySnapshot.docs[0];
-          setBlog(blogDoc.data());
+          setBlog({
+            id: blogDoc.id,
+            ...blogDoc.data()
+          });
         } else {
-          setError("Blog bulunamadı.");
+          setError("Bloq tapılmadı");
         }
       } catch (err) {
-        console.error("Blog verisi alınırken hata oluştu:", err);
-        setError("Blog verisi alınırken bir hata oluştu.");
+        console.error("Bloq məlumatları alınarkən xəta baş verdi:", err);
+        setError("Bloq məlumatları alınarkən xəta baş verdi");
       } finally {
         setLoading(false);
       }
@@ -55,78 +64,128 @@ const BlogDetailPage = () => {
     fetchBlog();
   }, [slug]);
 
+  // Animasiya variantları
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <div className="flex-grow py-16 px-4 lg:px-0">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-grow py-12 px-4 lg:px-0">
+        <div className="max-w-4xl mx-auto">
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <span className="loading loading-spinner loading-lg text-gray-400"></span>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
           ) : error ? (
-            <p>{error}</p>
+            <div className="text-center py-12">
+              <div className="text-5xl mb-4">😕</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{error}</h2>
+              <p className="text-gray-600">Əsas səhifəyə qayıdıb yenidən cəhd edin</p>
+            </div>
           ) : (
-            <>
-              <h1 className="text-3xl lg:text-4xl font-extrabold text-center mb-12">
-                {blog.title}
-              </h1>
-              <section className="mb-8">
-                <p className="text-gray-600 text-sm mb-4">
-                  Kategori: {blog.category} -{" "}
-                  {new Date(blog.createdAt.toDate()).toLocaleDateString()}
-                </p>
-              </section>
-              <div className="space-y-8">
+            <motion.article
+              initial="hidden"
+              animate="visible"
+              variants={containerVariants}
+            >
+              {/* Bloq Başlığı */}
+              <motion.header variants={itemVariants} className="mb-12 text-center">
+                <div className="flex justify-center items-center gap-4 mb-4 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <FiClock size={14} />
+                    {new Date(blog.createdAt.toDate()).toLocaleDateString('az-AZ', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <FiFolder size={14} />
+                    {blog.category}
+                  </span>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-6">
+                  {blog.title}
+                </h1>
+                <div className="w-20 h-1 bg-blue-500 mx-auto"></div>
+              </motion.header>
+
+              {/* Bloq Məzmunu */}
+              <motion.div variants={containerVariants} className="space-y-12">
                 {blog.sections.map((section, index) => (
-                  <div key={index} className="space-y-6">
+                  <motion.section
+                    key={index}
+                    variants={itemVariants}
+                    className="space-y-6"
+                  >
                     {section.type === "image" && (
                       <div
-                        className={`flex flex-col md:flex-row items-center gap-6 border-4 bg-slate-200 border-blue-700 rounded-lg overflow-hidden ${
-                          index % 2 === 0 ? "" : "md:flex-row-reverse"
-                        }`}
+                        className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-stretch gap-6 bg-white rounded-xl shadow-md overflow-hidden`}
                       >
-                        <div className="w-full md:w-1/2">
+                        <div className="w-full md:w-1/2 h-64 md:h-auto">
                           <SmoothImage
                             src={section.url}
                             alt={section.alt}
-                            lazy={index !== 0} // İlk şəkil eager, qalanları lazy yüklənir
+                            lazy={index !== 0}
+                            className="h-full"
                           />
                         </div>
-                        <div className="w-full md:w-1/2 p-4">
-                          <p
-                            className="text-gray-800 text-lg"
+                        <div className="w-full md:w-1/2 p-6 flex flex-col justify-center">
+                          <div
+                            className="prose prose-lg max-w-none text-gray-700"
                             dangerouslySetInnerHTML={{
                               __html: section.text.replace(
                                 /<h4>/g,
-                                '<h4 class="text-2xl font-semibold mb-4">'
+                                '<h4 class="text-xl font-bold mb-3 text-gray-800">'
                               ),
                             }}
-                          ></p>
+                          ></div>
                         </div>
                       </div>
                     )}
                     {section.type === "text" && (
-                      <div className="border-4 bg-slate-200 border-blue-700 rounded-lg p-8 text-center">
-                        <p
-                          className="text-gray-800"
+                      <div className="bg-white rounded-xl shadow-md p-8">
+                        <div
+                          className="prose prose-lg max-w-none text-gray-700"
                           dangerouslySetInnerHTML={{
                             __html: section.content.replace(
                               /<h4>/g,
-                              '<h4 class="text-2xl font-semibold mb-4">'
+                              '<h4 class="text-xl font-bold mb-3 text-gray-800">'
                             ),
                           }}
                         />
                       </div>
                     )}
-                  </div>
+                  </motion.section>
                 ))}
-              </div>
-            </>
+              </motion.div>
+
+             
+            </motion.article>
           )}
         </div>
-      </div>
-   
+      </main>
       <Footer />
     </div>
   );

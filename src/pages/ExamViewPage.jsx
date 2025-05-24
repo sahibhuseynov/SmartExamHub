@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, collection, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { FaStar, FaChevronRight, FaChevronLeft, FaList, FaHome, FaRegCheckCircle, FaRegTimesCircle } from "react-icons/fa";
+import { FaStar, FaChevronRight, FaChevronLeft, FaList, FaHome,  } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +36,7 @@ const ExamViewPage = () => {
     const [showAnswerSheet, setShowAnswerSheet] = useState(false);
     const [isFreeExam, setIsFreeExam] = useState(false);
     const [currentWrongAnswerIndex, setCurrentWrongAnswerIndex] = useState(0);
+    
     const navigate = useNavigate();
     const userr = useSelector(state => state.user.user);
 
@@ -56,8 +57,12 @@ const ExamViewPage = () => {
         if (showResults) {
             window.scrollTo(0, 0);
         }
+        
     }, [showResults]);
-
+            useEffect(() => {
+    // Sayfa yenilendiğinde selectedAnswers'ı temizle
+    setSelectedAnswers({});
+}, []);
     useEffect(() => {
         if (showModal) {
             document.body.style.overflow = "hidden";
@@ -163,22 +168,23 @@ const ExamViewPage = () => {
             [`${sectionId}-${questionIndex}`]: selectedOption
         }));
     };
-    
+  
     const handleSubmit = async () => {
-        const unansweredCount = totalQuestions - Object.keys(selectedAnswers).length;
+       const answeredQuestions = selectedAnswers ? Object.keys(selectedAnswers).length : 0;
+    const unansweredCount = totalQuestions - answeredQuestions;
         
         const result = await Swal.fire({
-            title: 'İmtahanı bitirmək istədiyinizə əminsiniz?',
-            html: `
-                <div class="text-left">
-                    <p class="mb-2">Cavablanmamış suallar: <strong>${unansweredCount}</strong></p>
-                    ${unansweredCount > 0 ? 
-                        '<p class="text-red-600">Cavab vermədiyiniz suallar var!</p>' : 
-                        '<p class="text-green-600">✓ Bütün suallara cavab verdiniz</p>'
-                    }
-                </div>
+           title: 'İmtahanı bitirmək istədiyinizə əminsiniz?',
+        html: `
+            <div class="text-left">
+                <p class="mb-2">Cavablanmamış suallar: <strong>${Math.max(unansweredCount, 0)}</strong></p>
+                ${unansweredCount > 0 ? 
+                    '<p class="text-red-600">Cavab vermədiyiniz suallar var!</p>' : 
+                    '<p class="text-green-600">✓ Bütün suallara cavab verdiniz</p>'
+                }
+            </div>
             `,
-            icon: 'question',
+            icon: unansweredCount > 0 ? 'warning' : 'success',
             showCancelButton: true,
             confirmButtonText: 'Bəli, Bitir',
             cancelButtonText: 'Xeyr, Geri Dön',
@@ -315,9 +321,7 @@ const ExamViewPage = () => {
         }
     };
 
-    const toggleAnswerSheet = () => {
-        setShowAnswerSheet(!showAnswerSheet);
-    };
+    
 
     const calculateQuestionOffset = (sectionIndex) => {
         let offset = 0;
@@ -330,7 +334,7 @@ const ExamViewPage = () => {
     const jumpToQuestion = (sectionIndex, questionIndex) => {
         setCurrentSectionIndex(sectionIndex);
         setCurrentQuestionIndex(questionIndex);
-        setShowAnswerSheet(false);
+        
     };
 
     const chartData = [
@@ -463,13 +467,15 @@ const ExamViewPage = () => {
                             <div className="flex items-center gap-3">
                                 <Timer initialTime={examDuration * 60} onTimeUp={handleTimeUp} />
                                 
-                                <button 
-                                    onClick={toggleAnswerSheet}
-                                    className={`flex items-center gap-2 p-4 rounded-lg ${showAnswerSheet ? 'bg-blue-100 text-blue-600' : 'bg-white shadow-lg hover:bg-gray-200'} transition`}
-                                >
-                                    <FaList size={14} />
-                                    <span className="hidden sm:inline">Cavab Kartı</span>
-                                </button>
+                              <button 
+  onClick={() => setShowAnswerSheet(!showAnswerSheet)}
+  className={`flex items-center gap-2 p-4 rounded-lg ${
+    showAnswerSheet ? 'bg-blue-100 text-blue-600' : 'bg-white shadow-lg hover:bg-gray-200'
+  } transition`}
+>
+  <FaList size={14} />
+  <span className="hidden sm:inline">Cavab Kartı</span>
+</button>
                                 
                               <button
   onClick={handleSubmit}
@@ -513,10 +519,7 @@ const ExamViewPage = () => {
                                                             return (
                                                                 <button
                                                                     key={questionIndex}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // Tıklamanın dışarı yayılmasını engelle
-                                                                        jumpToQuestion(sectionIndex, questionIndex);
-                                                                    }}
+                                                                   onClick={() => jumpToQuestion(sectionIndex, questionIndex)}
                                                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all ${
                                                                         isCurrent 
                                                                             ? 'bg-blue-600 text-white scale-110 ring-2 ring-blue-300' 

@@ -19,7 +19,8 @@ const ChatWithUs = () => {
       {/* Floating Action Button */}
       <motion.div
         onClick={handleChatButtonClick}
-        className="fixed z-50 bottom-7 right-7 bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-full shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+        className="fixed z-50 bottom-7 right-7 bg-gradient-to-br
+         from-green-500 to-green-600 text-white p-4 rounded-full shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >

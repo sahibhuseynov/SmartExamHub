@@ -343,7 +343,7 @@ const ExamDetailsPage = () => {
                             ))}
                         </div>
                     ) : sections.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {sections.map((section, index) => (
                                 <div 
                                     key={index}
@@ -359,7 +359,7 @@ const ExamDetailsPage = () => {
                                                 {section.questionCount} sual
                                             </span>
                                         </div>
-                                        <div className="bg-blue-500/10 p-2 rounded-lg">
+                                        <div className="bg-blue-500/10 p-2 rounded-lg hidden sm:block">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                             </svg>

@@ -30,22 +30,23 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
       <Navbar />
-      <div className="flex flex-col lg:flex-row min-h-screen max-w-7xl mx-auto py-7 px-4 lg:px-0 gap-4">
-        {/* Sol Menü */}
-        <div className="w-full lg:w-1/4 bg-white p-6 shadow-md rounded-lg">
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] max-w-7xl mx-auto py-7 px-4 lg:px-0 gap-4">
+        {/* Sol Menü - Fixed */}
+        <div className="w-full lg:w-1/4 bg-white p-6 shadow-md rounded-lg lg:sticky lg:top-24 lg:h-[calc(100vh-120px)]">
           {/* Profil Başlığı */}
           <div className="text-center flex flex-col items-center mb-8">
-          {user.photoURL ? (
-  <img src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
-) : (
-  <div className="flex items-center justify-center w-24 h-24 bg-blue-600 rounded-full">
-    <span className="text-white text-6xl font-thin">
-      {user.displayName?.charAt(0).toUpperCase() || ""}
-    </span>
-  </div>
-)}
+            {user.photoURL ? (
+              <img src={user.photoURL} alt="Rozet" className="w-28 h-28 object-cover rounded-full" />
+            ) : (
+              <div className="flex items-center justify-center w-24 h-24 bg-gradient-to-br
+               from-green-500 to-green-600 rounded-full">
+                <span className="text-white text-6xl font-thin">
+                  {user.displayName?.charAt(0).toUpperCase() || ""}
+                </span>
+              </div>
+            )}
             <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mt-3">
               {user.displayName}
             </h2>
@@ -80,8 +81,8 @@ const ProfilePage = () => {
           </ul>
         </div>
 
-        {/* Sağ İçerik */}
-        <div className="flex-1 bg-white p-6 shadow-md rounded-lg">
+        {/* Sağ İçerik - Scrollable */}
+        <div className="flex-1 bg-white p-6 shadow-md rounded-lg overflow-y-auto max-h-[calc(100vh-120px)]">
           {renderContent()}
         </div>
       </div>

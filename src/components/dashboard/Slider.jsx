@@ -83,7 +83,7 @@ const Carousel = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-pink-500 to-purple-600">
+    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 ">
       <div className="carousel-container max-w-[100rem] mx-auto w-full relative group text-white p-8">
         <Slider {...settings}>
           {slides.map((slide, index) => (

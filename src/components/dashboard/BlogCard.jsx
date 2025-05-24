@@ -15,7 +15,7 @@ const BlogCard = ({ blog }) => {
         <p className="text-gray-600 text-sm mb-2">
           {blog.category} - {new Date(blog.createdAt.toDate()).toLocaleDateString()}
         </p>
-        <p className="text-gray-800 text-sm line-clamp-3">{blog.content}</p> {/* İçerikten sadece 3 satır göster */}
+        <p className="text-gray-800 text-sm line-clamp-1">{blog.content}</p> {/* İçerikten sadece 3 satır göster */}
       </div>
     </div>
   );

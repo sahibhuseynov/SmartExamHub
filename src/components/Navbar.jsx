@@ -78,7 +78,7 @@ const handleDifferentProfile = () => {
                     {user.photoURL ? (
                       <img src={user.photoURL} alt="User Profile" />
                     ) : (
-                      <div className='w-10 h h-full flex items-center justify-center rounded-full bg-blue-600'>
+                      <div className='w-10 h h-full flex items-center justify-center rounded-full bg-green-500'>
                        <span className='text-white text-xl font-thin'>{user.displayName.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
