@@ -25,7 +25,6 @@ const ExamViewPage = () => {
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState(0);
     const [showResults, setShowResults] = useState(false);
-    const [showFullResults, setShowFullResults] = useState(false);
     const [comments, setComments] = useState([]);
     const [averageRating, setAverageRating] = useState(0);
     const [showModal, setShowModal] = useState(true);
@@ -488,11 +487,11 @@ const ExamViewPage = () => {
                             <AnimatePresence>
                                 {showAnswerSheet && (
                                     <motion.div 
-                                        initial={{ x: 300, opacity: 0 }}
+                                          initial={{ x: 300, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         exit={{ x: 300, opacity: 0 }}
                                         transition={{ type: "spring", damping: 30 }}
-                                        className="hidden md:block absolute md:relative right-0 top-0 w-64 bg-white p-4 rounded-xl shadow-lg z-10 border border-gray-200 h-fit"
+                                        className="hidden md:block absolute md:relative right-0 top-0 w-64 bg-white p-4 rounded-xl shadow-lg z-10 border border-gray-200 h-[80vh] overflow-y-auto"
                                     >
                                         <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                             <FaList className="text-blue-500" />
@@ -514,7 +513,10 @@ const ExamViewPage = () => {
                                                             return (
                                                                 <button
                                                                     key={questionIndex}
-                                                                    onClick={() => jumpToQuestion(sectionIndex, questionIndex)}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // Tıklamanın dışarı yayılmasını engelle
+                                                                        jumpToQuestion(sectionIndex, questionIndex);
+                                                                    }}
                                                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all ${
                                                                         isCurrent 
                                                                             ? 'bg-blue-600 text-white scale-110 ring-2 ring-blue-300' 
@@ -538,7 +540,7 @@ const ExamViewPage = () => {
                             {/* Question Area */}
                             <motion.div 
                                 layout
-                                className={`flex-1 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 transition-all`}
+                                className={`flex-1 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 transition-all min-h-[70vh]`}
                                 
                             >
                                 {loading ? (
@@ -561,7 +563,7 @@ const ExamViewPage = () => {
                                         
                                         {/* Question Content */}
                                         <div className="mb-6">
-                                            <p className="text-xl font-medium text-gray-800 mb-4">
+                                           <p className="text-xl font-medium text-gray-800 mb-4 break-words"> 
                                                 <span className="font-bold text-blue-600">
                                                     Sual {calculateQuestionOffset(currentSectionIndex) + currentQuestionIndex + 1}:
                                                 </span> {sections[currentSectionIndex].questions[currentQuestionIndex].questionText}
@@ -585,9 +587,9 @@ const ExamViewPage = () => {
                                                 </div>
                                             )}
                                             
-                                            <ul className=" grid grid-cols-2 items-center gap-3">
+                                            <ul className="grid grid-cols-1 md:grid-cols-2 items-center gap-3">
                                                 {sections[currentSectionIndex].questions[currentQuestionIndex].options.map((option, i) => (
-                                                    <li key={i}>
+                                                    <li key={i} >
                                                         <label className={`flex items-center p-4 rounded-lg border cursor-pointer transition-all ${
                                                             selectedAnswers[`${sections[currentSectionIndex].id}-${currentQuestionIndex}`] === option.option
                                                                 ? 'border-blue-500 bg-blue-50'
