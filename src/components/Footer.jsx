@@ -13,6 +13,7 @@ const Footer = () => {
       <h6 className="footer-title">Servislər</h6>
       <Link to="/" className=" link-hover">İmtahanlar</Link>
       <Link to="/blog" className=" link-hover">Bloq</Link>
+      <Link to="/kurslar" className=" link-hover">Kurslar</Link>
       
     </nav>
     <nav>

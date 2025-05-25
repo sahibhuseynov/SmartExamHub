@@ -59,7 +59,7 @@ const LoginPage = () => {
                  src="https://res.cloudinary.com/dwvmtepwh/image/upload/v1747848141/vavgvj1x9isuexhht9je.png"
                  alt="BalaBebir maskotu"
                  className="w-full h-full absolute top-8"
-                 
+                 loading="lazy"
                />
                </div>
                <div>

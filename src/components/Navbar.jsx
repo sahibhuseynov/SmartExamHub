@@ -1,25 +1,51 @@
-import{ useEffect, useState, useRef } from 'react';
-import { FaBell, } from 'react-icons/fa';
+import { useEffect, useState, useRef } from 'react';
+import { FaBell } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userSlice';
 import { useNavigate, Link } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 const Navbar = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [hasInstitution, setHasInstitution] = useState(null);
   const notificationRef = useRef(null);
+
+  // Check if user has an institution
+  useEffect(() => {
+    const checkUserInstitution = async () => {
+      if (user?.uid) {
+        try {
+          const userDoc = await getDoc(doc(db, 'Users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setHasInstitution(!!userData.activeInstitution);
+          }
+        } catch (error) {
+          console.error('Error checking user institution:', error);
+        }
+      }
+    };
+
+    checkUserInstitution();
+  }, [user]);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
   };
-const handleDifferentProfile = () => {
-  navigate('/register')
-  dispatch(logout());
-  
-}
+
+  const handleInstitutionRedirect = () => {
+    if (hasInstitution) {
+      navigate('/kurumdashboard');
+    } else {
+      navigate('/kurslar');
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -61,12 +87,11 @@ const handleDifferentProfile = () => {
                   <FaBell className="text-xl" />
                 </button>
                 {showNotifications && (
-                  <div className="absolute right-0 mt-3 w-72 bg-white border rounded-2xl shadow-lg z-50 ">
+                  <div className="absolute right-0 mt-3 w-72 bg-white border rounded-2xl shadow-lg z-50">
                     <div className="p-4">
                       <h3 className="font-bold text-lg">Bildirişlər</h3>
                       <ul>
                         <li className="py-2 border-b">Balabebir ailəsinə xoş gelmisiniz!</li>
-                        
                       </ul>
                     </div>
                   </div>
@@ -78,18 +103,22 @@ const handleDifferentProfile = () => {
                     {user.photoURL ? (
                       <img src={user.photoURL} alt="User Profile" />
                     ) : (
-                      <div className='w-10 h h-full flex items-center justify-center rounded-full bg-green-500'>
-                       <span className='text-white text-xl font-thin'>{user.displayName.charAt(0).toUpperCase()}</span>
+                      <div className='w-10 h-full flex items-center justify-center rounded-full bg-green-500'>
+                       <span className='text-white text-xl font-thin'>{user.displayName?.charAt(0).toUpperCase() || 'U'}</span>
                       </div>
                     )}
                   </div>
                 </div>
                 <ul tabIndex={0} className="menu menu-sm dropdown-content bg-white rounded-box z-[1] mt-3 w-52 p-2 shadow">
                   <li>
-                    <Link to='/profile'>{user.displayName || 'Profile'}</Link>
+                    <Link to='/profile'>{user.displayName || 'Profil'}</Link>
                   </li>
-                  <li><Link onClick={handleDifferentProfile}>Fərqli Hesaba Keç</Link></li>
-                  <li><Link onClick={handleLogout}>Hesabdan Çıx</Link></li>
+                  <li>
+                    <a onClick={handleInstitutionRedirect}>
+                      {hasInstitution ? 'Qurumum' : 'Kurslar'}
+                    </a>
+                  </li>
+                  <li><a onClick={handleLogout}>Hesabdan Çıx</a></li>
                 </ul>
               </div>
             </>

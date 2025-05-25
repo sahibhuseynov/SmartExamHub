@@ -19,6 +19,7 @@
   const Footer = lazy(() => import("../components/Footer"));
   const LatestBlogs = lazy(() => import("../components/dashboard/LatestBlogs"));
   const TopUsersLeaderboard = lazy(() => import("../components/dashboard/TopUsersLeaderboard"));
+import InstitutionShowcase from './../components/dashboard/InstitutionShowcase';
 
 
   const Dashboard = () => {
@@ -132,13 +133,14 @@
         <div className="chatbot-container md:block hidden">
       <ChatWithUs />
   </div>
-
+ 
   {/* Show ChatWithUs for smaller screens */}
   <div className="chatwithus-container md:hidden block">
     <ChatWithUs />
   </div>
         <Navbar />
         <Slider />
+        
         <div className="p-6 flex flex-col items-center max-w-6xl mx-auto">
           <h2 className="text-2xl text-slate-800 font-bold mb-4">İmtahan Kateqoriyaları</h2>
           <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -156,7 +158,7 @@
   )}
           </ul>
         </div>
-
+<InstitutionShowcase />
         <div className="max-w-6xl mx-auto mb-12">
           <TopRating />
         
