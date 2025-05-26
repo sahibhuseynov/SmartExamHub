@@ -16,6 +16,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { db } from "../firebase/config";
+import InstitutionsTab from "../components/adminPanel/InstitutionsTab";
 
 
 
@@ -216,7 +217,7 @@ const AdminPanel = () => {
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <p className="text-gray-600">
                     {activeTab === 'users' && <UserList />}
-                    {activeTab === 'institutions' && 'Kurum listesi ve yönetim araçları burada olacak'}
+                    {activeTab === 'institutions' && <InstitutionsTab />}
                     {activeTab === 'exams' && 'Sınav listesi ve yönetim araçları burada olacak'}
                   </p>
                 </div>

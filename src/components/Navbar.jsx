@@ -3,8 +3,9 @@ import { FaBell } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userSlice';
 import { useNavigate, Link } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const user = useSelector((state) => state.user.user);
@@ -12,6 +13,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasInstitution, setHasInstitution] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const notificationRef = useRef(null);
 
   // Check if user has an institution
@@ -33,6 +36,27 @@ const Navbar = () => {
     checkUserInstitution();
   }, [user]);
 
+  useEffect(() => {
+  if (!user?.uid) return;
+
+  // Kullanıcının okunmamış bildirimlerini dinle
+  const q = query(
+    collection(db, "Users", user.uid, "notifications"),
+    where("read", "==", false)
+  );
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const notifs = [];
+    querySnapshot.forEach((doc) => {
+      notifs.push({ id: doc.id, ...doc.data() });
+    });
+    setNotifications(notifs);
+    setUnreadCount(notifs.length);
+  });
+
+  return unsubscribe;
+}, [user]);
+
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
@@ -45,6 +69,18 @@ const Navbar = () => {
       navigate('/kurslar');
     }
   };
+
+  
+
+  const markAsRead = async (notificationId) => {
+  try {
+    await updateDoc(doc(db, "Users", user.uid, "notifications", notificationId), {
+      read: true,
+    });
+  } catch (error) {
+    console.error("Bildirim güncellenemedi:", error);
+  }
+};
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -83,19 +119,75 @@ const Navbar = () => {
               <div className="relative" ref={notificationRef}>
                 <button
                   onClick={() => setShowNotifications((prev) => !prev)}
-                  className="btn btn-ghost mr-4">
+                  className="btn btn-ghost mr-4 relative"
+                >
                   <FaBell className="text-xl" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </button>
-                {showNotifications && (
-                  <div className="absolute right-0 mt-3 w-72 bg-white border rounded-2xl shadow-lg z-50">
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg">Bildirişlər</h3>
-                      <ul>
-                        <li className="py-2 border-b">Balabebir ailəsinə xoş gelmisiniz!</li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-3 w-72 md:w-96 bg-white border rounded-2xl shadow-lg z-50"
+                    >
+                      <div className="p-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="font-bold text-lg">Bildirişlər</h3>
+                          {notifications.length > 0 && (
+                            <button 
+                              
+                              className="text-sm text-blue-500 hover:text-blue-700"
+                            >
+                              Hamısını oxunmuş kimi qeyd et
+                            </button>
+                          )}
+                        </div>
+                        {notifications.length === 0 ? (
+                          <p className="text-gray-500 py-4 text-center">Yeni bildiriş yoxdur</p>
+                        ) : (
+                          <ul className="max-h-80 overflow-y-auto">
+                            {notifications.map((notification) => (
+                              <motion.li
+                                key={notification.id}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="py-3 border-b last:border-b-0"
+                              >
+                                <div 
+                                  className="flex items-start cursor-pointer hover:bg-gray-50 p-2 rounded"
+                                  onClick={() => {
+                                    markAsRead(notification.id);
+                                    if (notification.link) {
+                                      navigate(notification.link);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-medium">{notification.title}</p>
+                                    <p className="text-sm text-gray-600">{notification.message}</p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                      {new Date(notification.createdAt?.seconds * 1000).toLocaleString()}
+                                    </p>
+                                  </div>
+                                  {!notification.read && (
+                                    <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+                                  )}
+                                </div>
+                              </motion.li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">

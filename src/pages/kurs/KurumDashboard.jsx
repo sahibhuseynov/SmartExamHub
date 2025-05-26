@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiBook, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 const KurumDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -40,7 +41,7 @@ const KurumDashboard = () => {
         className="w-64 bg-white shadow-md"
       >
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-800">Balabebir</h1>
+          <Link to={"/"}><h1 className="text-xl font-bold text-gray-800">Balabebir</h1></Link>
           <p className="text-sm text-gray-500">Eğitim Yönetim Paneli</p>
         </div>
         
@@ -279,4 +280,4 @@ const KurumDashboard = () => {
   );
 };
 
-export default KurumDashboard;
+export default KurumDashboard; 

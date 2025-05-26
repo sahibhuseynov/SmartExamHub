@@ -14,10 +14,13 @@ const InstitutionShowcase = () => {
     const fetchInstitutions = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'institutions'));
-        const institutionsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const institutionsData = querySnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          // Filter to only include active institutions
+          .filter(institution => institution.status === 'active');
         setInstitutions(institutionsData);
       } catch (err) {
         console.error('Error fetching institutions:', err);

@@ -74,7 +74,7 @@ const InstitutionRegistration = () => {
         description: formData.description,
         logoUrl: formData.logoUrl,
         createdAt: new Date(),
-        status: 'active',
+        status: 'inactive',
         adminUserId: userId, // Associate with the current user
         members: [userId]    // Add user as first member
       });
