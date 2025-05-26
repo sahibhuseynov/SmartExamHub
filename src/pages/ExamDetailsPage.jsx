@@ -15,7 +15,8 @@ import { AnimatePresence, motion } from "framer-motion";
 const ExamDetailsPage = () => {
     const [open, setOpen] = useState(false);
     const [sections, setSections] = useState([]);
-    
+    const [isInstitutionExam, setIsInstitutionExam] = useState(false);
+    const [institutionData, setInstitutionData] = useState(null);
     const formatDateRelative = (timestamp) => {
         if (!timestamp?.seconds) return "Bilinmiyor";
     
@@ -51,38 +52,76 @@ const ExamDetailsPage = () => {
     const [isCouponValid, setIsCouponValid] = useState(false);
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.user);
-
-    useEffect(() => {
+ const queryParams = new URLSearchParams(location.search);
+        const institutionId = queryParams.get('institutionId');
+      useEffect(() => {
         const fetchExamDetails = async () => {
             try {
-                const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
-                const examSnap = await getDoc(examRef);
-                
-                if (examSnap.exists()) {
-                    setExam(examSnap.data());
+                // Fetch institution data if it's an institution exam
+                if (institutionId) {
+                    const institutionRef = doc(db, 'institutions', institutionId);
+                    const institutionSnap = await getDoc(institutionRef);
+                    if (institutionSnap.exists()) {
+                        setInstitutionData(institutionSnap.data());
+                    }
+
+                    // Fetch institution exam
+                    const examRef = doc(db, `InstitutionsExams/${institutionId}/Exams/${examId}`);
+                    const examSnap = await getDoc(examRef);
                     
-                    const sectionsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections`);
-                    const sectionsSnapshot = await getDocs(sectionsRef);
-                    
-                    const sectionsWithQuestions = await Promise.all(
-                        sectionsSnapshot.docs.map(async (sectionDoc) => {
-                            const questionsRef = collection(
-                                db, 
-                                `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
-                            );
-                            const questionsSnapshot = await getDocs(questionsRef);
-                            
-                            return {
-                                id: sectionDoc.id,
-                                name: sectionDoc.data().name || sectionDoc.id,
-                                questionCount: questionsSnapshot.size
-                            };
-                        })
-                    );
-                    
-                    setSections(sectionsWithQuestions);
+                    if (examSnap.exists()) {
+                        setExam(examSnap.data());
+                        
+                        const sectionsRef = collection(db, `InstitutionsExams/${institutionId}/Exams/${examId}/Sections`);
+                        const sectionsSnapshot = await getDocs(sectionsRef);
+                        
+                        const sectionsWithQuestions = await Promise.all(
+                            sectionsSnapshot.docs.map(async (sectionDoc) => {
+                                const questionsRef = collection(
+                                    db, 
+                                    `InstitutionsExams/${institutionId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
+                                );
+                                const questionsSnapshot = await getDocs(questionsRef);
+                                
+                                return {
+                                    id: sectionDoc.id,
+                                    name: sectionDoc.data().name || sectionDoc.id,
+                                    questionCount: questionsSnapshot.size
+                                };
+                            })
+                        );
+                        
+                        setSections(sectionsWithQuestions);
+                    }
                 } else {
-                    console.error("İmtahan bulunamadı.");
+                    // Original platform exam fetching
+                    const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
+                    const examSnap = await getDoc(examRef);
+                    
+                    if (examSnap.exists()) {
+                        setExam(examSnap.data());
+                        
+                        const sectionsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections`);
+                        const sectionsSnapshot = await getDocs(sectionsRef);
+                        
+                        const sectionsWithQuestions = await Promise.all(
+                            sectionsSnapshot.docs.map(async (sectionDoc) => {
+                                const questionsRef = collection(
+                                    db, 
+                                    `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
+                                );
+                                const questionsSnapshot = await getDocs(questionsRef);
+                                
+                                return {
+                                    id: sectionDoc.id,
+                                    name: sectionDoc.data().name || sectionDoc.id,
+                                    questionCount: questionsSnapshot.size
+                                };
+                            })
+                        );
+                        
+                        setSections(sectionsWithQuestions);
+                    }
                 }
             } catch (error) {
                 console.error("Veri alınırken hata:", error);
@@ -91,7 +130,13 @@ const ExamDetailsPage = () => {
 
         const fetchComments = async () => {
             try {
-                const commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
+                let commentsRef;
+                if (institutionId) {
+                    commentsRef = collection(db, `InstitutionsExams/${institutionId}/Exams/${examId}/Comments`);
+                } else {
+                    commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
+                }
+                
                 const commentsSnapshot = await getDocs(commentsRef);
                 const commentsList = commentsSnapshot.docs.map(doc => doc.data());
                 setComments(commentsList);
@@ -109,7 +154,7 @@ const ExamDetailsPage = () => {
 
         fetchExamDetails();
         fetchComments();
-    }, [categoryId, classId, examId]);
+    }, [categoryId, classId, examId, institutionId]);
 
     const formatDate = (timestamp) => {
         if (typeof timestamp === "string") {
@@ -128,13 +173,26 @@ const ExamDetailsPage = () => {
             navigate("/register");
             return;
         }
-    
-        if (exam?.price && exam.price > 0) {
-            navigate(`/payment?examId=${examId}&categoryId=${categoryId}&classId=${classId}&price=${exam.price}`);
+    const queryParams = new URLSearchParams(location.search);
+        const institutionId = queryParams.get('institutionId');
+         if (institutionId) {
+            // Handle institution exam start
+            if (exam?.price && exam.price > 0) {
+                navigate(`/payment?examId=${examId}&institutionId=${institutionId}&price=${exam.price}`);
+            } else {
+                handleCompleteExam(examId, institutionId, true); // Modified to handle institution exams
+                navigate(`/exam/${categoryId}/${classId}/${examId}/view?institutionId=${institutionId}`);
+            }
         } else {
-            handleCompleteExam(examId, categoryId, classId);
-            navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+            // Handle platform exam start (original implementation)
+            if (exam?.price && exam.price > 0) {
+                navigate(`/payment?examId=${examId}&categoryId=${categoryId}&classId=${classId}&price=${exam.price}`);
+            } else {
+                handleCompleteExam(examId, categoryId, classId);
+                navigate(`/exam/${categoryId}/${classId}/${examId}/view`);
+            }
         }
+    
     };
 
     const handleCouponChange = async (event) => {
@@ -198,7 +256,7 @@ const ExamDetailsPage = () => {
             }
         }
     };
-
+console.log(institutionData);       
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
@@ -212,42 +270,44 @@ const ExamDetailsPage = () => {
                         className="flex flex-col md:flex-row items-center justify-between gap-8"
                     >
                         <div className="bg-white rounded-xl h-44 p-6 w-full md:w-1/3 flex items-center justify-center shadow-lg border border-white/20">
-                            <h2 className="text-4xl text-blue-700 font-bold">{examId.split(' ')[0]}</h2>
-                        </div>
+ <h2 className="text-4xl text-blue-700 font-bold">
+                                {institutionId ? (institutionData?.name || examId.split(' ')[0]) : examId.split(' ')[0]}
+                            </h2>
+</div>
                         
                       <div className="text-center md:text-left w-full md:w-2/3 space-y-4">
-  <AnimatePresence>
+                       {institutionId && institutionData && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+      className="flex items-center space-x-2 bg-white/10 p-2 rounded-lg"
+    >
+      <span className="text-sm">Bu imtahan <strong>{institutionData.name}</strong> tərəfindən təqdim olunur</span>
+    </motion.div>
+  )}
+   <AnimatePresence>
     {exam ? (
       <>
-        <motion.h1 
-          className="text-3xl md:text-4xl font-bold leading-tight"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
+        <motion.h1 className="text-3xl md:text-4xl font-bold leading-tight">
           {exam.title}
         </motion.h1>
-
-        <motion.p
-          className="text-lg md:text-xl text-white/90"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
+        <motion.p className="text-lg md:text-xl text-white/90">
           {exam.description || "Açıqlama yoxdur."}
         </motion.p>
       </>
     ) : (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="space-y-4"
-      >
-        <div className="h-12 w-full bg-gray-700/50 rounded-lg" />
-        <div className="h-6 w-4/5 bg-gray-700/50 rounded-lg" />
-        <div className="h-6 w-3/4 bg-gray-700/50 rounded-lg" />
-      </motion.div>
+      
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="h-12 w-full bg-gray-700/50 rounded-lg" />
+                                        <div className="h-6 w-4/5 bg-gray-700/50 rounded-lg" />
+                                        <div className="h-6 w-3/4 bg-gray-700/50 rounded-lg" />
+                                    </motion.div>
     )}
   </AnimatePresence>
 

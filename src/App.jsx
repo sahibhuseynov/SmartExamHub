@@ -26,6 +26,7 @@ import InstitutionRegistration from './pages/kurs/QeydiyyatKurum';
 import KurumDashboard from './pages/kurs/KurumDashboard';
 import ProtectedInstitutionRoute from './components/ProtectedInstitutionRoute';
 import LoadingSpinner from './components/LoadingSpinner';
+import InstitutionPage from './pages/kurs/InstitutionPage';
 
 
 const App = () => {
@@ -55,6 +56,7 @@ const App = () => {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/kurslar" element={<KurumTanitim/>} />
               <Route path="/registrationForm" element={<InstitutionRegistration />} />
+              <Route path="/institutions/:institutionId" element={<InstitutionPage />} />
               
               {/* Protected Institution Routes */}
               <Route element={<ProtectedInstitutionRoute />}>

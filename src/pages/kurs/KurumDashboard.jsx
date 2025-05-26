@@ -1,28 +1,60 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiBook, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiBook, FiUsers, FiFileText, FiBarChart2, FiSettings, FiLogOut, FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../firebase/config';
+import ExamCreator from './ExamCreator';
 const KurumDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [stats, setStats] = useState({
-    students: 0,
-    exams: 0,
-    certificates: 0
-  });
+  const [stats, setStats] = useState({ students: 0, exams: 0, certificates: 0 });
+  const [institution, setInstitution] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showExamCreator, setShowExamCreator] = useState(false);
 
+   const user = useSelector((state) => state.user.user);
   // Simulate loading data
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setStats({
-        students: 342,
-        exams: 15,
-        certificates: 278
-      });
-    }, 1000);
+    const fetchInstitution = async () => {
+      try {
+        if (!user?.uid) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+        // 1. Kullanıcının admin olduğu kurumu sorgula
+        const q = query(
+          collection(db, "institutions"),
+          where("adminUserId", "==", user.uid)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          setInstitution({
+            id: doc.id,
+            ...doc.data()
+          });
+        }
+
+        // 2. Simüle edilmiş istatistikler
+        setStats({ students: 342, exams: 15, certificates: 278 });
+      } catch (err) {
+        console.error("Kurum bilgisi çekilirken hata:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInstitution();
+  }, [user]);
+ 
+ if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Yükleniyor...</p>
+      </div>
+    );
+  }
 
   // Recent activity data
   const recentActivity = [
@@ -102,7 +134,36 @@ const KurumDashboard = () => {
       <div className="flex-1 overflow-auto">
         {/* Header */}
         <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">Dashboard</h2>
+           <div>
+            <h2 className="text-xl font-semibold text-gray-800">
+               {institution ? institution.name : 'Kurum Dashboard'}
+            </h2>
+            {institution ? (
+              <div className={`mt-1 flex items-center text-sm ${
+                institution.status === 'active' 
+                  ? 'text-green-600 bg-green-50' 
+                  : 'text-yellow-600 bg-yellow-50'
+              } px-3 py-1 rounded-full inline-block`}>
+                {institution.status === 'active' ? (
+                  <>
+                    <FiCheckCircle className="mr-1" />
+                    <span>Kurumunuz onaylı</span>
+                  </>
+                ) : (
+                  <>
+                    <FiClock className="mr-1" />
+                    <span>Kurumunuz henüz onaylanmadı (24 saat içinde tamamlanacak)</span>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="mt-1 items-center text-sm text-red-600 bg-red-50 px-3 py-1 rounded-full inline-block">
+                <FiAlertCircle className="mr-1" />
+                <span>Kurum bilgisi bulunamadı</span>
+              </div>
+            )}
+            
+          </div>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <input
@@ -119,7 +180,21 @@ const KurumDashboard = () => {
             </div>
           </div>
         </header>
-
+ {institution && institution.status !== 'active' && (
+          <div className="mx-6 mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <FiClock className="h-5 w-5 text-yellow-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">Onay Bekleniyor</h3>
+                <p className="text-sm text-yellow-700">
+                  Kurumunuz yöneticiler tarafından inceleniyor. En geç 24 saat içinde onay süreci tamamlanacaktır.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Dashboard Content */}
         <main className="p-6">
           {/* Stats Cards */}
@@ -131,7 +206,9 @@ const KurumDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Toplam Öğrenci</p>
-                  <p className="text-3xl font-bold text-gray-800">{stats.students}</p>
+                  <p className="text-3xl font-bold text-gray-800">
+                      {institution.members.length }
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
                   <FiUsers size={24} />
@@ -227,10 +304,16 @@ const KurumDashboard = () => {
               </button>
             </div>
           </div>
-
+{showExamCreator && (
+  <ExamCreator 
+    institutionId={institution.id} 
+    onClose={() => setShowExamCreator(false)} 
+  />
+)}
           {/* Quick Actions */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.button
+            onClick={() => setShowExamCreator(true)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-blue-50 transition-colors"

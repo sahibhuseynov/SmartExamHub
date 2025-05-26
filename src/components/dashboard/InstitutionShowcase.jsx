@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { db } from '../../firebase/config';
+import { Link } from 'react-router-dom';
 
 const InstitutionShowcase = () => {
   const [institutions, setInstitutions] = useState([]);
@@ -79,34 +80,39 @@ const InstitutionShowcase = () => {
                       <Skeleton width={100} height={20} className="mt-4" />
                     </div>
                   ))
-              : institutions.map((institution) => (
-                  <motion.div
-                    key={institution.id}
-                    variants={item}
-                    whileHover={{ y: -5 }}
-                    className="flex flex-col items-center"
-                  >
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-md transition duration-300"></div>
-                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-lg flex items-center justify-center p-4 border-2 border-gray-200 group-hover:border-blue-300 transition duration-300">
-                        {institution.logoUrl ? (
-                          <img
-                            src={institution.logoUrl}
-                            alt={institution.name}
-                            className="w-full h-full object-contain rounded-full"
-                          />
-                        ) : (
-                          <span className="text-2xl font-bold text-gray-400">
-                            {institution.name.charAt(0)}
-                          </span>
-                        )}
-                      </div>
+               : institutions.map((institution) => (
+              <Link 
+                to={`/institutions/${institution.id}`} 
+                key={institution.id}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  variants={item}
+                  whileHover={{ y: -5 }}
+                  className="flex flex-col items-center w-full"
+                >
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-md transition duration-300"></div>
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-lg flex items-center justify-center p-4 border-2 border-gray-200 group-hover:border-blue-300 transition duration-300">
+                      {institution.logoUrl ? (
+                        <img
+                          src={institution.logoUrl}
+                          alt={institution.name}
+                          className="w-full h-full object-contain rounded-full"
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-400">
+                          {institution.name.charAt(0)}
+                        </span>
+                      )}
                     </div>
-                    <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                      {institution.name}
-                    </h3>
-                  </motion.div>
-                ))}
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
+                    {institution.name}
+                  </h3>
+                </motion.div>
+              </Link>
+            ))}
           </motion.div>
         )}
       </div>
