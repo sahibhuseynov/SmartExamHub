@@ -9,7 +9,7 @@ const ExamCreator = ({ institutionId, onClose }) => {
     description: '',
     startDate: '',
     endDate: '',
-    duration: 60,
+    examDuration: 60,
     passingGrade: 50,
     questions: []
   });
@@ -178,8 +178,8 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
                   <input
                     type="number"
                     className="w-full p-3 border rounded-lg"
-                    value={examData.duration}
-                    onChange={(e) => setExamData({...examData, duration: e.target.value})}
+                    value={examData.examDuration}
+                    onChange={(e) => setExamData({...examData, examDuration: e.target.value})}
                     min="1"
                   />
                 </div>

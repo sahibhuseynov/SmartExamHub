@@ -66,20 +66,20 @@ const ExamDetailsPage = () => {
                     }
 
                     // Fetch institution exam
-                    const examRef = doc(db, `InstitutionsExams/${institutionId}/Exams/${examId}`);
+                    const examRef = doc(db, `institutionsExams/${institutionId}/Exams/${examId}`);
                     const examSnap = await getDoc(examRef);
                     
                     if (examSnap.exists()) {
                         setExam(examSnap.data());
                         
-                        const sectionsRef = collection(db, `InstitutionsExams/${institutionId}/Exams/${examId}/Sections`);
+                        const sectionsRef = collection(db, `institutionsExams/${institutionId}/Exams/${examId}/Sections`);
                         const sectionsSnapshot = await getDocs(sectionsRef);
                         
                         const sectionsWithQuestions = await Promise.all(
                             sectionsSnapshot.docs.map(async (sectionDoc) => {
                                 const questionsRef = collection(
                                     db, 
-                                    `InstitutionsExams/${institutionId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
+                                    `institutionsExams/${institutionId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
                                 );
                                 const questionsSnapshot = await getDocs(questionsRef);
                                 
@@ -132,7 +132,7 @@ const ExamDetailsPage = () => {
             try {
                 let commentsRef;
                 if (institutionId) {
-                    commentsRef = collection(db, `InstitutionsExams/${institutionId}/Exams/${examId}/Comments`);
+                    commentsRef = collection(db, `institutionsExams/${institutionId}/Exams/${examId}/Comments`);
                 } else {
                     commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
                 }
