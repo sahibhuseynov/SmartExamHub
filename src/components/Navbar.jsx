@@ -170,7 +170,9 @@ const Navbar = () => {
                                   }}
                                 >
                                   <div className="flex-1">
+                                    <p className='text-blue-700'>{notification.institutionName} tərəfindən göndərildi</p>
                                     <p className="font-medium">{notification.title}</p>
+                                    
                                     <p className="text-sm text-gray-600">{notification.message}</p>
                                     <p className="text-xs text-gray-400 mt-1">
                                       {new Date(notification.createdAt?.seconds * 1000).toLocaleString()}

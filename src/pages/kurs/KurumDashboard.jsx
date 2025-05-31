@@ -231,7 +231,7 @@ const KurumDashboard = () => {
         return <StudentsTab institutionId={institution?.id} />;
       case 'exams':
         return <ExamsTab 
-                 institution={institution} 
+                 institutionId={institution?.id} 
                  setShowExamCreator={setShowExamCreator} 
                />;
       case 'certificates':
