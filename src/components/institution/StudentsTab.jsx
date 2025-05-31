@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, updateDoc, arrayRemove, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { FiUser, FiMail, FiCalendar, FiAward, FiSend, FiTrash2, FiGift, FiBell } from 'react-icons/fi';
+import { FiUser, FiMail, FiCalendar, FiAward, FiTrash2, FiGift, FiBell, FiShield } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import StudentModal from './StudentModal';
+import StudentModal from './StudentsTab';
+import { useSelector } from 'react-redux';
 
 const StudentsTab = ({ institutionId }) => {
   const [students, setStudents] = useState([]);
@@ -11,13 +12,16 @@ const StudentsTab = ({ institutionId }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [institution, setInstitution] = useState(null);
+  
+  const currentUser = useSelector((state) => state.user.user);
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchStudentsAndInstitution = async () => {
       try {
         setLoading(true);
         
-        // 1. Kurumdaki member UID'lerini al
+        // 1. Kurum bilgilerini al (adminUserId'yi kontrol etmek için)
         const institutionRef = doc(db, 'institutions', institutionId);
         const institutionSnap = await getDoc(institutionRef);
         
@@ -26,42 +30,54 @@ const StudentsTab = ({ institutionId }) => {
           return;
         }
 
-        const memberUIDs = institutionSnap.data().members || [];
+        const institutionData = institutionSnap.data();
+        setInstitution(institutionData);
+
+        const memberUIDs = institutionData.members || [];
         
-        // 2. Her UID için Users koleksiyonundan detaylı bilgileri çek
+        // 2. Öğrenci bilgilerini al
         const usersRef = collection(db, 'Users');
         const usersQuery = query(usersRef, where('__name__', 'in', memberUIDs));
         const usersSnapshot = await getDocs(usersQuery);
         
-        const studentsData = usersSnapshot.docs.map(doc => ({
+        let studentsData = usersSnapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
+          isAdmin: doc.id === institutionData.adminUserId // Admin kontrolü
         }));
+
+        // Adminleri en başa al
+        studentsData.sort((a, b) => {
+          if (a.isAdmin && !b.isAdmin) return -1;
+          if (!a.isAdmin && b.isAdmin) return 1;
+          return 0;
+        });
         
         setStudents(studentsData);
       } catch (error) {
-        console.error("Öğrenci bilgileri çekilirken hata:", error);
+        console.error("Veri çekilirken hata:", error);
         setStudents([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudents();
+    fetchStudentsAndInstitution();
   }, [institutionId]);
 
   const handleRemoveStudent = async (studentId) => {
     try {
-      // 1. Kurumun members array'inden kaldır
+      // Admin kendini silemez
+      if (studentId === currentUser?.uid) return;
+      
       const institutionRef = doc(db, 'institutions', institutionId);
       await updateDoc(institutionRef, {
         members: arrayRemove(studentId)
       });
       
-      // 2. Local state'i güncelle
       setStudents(prev => prev.filter(student => student.id !== studentId));
     } catch (error) {
-      console.error("Öğrenci kurumdan çıkarılırken hata:", error);
+      console.error("Öğrenci silinirken hata:", error);
     }
   };
 
@@ -80,7 +96,6 @@ const StudentsTab = ({ institutionId }) => {
 
   return (
     <div className="p-6">
-      {/* Arama ve başlık kısmı aynı kalacak */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Öğrenci Yönetimi</h2>
@@ -101,7 +116,6 @@ const StudentsTab = ({ institutionId }) => {
         </div>
       </div>
 
-      {/* Öğrenci tablosu */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -121,11 +135,13 @@ const StudentsTab = ({ institutionId }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     whileHover={{ backgroundColor: 'rgba(249, 250, 251, 1)' }}
-                    className="transition-colors"
+                    className={`transition-colors ${student.isAdmin ? 'bg-gray-50' : ''}`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <div className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
+                          student.isAdmin ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
+                        }`}>
                           {student.photoURL ? (
                             <img className="h-10 w-10 rounded-full" src={student.photoURL} alt={student.displayName} />
                           ) : (
@@ -133,7 +149,15 @@ const StudentsTab = ({ institutionId }) => {
                           )}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{student.displayName || 'İsimsiz Kullanıcı'}</div>
+                          <div className="text-sm font-medium text-gray-900 flex items-center">
+                            {student.displayName || 'İsimsiz Kullanıcı'}
+                            {student.isAdmin && (
+                              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <FiShield className="mr-1" />
+                                Admin
+                              </span>
+                            )}
+                          </div>
                           <div className="text-sm text-gray-500">{student.role || 'Öğrenci'}</div>
                         </div>
                       </div>
@@ -151,58 +175,61 @@ const StudentsTab = ({ institutionId }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        {/* Aksiyon butonları */}
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            setSelectedStudent(student);
-                            setShowModal(true);
-                          }}
-                          className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50 rounded-lg"
-                          title="Detaylar"
-                        >
-                          <FiUser className="text-lg" />
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 text-green-600 hover:text-green-800 bg-green-50 rounded-lg"
-                          title="Sertifika Gönder"
-                        >
-                          <FiAward className="text-lg" />
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 text-purple-600 hover:text-purple-800 bg-purple-50 rounded-lg"
-                          title="Bildirim Gönder"
-                        >
-                          <FiBell className="text-lg" />
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 text-yellow-600 hover:text-yellow-800 bg-yellow-50 rounded-lg"
-                          title="Kupon Gönder"
-                        >
-                          <FiGift className="text-lg" />
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleRemoveStudent(student.id)}
-                          className="p-2 text-red-600 hover:text-red-800 bg-red-50 rounded-lg"
-                          title="Öğrenciyi Sil"
-                        >
-                          <FiTrash2 className="text-lg" />
-                        </motion.button>
-                      </div>
+                      {student.isAdmin ? (
+                        <span className="text-gray-400">Admin işlemleri</span>
+                      ) : (
+                        <div className="flex justify-end space-x-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              setShowModal(true);
+                            }}
+                            className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50 rounded-lg"
+                            title="Detaylar"
+                          >
+                            <FiUser className="text-lg" />
+                          </motion.button>
+                          
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 text-green-600 hover:text-green-800 bg-green-50 rounded-lg"
+                            title="Sertifika Gönder"
+                          >
+                            <FiAward className="text-lg" />
+                          </motion.button>
+                          
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 text-purple-600 hover:text-purple-800 bg-purple-50 rounded-lg"
+                            title="Bildirim Gönder"
+                          >
+                            <FiBell className="text-lg" />
+                          </motion.button>
+                          
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 text-yellow-600 hover:text-yellow-800 bg-yellow-50 rounded-lg"
+                            title="Kupon Gönder"
+                          >
+                            <FiGift className="text-lg" />
+                          </motion.button>
+                          
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleRemoveStudent(student.id)}
+                            className="p-2 text-red-600 hover:text-red-800 bg-red-50 rounded-lg"
+                            title="Öğrenciyi Sil"
+                          >
+                            <FiTrash2 className="text-lg" />
+                          </motion.button>
+                        </div>
+                      )}
                     </td>
                   </motion.tr>
                 ))
@@ -218,7 +245,6 @@ const StudentsTab = ({ institutionId }) => {
         </div>
       </div>
 
-      {/* Öğrenci Detay Modal'ı */}
       {showModal && selectedStudent && (
         <StudentModal 
           student={selectedStudent} 

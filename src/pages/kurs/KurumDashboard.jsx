@@ -6,7 +6,11 @@ import { useSelector } from 'react-redux';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ExamCreator from './ExamCreator';
-import StudentModal from './../../components/institution/StudentModal';
+import StudentsTab from '../../components/institution/StudentsTab';
+import CertificatesTab from '../../components/institution/CertificatesTab';
+import ExamsTab from '../../components/institution/ExamsTab';
+
+
 const KurumDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({ students: 0, exams: 0, certificates: 0 });
@@ -14,14 +18,13 @@ const KurumDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showExamCreator, setShowExamCreator] = useState(false);
 
-   const user = useSelector((state) => state.user.user);
-  // Simulate loading data
+  const user = useSelector((state) => state.user.user);
+
   useEffect(() => {
     const fetchInstitution = async () => {
       try {
         if (!user?.uid) return;
 
-        // 1. Kullanıcının admin olduğu kurumu sorgula
         const q = query(
           collection(db, "institutions"),
           where("adminUserId", "==", user.uid)
@@ -37,7 +40,6 @@ const KurumDashboard = () => {
           });
         }
 
-        // 2. Simüle edilmiş istatistikler
         setStats({ students: 342, exams: 15, certificates: 278 });
       } catch (err) {
         console.error("Kurum bilgisi çekilirken hata:", err);
@@ -49,7 +51,7 @@ const KurumDashboard = () => {
     fetchInstitution();
   }, [user]);
  
- if (loading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <p>Yükleniyor...</p>
@@ -57,12 +59,188 @@ const KurumDashboard = () => {
     );
   }
 
-  // Recent activity data
   const recentActivity = [
     { id: 1, type: 'exam', title: 'Matematik Ara Sınavı', date: '10 Dakika Önce', status: 'active' },
     { id: 2, type: 'student', title: '3 Yeni Öğrenci Kaydı', date: '1 Saat Önce', status: 'completed' },
     { id: 3, type: 'certificate', title: 'Sertifikalar Dağıtıldı', date: '3 Gün Önce', status: 'completed' }
   ];
+
+  const renderMainContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Toplam Öğrenci</p>
+                    <p className="text-3xl font-bold text-gray-800">
+                      {institution?.members?.length || 0}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
+                    <FiUsers size={24} />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500" style={{ width: '75%' }}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Son 30 günde %12 artış</p>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Aktif Sınavlar</p>
+                    <p className="text-3xl font-bold text-gray-800">{stats.exams}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-purple-50 text-purple-600">
+                    <FiBook size={24} />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-purple-500" style={{ width: '40%' }}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">2 yeni sınav bu hafta</p>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Verilen Sertifikalar</p>
+                    <p className="text-3xl font-bold text-gray-800">{stats.certificates}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-green-50 text-green-600">
+                    <FiFileText size={24} />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500" style={{ width: '85%' }}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">%98 tamamlama oranı</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-800">Son Aktivite</h3>
+              </div>
+              <div className="divide-y divide-gray-200">
+                {recentActivity.map((activity) => (
+                  <motion.div 
+                    key={activity.id}
+                    whileHover={{ backgroundColor: 'rgba(243, 244, 246, 1)' }}
+                    className="p-4 flex items-start"
+                  >
+                    <div className={`p-2 rounded-lg mr-4 ${
+                      activity.type === 'exam' ? 'bg-blue-50 text-blue-600' :
+                      activity.type === 'student' ? 'bg-green-50 text-green-600' :
+                      'bg-purple-50 text-purple-600'
+                    }`}>
+                      {activity.type === 'exam' && <FiBook size={20} />}
+                      {activity.type === 'student' && <FiUsers size={20} />}
+                      {activity.type === 'certificate' && <FiFileText size={20} />}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-800">{activity.title}</h4>
+                      <p className="text-sm text-gray-500">{activity.date}</p>
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      activity.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {activity.status === 'active' ? 'Devam Ediyor' : 'Tamamlandı'}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="p-4 border-t border-gray-200 text-center">
+                <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  Tüm Aktiviteyi Görüntüle
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <motion.button
+                onClick={() => setShowExamCreator(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-blue-50 transition-colors"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3">
+                  <FiBook size={24} />
+                </div>
+                <span className="font-medium text-gray-800">Yeni Sınav Oluştur</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-green-50 transition-colors"
+              >
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-3">
+                  <FiUsers size={24} />
+                </div>
+                <span className="font-medium text-gray-800">Öğrenci Ekle</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-purple-50 transition-colors"
+              >
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-3">
+                  <FiFileText size={24} />
+                </div>
+                <span className="font-medium text-gray-800">Sertifika Gönder</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-yellow-50 transition-colors"
+              >
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-3">
+                  <FiBarChart2 size={24} />
+                </div>
+                <span className="font-medium text-gray-800">Rapor Al</span>
+              </motion.button>
+            </div>
+          </>
+        );
+      case 'students':
+        return <StudentsTab institutionId={institution?.id} />;
+      case 'exams':
+        return <ExamsTab 
+                 institution={institution} 
+                 setShowExamCreator={setShowExamCreator} 
+               />;
+      case 'certificates':
+        return <CertificatesTab institution={institution} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -70,7 +248,7 @@ const KurumDashboard = () => {
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="w-64 bg-white shadow-md"
+        className="w-64 relative bg-white shadow-md"
       >
         <div className="p-6 border-b border-gray-200">
           <Link to={"/"}><h1 className="text-xl font-bold text-gray-800">Balabebir</h1></Link>
@@ -134,9 +312,9 @@ const KurumDashboard = () => {
       <div className="flex-1 overflow-auto">
         {/* Header */}
         <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-           <div>
+          <div>
             <h2 className="text-xl font-semibold text-gray-800">
-               {institution ? institution.name : 'Kurum Dashboard'}
+              {institution ? institution.name : 'Kurum Dashboard'}
             </h2>
             {institution ? (
               <div className={`mt-1 flex items-center text-sm ${
@@ -162,7 +340,6 @@ const KurumDashboard = () => {
                 <span>Kurum bilgisi bulunamadı</span>
               </div>
             )}
-            
           </div>
           <div className="flex items-center space-x-4">
             <div className="relative">
@@ -176,11 +353,12 @@ const KurumDashboard = () => {
               </svg>
             </div>
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-              A
+              {user?.displayName?.charAt(0) || 'A'}
             </div>
           </div>
         </header>
- {institution && institution.status !== 'active' && (
+
+        {institution && institution.status !== 'active' && (
           <div className="mx-6 mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0">
@@ -195,189 +373,20 @@ const KurumDashboard = () => {
             </div>
           </div>
         )}
-        {/* Dashboard Content */}
+
+        {/* Main Content */}
         <main className="p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Toplam Öğrenci</p>
-                  <p className="text-3xl font-bold text-gray-800">
-                      {institution.members.length }
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
-                  <FiUsers size={24} />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500" style={{ width: '75%' }}></div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">Son 30 günde %12 artış</p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Aktif Sınavlar</p>
-                  <p className="text-3xl font-bold text-gray-800">{stats.exams}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-purple-50 text-purple-600">
-                  <FiBook size={24} />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-purple-500" style={{ width: '40%' }}></div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">2 yeni sınav bu hafta</p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Verilen Sertifikalar</p>
-                  <p className="text-3xl font-bold text-gray-800">{stats.certificates}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-green-50 text-green-600">
-                  <FiFileText size={24} />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-green-500" style={{ width: '85%' }}></div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">%98 tamamlama oranı</p>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">Son Aktivite</h3>
-            </div>
-            <div className="divide-y divide-gray-200">
-              {recentActivity.map((activity) => (
-                <motion.div 
-                  key={activity.id}
-                  whileHover={{ backgroundColor: 'rgba(243, 244, 246, 1)' }}
-                  className="p-4 flex items-start"
-                >
-                  <div className={`p-2 rounded-lg mr-4 ${
-                    activity.type === 'exam' ? 'bg-blue-50 text-blue-600' :
-                    activity.type === 'student' ? 'bg-green-50 text-green-600' :
-                    'bg-purple-50 text-purple-600'
-                  }`}>
-                    {activity.type === 'exam' && <FiBook size={20} />}
-                    {activity.type === 'student' && <FiUsers size={20} />}
-                    {activity.type === 'certificate' && <FiFileText size={20} />}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-800">{activity.title}</h4>
-                    <p className="text-sm text-gray-500">{activity.date}</p>
-                  </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    activity.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                  }`}>
-                    {activity.status === 'active' ? 'Devam Ediyor' : 'Tamamlandı'}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-            <div className="p-4 border-t border-gray-200 text-center">
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                Tüm Aktiviteyi Görüntüle
-              </button>
-            </div>
-          </div>
-{showExamCreator && (
-  <ExamCreator 
-    institutionId={institution.id} 
-    onClose={() => setShowExamCreator(false)} 
-  />
-)}
-          {/* Quick Actions */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <motion.button
-            onClick={() => setShowExamCreator(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-blue-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3">
-                <FiBook size={24} />
-              </div>
-              <span className="font-medium text-gray-800">Yeni Sınav Oluştur</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-green-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-3">
-                <FiUsers size={24} />
-              </div>
-              <span className="font-medium text-gray-800">Öğrenci Ekle</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-purple-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-3">
-                <FiFileText size={24} />
-              </div>
-              <span className="font-medium text-gray-800">Sertifika Gönder</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center hover:bg-yellow-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-3">
-                <FiBarChart2 size={24} />
-              </div>
-              <span className="font-medium text-gray-800">Rapor Al</span>
-            </motion.button>
-          </div>
-          {activeTab === 'students' && <StudentModal institutionId={institution?.id} />}
-
-  {/* Exams Tab */}
-  {activeTab === 'exams' && (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Sınav Yönetimi</h3>
-      {/* Sınav listesi içeriği */}
-    </div>
-  )}
-
-  {/* Certificates Tab */}
-  {activeTab === 'certificates' && (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Sertifika Yönetimi</h3>
-      {/* Sertifika listesi içeriği */}
-    </div>
-  )}
+          {renderMainContent()}
+          {showExamCreator && (
+            <ExamCreator 
+              institutionId={institution?.id} 
+              onClose={() => setShowExamCreator(false)} 
+            />
+          )}
         </main>
       </div>
     </div>
   );
 };
 
-export default KurumDashboard; 
+export default KurumDashboard;

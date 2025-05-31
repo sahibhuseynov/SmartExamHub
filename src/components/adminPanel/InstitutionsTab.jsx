@@ -45,7 +45,7 @@ const InstitutionsTab = () => {
 
     // 2. Kurum sahibine bildirim gönder
     await createNotification({
-      userId: institutionData.adminUserId,
+      userId: institutionData.adminUserId,  
       title: "Qurum Təsdiqləndi 🎉",
       message: `${institutionData.name} qurumunuz uğurla təsdiqləndi! Artıq şagird qeydiyyatı apara bilərsiniz.`,
       link: "/kurumdashboard", // Yönlendirme linki
