@@ -3,7 +3,7 @@ import { doc, getDoc, updateDoc, arrayUnion, getDocs, collection } from 'firebas
 import { db } from '../../firebase/config';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { FiUsers, FiBook, FiCalendar, FiClock, FiPlus, FiCheck } from 'react-icons/fi';
+import { FiUsers, FiBook, FiCalendar, FiClock, FiPlus, FiCheck, FiGlobe, FiMail, FiPhone, FiMapPin, FiTwitter, FiInstagram, FiMessageSquare, FiLinkedin, FiFacebook } from 'react-icons/fi';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 
@@ -18,42 +18,45 @@ const InstitutionPage = () => {
   const [joining, setJoining] = useState(false);
 
   // Fetch institution and its exams
-  useEffect(() => {
-    const fetchInstitution = async () => {
-      try {
-        // 1. Fetch institution details
-        const institutionRef = doc(db, 'institutions', institutionId);
-        const docSnap = await getDoc(institutionRef);
+useEffect(() => {
+  const fetchInstitution = async () => {
+    try {
+      // 1. Kurum detaylarını çek
+      const institutionRef = doc(db, 'institutions', institutionId);
+      const docSnap = await getDoc(institutionRef);
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setInstitution(data);
+        setIsMember(user?.uid && data.members?.includes(user.uid));
         
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setInstitution(data);
-          setIsMember(user?.uid && data.members?.includes(user.uid));
-          
-          // 2. Fetch exams from the new structure
-          const examsRef = collection(db, 'institutionsExams', institutionId, 'Exams');
-          const examsSnapshot = await getDocs(examsRef);
-          
-          const examsData = examsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            // Ensure we have institutionId for navigation
-            institutionId: institutionId
-          }));
-          
-          setExams(examsData);
-        } else {
-          navigate('/404');
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
+        // 2. DÜZELTİLMİŞ: Doğru yol bu şekilde olmalı
+        const examsRef = collection(db, 'institutionsExams', institutionId, 'Exams');
+        const examsSnapshot = await getDocs(examsRef);
+        
+        const examsData = examsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          institutionId: institutionId
+        }));
+        
+        setExams(examsData);
+        console.log('Alınan sınav sayısı:', examsData.length);
+        console.log('Sınav detayları:', examsData);
+      } else {
+        navigate('/404');
       }
-    };
+    } catch (error) {
+      console.error('Veri çekme hatası:', error);
+      // Hata durumunda kullanıcıyı bilgilendir
+      setExams([]); // Sınav listesini temizle
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchInstitution();
-  }, [institutionId, user?.uid]);
+  fetchInstitution();
+}, [institutionId, user?.uid, navigate]); // navigate'i dependency array'e ekledik
 
   const handleJoinInstitution = async () => {
     if (!user) {
@@ -113,7 +116,7 @@ const InstitutionPage = () => {
                   <img 
                     src={institution.logoUrl} 
                     alt={institution.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 rounded-full"
                   />
                 ) : (
                   <span className="text-4xl font-bold text-gray-600">
@@ -125,7 +128,7 @@ const InstitutionPage = () => {
             
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-4xl font-bold text-white mb-4">
-                {institution.name}
+                {institution.name} kursları
               </h1>
               <p className="text-xl text-blue-100 mb-6">
                 {institution.description || 'Eğitimde mükemmellik için bir arada'}
@@ -135,14 +138,14 @@ const InstitutionPage = () => {
                 <div className="flex items-center bg-blue-500 bg-opacity-20 px-4 py-2 rounded-full">
                   <FiUsers className="text-white mr-2" />
                   <span className="text-white">
-                    {institution.members?.length || 0} Üye
+                    {institution.members?.length || 0} Üzv
                   </span>
                 </div>
                 
                 <div className="flex items-center bg-blue-500 bg-opacity-20 px-4 py-2 rounded-full">
                   <FiBook className="text-white mr-2" />
                   <span className="text-white">
-                    {exams.length} Sınav
+                    {exams.length} İmtahan
                   </span>
                 </div>
               </div>
@@ -156,18 +159,18 @@ const InstitutionPage = () => {
                   }`}
                 >
                   {joining ? (
-                    'Katılıyor...'
+                    'Qoşulur...'
                   ) : (
                     <>
                       <FiPlus className="mr-2" />
-                      Kuruma Katıl
+                      Quruma üzv ol
                     </>
                   )}
                 </button>
               ) : (
                 <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
                   <FiCheck className="mr-2" />
-                  Zaten üyesiniz
+                  Artıq üzvsünüz
                 </div>
               )}
             </div>
@@ -177,19 +180,9 @@ const InstitutionPage = () => {
 
       {/* Content Section */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* About Section */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Kurum Hakkında</h2>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <p className="text-gray-700">
-              {institution.about || 'Bu kurum hakkında detaylı bilgi bulunmamaktadır.'}
-            </p>
-          </div>
-        </section>
-
         {/* Exams Section */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Aktif Sınavlar</h2>
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Aktiv İmtahanlar</h2>
           
           {exams.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -222,7 +215,7 @@ const InstitutionPage = () => {
                     </div>
                     
                     <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                      Sınava Git
+                      İmtahan Bax
                     </button>
                   </Link>
                 </motion.div>
@@ -240,6 +233,163 @@ const InstitutionPage = () => {
             </div>
           )}
         </section>
+        {/* About Section */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Qurum Haqqında</h2>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <p className="text-gray-700 mb-6">
+              {institution.about || 'Bu qurum haqqında ətraflı məlumat yoxdur.'}
+            </p>
+            
+            {/* Modern İletişim Bilgileri */}
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {/* Adres */}
+  {institution.address && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-blue-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiMapPin className="text-blue-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">ÜNVAN</h3>
+        <p className="text-gray-800 text-sm">{institution.address}</p>
+      </div>
+    </div>
+  )}
+  
+  {/* Telefon */}
+  {institution.phone && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-green-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiPhone className="text-green-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">TELEFON</h3>
+        <a 
+          href={`tel:${institution.phone}`}
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors"
+        >
+          {institution.phone}
+        </a>
+      </div>
+    </div>
+  )}
+  
+  {/* Email */}
+  {institution.email && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-purple-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiMail className="text-purple-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">EMAIL</h3>
+        <a 
+          href={`mailto:${institution.email}`}
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors break-all"
+        >
+          {institution.email}
+        </a>
+      </div>
+    </div>
+  )}
+  
+  {/* Website */}
+  {institution.website && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-indigo-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiGlobe className="text-indigo-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">VEBSAYT</h3>
+        <a 
+          href={institution.website} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors break-all"
+        >
+          {institution.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+        </a>
+      </div>
+    </div>
+  )}
+  {institution.socialMedia?.instagram && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-pink-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiInstagram className="text-pink-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">INSTAGRAM</h3>
+        <a 
+          href={`https://instagram.com/${institution.socialMedia.instagram.replace('@', '')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors"
+        >
+          {institution.socialMedia.instagram}
+        </a>
+      </div>
+    </div>
+  )}
+  
+  {institution.socialMedia?.twitter && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-blue-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiTwitter className="text-blue-400 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">TWITTER</h3>
+        <a 
+          href={`https://twitter.com/${institution.socialMedia.twitter.replace('@', '')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors"
+        >
+          {institution.socialMedia.twitter}
+        </a>
+      </div>
+    </div>
+  )}
+
+  {institution.socialMedia?.facebook && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-blue-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiFacebook className="text-blue-600 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">FACEBOOK</h3>
+        <a 
+          href={`https://facebook.com/${institution.socialMedia.facebook.replace('@', '')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors"
+        >
+          {institution.socialMedia.facebook}
+        </a>
+      </div>
+    </div>
+  )}
+
+  {institution.socialMedia?.linkedin && (
+    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100">
+      <div className="bg-blue-100 p-2.5 rounded-full mr-3 flex-shrink-0">
+        <FiLinkedin className="text-blue-700 text-lg" />
+      </div>
+      <div>
+        <h3 className="text-xs font-medium text-gray-500 mb-1">LINKEDIN</h3>
+        <a 
+          href={institution.socialMedia.linkedin.includes('http') ? institution.socialMedia.linkedin : `https://linkedin.com/${institution.socialMedia.linkedin}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-800 text-sm hover:text-blue-600 transition-colors"
+        >
+          {institution.socialMedia.linkedin.replace('https://linkedin.com/', '')}
+        </a>
+      </div>
+    </div>
+  )}
+</div>
+          </div>
+        </section>
+        
       </div>
     </motion.div>
   );

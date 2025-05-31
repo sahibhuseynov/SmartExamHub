@@ -15,7 +15,6 @@ import { AnimatePresence, motion } from "framer-motion";
 const ExamDetailsPage = () => {
     const [open, setOpen] = useState(false);
     const [sections, setSections] = useState([]);
-    const [isInstitutionExam, setIsInstitutionExam] = useState(false);
     const [institutionData, setInstitutionData] = useState(null);
     const formatDateRelative = (timestamp) => {
         if (!timestamp?.seconds) return "Bilinmiyor";
@@ -54,24 +53,35 @@ const ExamDetailsPage = () => {
     const user = useSelector((state) => state.user.user);
  const queryParams = new URLSearchParams(location.search);
         const institutionId = queryParams.get('institutionId');
-      useEffect(() => {
-        const fetchExamDetails = async () => {
-            try {
-                // Fetch institution data if it's an institution exam
-                if (institutionId) {
-                    const institutionRef = doc(db, 'institutions', institutionId);
-                    const institutionSnap = await getDoc(institutionRef);
-                    if (institutionSnap.exists()) {
-                        setInstitutionData(institutionSnap.data());
-                    }
+      
+    useEffect(() => {
+    const fetchExamDetails = async () => {
+        try {
+            // Fetch institution data if it's an institution exam
+            if (institutionId) {
+                const institutionRef = doc(db, 'institutions', institutionId);
+                const institutionSnap = await getDoc(institutionRef);
+                if (institutionSnap.exists()) {
+                    setInstitutionData(institutionSnap.data());
+                }
 
-                    // Fetch institution exam
-                    const examRef = doc(db, `institutionsExams/${institutionId}/Exams/${examId}`);
-                    const examSnap = await getDoc(examRef);
+                // Fetch institution exam
+                const examRef = doc(db, `institutionsExams/${institutionId}/Exams/${examId}`);
+                const examSnap = await getDoc(examRef);
+                
+                if (examSnap.exists()) {
+                    setExam(examSnap.data());
                     
-                    if (examSnap.exists()) {
-                        setExam(examSnap.data());
-                        
+                    // Check if sections exist as an array in exam document
+                    if (examSnap.data().sections && Array.isArray(examSnap.data().sections)) {
+                        const formattedSections = examSnap.data().sections.map(section => ({
+                            id: section.id || section.name,
+                            name: section.name,
+                            questionCount: section.questions ? section.questions.length : 0
+                        }));
+                        setSections(formattedSections);
+                    } else {
+                        // Fallback to querying subcollections if sections not in exam doc
                         const sectionsRef = collection(db, `institutionsExams/${institutionId}/Exams/${examId}/Sections`);
                         const sectionsSnapshot = await getDocs(sectionsRef);
                         
@@ -90,71 +100,72 @@ const ExamDetailsPage = () => {
                                 };
                             })
                         );
-                        
-                        setSections(sectionsWithQuestions);
-                    }
-                } else {
-                    // Original platform exam fetching
-                    const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
-                    const examSnap = await getDoc(examRef);
-                    
-                    if (examSnap.exists()) {
-                        setExam(examSnap.data());
-                        
-                        const sectionsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections`);
-                        const sectionsSnapshot = await getDocs(sectionsRef);
-                        
-                        const sectionsWithQuestions = await Promise.all(
-                            sectionsSnapshot.docs.map(async (sectionDoc) => {
-                                const questionsRef = collection(
-                                    db, 
-                                    `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
-                                );
-                                const questionsSnapshot = await getDocs(questionsRef);
-                                
-                                return {
-                                    id: sectionDoc.id,
-                                    name: sectionDoc.data().name || sectionDoc.id,
-                                    questionCount: questionsSnapshot.size
-                                };
-                            })
-                        );
-                        
+            
                         setSections(sectionsWithQuestions);
                     }
                 }
-            } catch (error) {
-                console.error("Veri alınırken hata:", error);
-            }
-        };
-
-        const fetchComments = async () => {
-            try {
-                let commentsRef;
-                if (institutionId) {
-                    commentsRef = collection(db, `institutionsExams/${institutionId}/Exams/${examId}/Comments`);
-                } else {
-                    commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
-                }
+            } else {
+                // Original platform exam fetching
+                const examRef = doc(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}`);
+                const examSnap = await getDoc(examRef);
                 
-                const commentsSnapshot = await getDocs(commentsRef);
-                const commentsList = commentsSnapshot.docs.map(doc => doc.data());
-                setComments(commentsList);
-
-                if (commentsList.length > 0) {
-                    const totalRating = commentsList.reduce((acc, comment) => acc + comment.rating, 0);
-                    setAverageRating(totalRating / commentsList.length);
+                if (examSnap.exists()) {
+                    setExam(examSnap.data());
+                    
+                    const sectionsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections`);
+                    const sectionsSnapshot = await getDocs(sectionsRef);
+                    
+                    const sectionsWithQuestions = await Promise.all(
+                        sectionsSnapshot.docs.map(async (sectionDoc) => {
+                            const questionsRef = collection(
+                                db, 
+                                `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Sections/${sectionDoc.id}/Questions`
+                            );
+                            const questionsSnapshot = await getDocs(questionsRef);
+                            
+                            return {
+                                id: sectionDoc.id,
+                                name: sectionDoc.data().name || sectionDoc.id,
+                                questionCount: questionsSnapshot.size
+                            };
+                        })
+                    );
+                    
+                    setSections(sectionsWithQuestions);
                 }
-            } catch (error) {
-                console.error("Yorumlar alınırken hata:", error);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (error) {
+            console.error("Veri alınırken hata:", error);
+        }
+    };
 
-        fetchExamDetails();
-        fetchComments();
-    }, [categoryId, classId, examId, institutionId]);
+    const fetchComments = async () => {
+        try {
+            let commentsRef;
+            if (institutionId) {
+                commentsRef = collection(db, `institutionsExams/${institutionId}/Exams/${examId}/Comments`);
+            } else {
+                commentsRef = collection(db, `Exams/${categoryId}/Classes/${classId}/Exams/${examId}/Comments`);
+            }
+            
+            const commentsSnapshot = await getDocs(commentsRef);
+            const commentsList = commentsSnapshot.docs.map(doc => doc.data());
+            setComments(commentsList);
+
+            if (commentsList.length > 0) {
+                const totalRating = commentsList.reduce((acc, comment) => acc + comment.rating, 0);
+                setAverageRating(totalRating / commentsList.length);
+            }
+        } catch (error) {
+            console.error("Yorumlar alınırken hata:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchExamDetails();
+    fetchComments();
+}, [categoryId, classId, examId, institutionId]);
 
     const formatDate = (timestamp) => {
         if (typeof timestamp === "string") {
@@ -256,7 +267,20 @@ const ExamDetailsPage = () => {
             }
         }
     };
-console.log(institutionData);       
+// Loading animasyonu için eklenen kısım
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <Navbar />
+                <div className="flex items-center justify-center h-screen">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }    
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />

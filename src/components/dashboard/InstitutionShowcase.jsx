@@ -33,7 +33,7 @@ const InstitutionShowcase = () => {
 
     fetchInstitutions();
   }, []);
-
+console.log('Institutions:', institutions);
   // Animation variants
   const container = {
     hidden: { opacity: 0 },
@@ -93,7 +93,7 @@ const InstitutionShowcase = () => {
                 >
                   <div className="relative group">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-md transition duration-300"></div>
-                    <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-lg flex items-center justify-center p-4 border-2 border-gray-200 group-hover:border-blue-300 transition duration-300">
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-lg flex items-center justify-center  border-2 border-gray-200 group-hover:border-blue-300 transition duration-300">
                       {institution.logoUrl ? (
                         <img
                           src={institution.logoUrl}

@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ExamCreator from './ExamCreator';
+import StudentModal from './../../components/institution/StudentModal';
 const KurumDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({ students: 0, exams: 0, certificates: 0 });
@@ -62,7 +63,6 @@ const KurumDashboard = () => {
     { id: 2, type: 'student', title: '3 Yeni Öğrenci Kaydı', date: '1 Saat Önce', status: 'completed' },
     { id: 3, type: 'certificate', title: 'Sertifikalar Dağıtıldı', date: '3 Gün Önce', status: 'completed' }
   ];
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -357,6 +357,23 @@ const KurumDashboard = () => {
               <span className="font-medium text-gray-800">Rapor Al</span>
             </motion.button>
           </div>
+          {activeTab === 'students' && <StudentModal institutionId={institution?.id} />}
+
+  {/* Exams Tab */}
+  {activeTab === 'exams' && (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Sınav Yönetimi</h3>
+      {/* Sınav listesi içeriği */}
+    </div>
+  )}
+
+  {/* Certificates Tab */}
+  {activeTab === 'certificates' && (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Sertifika Yönetimi</h3>
+      {/* Sertifika listesi içeriği */}
+    </div>
+  )}
         </main>
       </div>
     </div>

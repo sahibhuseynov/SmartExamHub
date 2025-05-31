@@ -11,14 +11,24 @@ const InstitutionRegistration = () => {
   const [formData, setFormData] = useState({
     institutionName: '',
     description: '',
-    logoUrl: ''
+    logoUrl: '',
+    about: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    socialMedia: {
+      facebook: '',
+      twitter: '',
+      instagram: '',
+      linkedin: ''
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   
-  // Get current user from Redux
   const currentUser = useSelector((state) => state.user.user);
   const [userId, setUserId] = useState(null);
 
@@ -30,7 +40,20 @@ const InstitutionRegistration = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Social media alanları için özel kontrol
+    if (name.startsWith('socialMedia.')) {
+      const socialMediaField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        socialMedia: {
+          ...prev.socialMedia,
+          [socialMediaField]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleLogoUpload = async (e) => {
@@ -68,18 +91,24 @@ const InstitutionRegistration = () => {
     setIsSubmitting(true);
     
     try {
-      // 1. Create the institution document
+      // Create institution document with all fields
       const institutionRef = await addDoc(collection(db, 'institutions'), {
         name: formData.institutionName,
         description: formData.description,
+        about: formData.description, // Aynı açıklamayı kullanıyoruz
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        website: formData.website,
+        socialMedia: formData.socialMedia,
         logoUrl: formData.logoUrl,
         createdAt: new Date(),
         status: 'inactive',
-        adminUserId: userId, // Associate with the current user
-        members: [userId]    // Add user as first member
+        adminUserId: userId,
+        members: [userId]
       });
 
-      // 2. Update the user document to reference this institution
+      // Update user document
       const userRef = doc(db, 'Users', userId);
       await updateDoc(userRef, {
         institutions: arrayUnion(institutionRef.id),
@@ -163,6 +192,21 @@ const InstitutionRegistration = () => {
                     />
                   </div>
 
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                      Adres
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="Kurum adresi"
+                    />
+                  </div>
+
                   <div className="space-y-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Logo Yükle (Opsiyonel)
@@ -231,7 +275,7 @@ const InstitutionRegistration = () => {
               </motion.div>
             )}
 
-            {/* Step 2: Institution Description */}
+            {/* Step 2: Additional Information */}
             {step === 2 && (
               <motion.div
                 key="step2"
@@ -242,7 +286,7 @@ const InstitutionRegistration = () => {
                 exit="exit"
                 className="absolute inset-0 p-8"
               >
-                <h2 className="text-2xl font-bold text-gray-900 mb-8">Kurum Açıklaması</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">Ek Bilgiler</h2>
                 
                 <div className="space-y-6">
                   <div>
@@ -254,14 +298,60 @@ const InstitutionRegistration = () => {
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
-                      rows={6}
+                      rows={4}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       placeholder="Kurumunuzu kısaca tanıtın..."
                       required
                     />
                   </div>
 
-                  <div className="flex justify-between space-x-4 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                        Telefon
+                      </label>
+                      <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="+90 555 123 4567"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="info@kurum.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
+                      Website
+                    </label>
+                    <input
+                      type="url"
+                      id="website"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="https://www.kurum.com"
+                    />
+                  </div>
+
+                  <div className="pt-4 flex justify-between space-x-4">
                     <button
                       type="button"
                       onClick={prevStep}
@@ -292,10 +382,112 @@ const InstitutionRegistration = () => {
               </motion.div>
             )}
 
-            {/* Step 3: Completion */}
+            {/* Step 3: Social Media and Completion */}
             {step === 3 && (
               <motion.div
                 key="step3"
+                custom={1}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="absolute inset-0 p-8"
+              >
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">Sosyal Medya Bilgileri</h2>
+                
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-2">
+                        Facebook
+                      </label>
+                      <input
+                        type="url"
+                        id="facebook"
+                        name="socialMedia.facebook"
+                        value={formData.socialMedia.facebook}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="https://facebook.com/kurum"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 mb-2">
+                        Twitter
+                      </label>
+                      <input
+                        type="url"
+                        id="twitter"
+                        name="socialMedia.twitter"
+                        value={formData.socialMedia.twitter}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="https://twitter.com/kurum"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-2">
+                        Instagram
+                      </label>
+                      <input
+                        type="url"
+                        id="instagram"
+                        name="socialMedia.instagram"
+                        value={formData.socialMedia.instagram}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="https://instagram.com/kurum"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 mb-2">
+                        LinkedIn
+                      </label>
+                      <input
+                        type="url"
+                        id="linkedin"
+                        name="socialMedia.linkedin"
+                        value={formData.socialMedia.linkedin}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="https://linkedin.com/company/kurum"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex justify-between space-x-4">
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="flex-1 py-3.5 px-6 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                      </svg>
+                      Geri
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="flex-1 py-3.5 px-6 rounded-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg shadow-md transition-all"
+                    >
+                      Devam Et
+                      <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Completion */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
                 custom={1}
                 variants={variants}
                 initial="enter"

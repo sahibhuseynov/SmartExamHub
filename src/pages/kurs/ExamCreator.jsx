@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { FiPlus, FiTrash2, FiX, FiCheck,} from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiX, FiCheck, } from 'react-icons/fi';
 
 const ExamCreator = ({ institutionId, onClose }) => {
   const [examData, setExamData] = useState({
@@ -11,24 +11,43 @@ const ExamCreator = ({ institutionId, onClose }) => {
     endDate: '',
     examDuration: 60,
     passingGrade: 50,
-    questions: []
+    price: 0, // Added price field
+    sections: [
+      {
+        id: 'section-1',
+        name: 'Genel',
+        questions: []
+      }
+    ]
   });
 
+  const [currentSectionId, setCurrentSectionId] = useState('section-1');
   const [currentQuestion, setCurrentQuestion] = useState({
     text: '',
-    type: 'single-choice', // 'single-choice', 'multiple-choice', 'text'
+    type: 'single-choice',
     options: ['', ''],
     correctAnswers: []
   });
 
   const [activeTab, setActiveTab] = useState('exam-info');
+  const [newSectionName, setNewSectionName] = useState('');
+
+  // Get current section
+  const currentSection = examData.sections.find(s => s.id === currentSectionId);
 
   const handleAddQuestion = () => {
     if (!currentQuestion.text || currentQuestion.options.some(opt => !opt)) return;
 
     setExamData(prev => ({
       ...prev,
-      questions: [...prev.questions, currentQuestion]
+      sections: prev.sections.map(section => 
+        section.id === currentSectionId
+          ? {
+              ...section,
+              questions: [...section.questions, currentQuestion]
+            }
+          : section
+      )
     }));
 
     setCurrentQuestion({
@@ -72,25 +91,65 @@ const ExamCreator = ({ institutionId, onClose }) => {
     }
   };
 
-  const handleRemoveQuestion = (index) => {
+  const handleRemoveQuestion = (sectionId, questionIndex) => {
     setExamData(prev => ({
       ...prev,
-      questions: prev.questions.filter((_, i) => i !== index)
+      sections: prev.sections.map(section => 
+        section.id === sectionId
+          ? {
+              ...section,
+              questions: section.questions.filter((_, i) => i !== questionIndex)
+            }
+          : section
+      )
     }));
+  };
+
+  const handleAddSection = () => {
+    if (!newSectionName.trim()) return;
+    
+    const newSection = {
+      id: `section-${Date.now()}`,
+      name: newSectionName.trim(),
+      questions: []
+    };
+    
+    setExamData(prev => ({
+      ...prev,
+      sections: [...prev.sections, newSection]
+    }));
+    
+    setCurrentSectionId(newSection.id);
+    setNewSectionName('');
+  };
+
+  const handleRemoveSection = (sectionId) => {
+    if (examData.sections.length <= 1) return;
+    
+    setExamData(prev => ({
+      ...prev,
+      sections: prev.sections.filter(s => s.id !== sectionId)
+    }));
+    
+    if (currentSectionId === sectionId) {
+      setCurrentSectionId(examData.sections[0].id);
+    }
   };
 
   const handleSubmit = async () => {
     try {
-      if (!examData.title || examData.questions.length === 0) return;
-const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
-        // 2. Yeni sınavı ekle
+      if (!examData.title || examData.sections.every(s => s.questions.length === 0)) return;
+      
+      const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
+      
       await addDoc(examRef, {
         ...examData,
-        institutionId, // Kurum ID'sini tekrar kaydediyoruz
+        institutionId,
         status: 'active',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        isInstitutionExam: true
+        isInstitutionExam: true,
+        totalQuestions: examData.sections.reduce((total, section) => total + section.questions.length, 0)
       });
 
       onClose();
@@ -122,7 +181,7 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
             onClick={() => setActiveTab('questions')}
             className={`px-4 py-3 font-medium ${activeTab === 'questions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           >
-            Sorular ({examData.questions.length})
+            Sorular ({examData.sections.reduce((total, section) => total + section.questions.length, 0)})
           </button>
         </div>
 
@@ -185,25 +244,95 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Geçerli Not (%)*</label>
-                <input
-                  type="number"
-                  className="w-full p-3 border rounded-lg"
-                  value={examData.passingGrade}
-                  onChange={(e) => setExamData({...examData, passingGrade: e.target.value})}
-                  min="0"
-                  max="100"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Geçerli Not (%)*</label>
+                  <input
+                    type="number"
+                    className="w-full p-3 border rounded-lg"
+                    value={examData.passingGrade}
+                    onChange={(e) => setExamData({...examData, passingGrade: e.target.value})}
+                    min="0"
+                    max="100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Ücret (AZN)</label>
+                  <input
+                    type="number"
+                    className="w-full p-3 border rounded-lg"
+                    value={examData.price}
+                    onChange={(e) => setExamData({...examData, price: e.target.value})}
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'questions' && (
             <div className="space-y-8">
-              {/* Question List */}
+              {/* Sections management */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-4">Bölümler</h4>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {examData.sections.map(section => (
+                    <button
+                      key={section.id}
+                      onClick={() => setCurrentSectionId(section.id)}
+                      className={`px-3 py-1 rounded-full flex items-center ${
+                        currentSectionId === section.id
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {section.name}
+                      {examData.sections.length > 1 && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveSection(section.id);
+                          }}
+                          className="ml-1 text-red-500 hover:text-red-700"
+                        >
+                          <FiX size={14} />
+                        </button>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    className="flex-1 p-2 border rounded"
+                    value={newSectionName}
+                    onChange={(e) => setNewSectionName(e.target.value)}
+                    placeholder="Yeni bölüm adı"
+                  />
+                  <button
+                    onClick={handleAddSection}
+                    disabled={!newSectionName.trim()}
+                    className={`px-3 py-2 rounded flex items-center ${
+                      !newSectionName.trim()
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    <FiPlus className="mr-1" />
+                    Bölüm Ekle
+                  </button>
+                </div>
+              </div>
+
+              {/* Questions in current section */}
               <div className="space-y-4">
-                {examData.questions.map((q, qIndex) => (
+                <h4 className="font-medium">{currentSection?.name} Bölümü Soruları ({currentSection?.questions.length})</h4>
+                
+                {currentSection?.questions.map((q, qIndex) => (
                   <div key={qIndex} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div>
@@ -214,7 +343,7 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
                         </p>
                       </div>
                       <button 
-                        onClick={() => handleRemoveQuestion(qIndex)}
+                        onClick={() => handleRemoveQuestion(currentSectionId, qIndex)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <FiTrash2 />
@@ -240,7 +369,7 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
 
               {/* Add New Question */}
               <div className="border-2 border-dashed rounded-lg p-4">
-                <h4 className="font-medium mb-4">Yeni Soru Ekle</h4>
+                <h4 className="font-medium mb-4">Yeni Soru Ekle ({currentSection?.name})</h4>
                 
                 <div className="space-y-4">
                   <div>
@@ -345,9 +474,9 @@ const examRef = collection(db, 'institutionsExams', institutionId, 'Exams');
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!examData.title || examData.questions.length === 0}
+            disabled={!examData.title || examData.sections.every(s => s.questions.length === 0)}
             className={`px-6 py-2 rounded-lg ${
-              !examData.title || examData.questions.length === 0
+              !examData.title || examData.sections.every(s => s.questions.length === 0)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
