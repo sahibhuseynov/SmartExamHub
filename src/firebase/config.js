@@ -1,25 +1,24 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // Firestore başlatma
+import { getFirestore } from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyAIusQbtHF4NBFhtaelP3meCYzfbV-o_E4",
-  authDomain: "cirtdan-8e37b.firebaseapp.com",
-  projectId: "cirtdan-8e37b",
-  storageBucket: "cirtdan-8e37b.firebasestorage.app",
-  messagingSenderId: "460487643008",
-  appId: "1:460487643008:web:6c84df88d4c1a93c76bb65",
-  measurementId: "G-9HSZ6VGVLV"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // Firestore başlatma
+const db = getFirestore(app);
 
 const provider = new GoogleAuthProvider();
 
-// Google ile Giriş
 const googleSignIn = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
@@ -29,7 +28,6 @@ const googleSignIn = async () => {
   }
 };
 
-// Çıkış Yap
 const googleSignOut = async () => {
   try {
     await signOut(auth);

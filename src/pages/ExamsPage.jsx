@@ -110,7 +110,7 @@ const ExamsPage = () => {
       <Navbar />
       <div className="bg-gradient-to-b from-violet-700 to-indigo-600 text-white p-6 h-[450px] md:h-[300px] flex justify-center md:items-center">
         <div className="max-w-6xl flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-8 w-full">
-          <div className="bg-white text-blue-700 w-full h-44 rounded-lg text-center flex items-center justify-center col-span-1">
+          <div className="bg-white text-blue-700 w-full h-44 rounded-xl text-center flex items-center justify-center col-span-1">
             <h2 className="text-4xl font-bold">{categoryId}</h2>
           </div>
           <div className="text-center flex justify-center items-center col-span-2">
@@ -163,7 +163,7 @@ const ExamsPage = () => {
         {examsLoading ? (
           <div className="flex flex-wrap gap-4">
             {[...Array(3)].map((_, index) => (
-              <Skeleton key={index} height={100} width={300} className="rounded-lg" />
+              <Skeleton key={index} height={100} width={300} className="rounded-xl" />
             ))}
           </div>
         ) : filteredExams.length > 0 ? (
@@ -171,7 +171,7 @@ const ExamsPage = () => {
             {filteredExams.map(exam => (
               <div
                 key={exam.id}
-                className="border border-gray-300 shadow-lg rounded-lg p-6 cursor-pointer hover:shadow-xl transition-all relative"
+                className="border border-gray-100 shadow-xl rounded-xl p-6 cursor-pointer hover:shadow-xl transition-all relative"
                 onClick={() => handleExamClick(exam.id)}
               >
                 <h3 className="text-xl font-bold">{exam.id}</h3>
