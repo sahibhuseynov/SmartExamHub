@@ -1,34 +1,52 @@
-import { motion } from 'framer-motion'; // Framer Motion import edildi
+import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import Navbar from "../components/Navbar";
 import ChatWithUs from './../components/ChatWithUs';
 import Footer from "../components/Footer";
 import { BsTwitterX } from "react-icons/bs";
 import { FaLinkedinIn } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
+
 const AboutUs = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-50 z-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50">
       <Navbar />
       <ChatWithUs />
 
+      {/* Rest of your existing code remains exactly the same */}
       <div className="max-w-7xl mx-auto px-6 py-12 mb-16">
         <div className="text-center">
-          <h1
-            className="text-4xl font-extrabold text-blue-600 mb-6"
-            
-          >
+          <h1 className="text-4xl font-extrabold text-blue-600 mb-6">
             <span className="text-black">Bala Bebir</span> Online İmtahan Platforması
           </h1>
 
           <motion.p
             className="text-xl text-gray-700 mb-12"
-            initial={{ opacity: 0 }} // Başlangıç animasyonu
-            animate={{ opacity: 1 }} // Hedef animasyon
-            transition={{ duration: 1 }} // Geçiş süresi
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
           >
             Bala Bebir onlayn sınaq imtahanları, yarışlar, müsabiqələr və test bazası ilə hər kəs üçün təhsil imkanı yaradır. Layihəmiz magistrlərdən ibtidai siniflərə, abituriyentlərdən müəllimlərə qədər geniş bir auditoriya üçün nəzərdə tutulub. Balabebir-in əsas məqsədi onlayn təhsilin inkişafını dəstəkləmək və müasir təhsil mühitində rəqabət qabiliyyətli iştirakçıları yetişdirməkdir.
           </motion.p>
 
+          {/* ... All your existing content remains unchanged ... */}
           <h2
             className="text-3xl font-semibold text-gray-800 mt-12 mb-6"
             

@@ -20,6 +20,7 @@
   const LatestBlogs = lazy(() => import("../components/dashboard/LatestBlogs"));
   const TopUsersLeaderboard = lazy(() => import("../components/dashboard/TopUsersLeaderboard"));
 import InstitutionShowcase from './../components/dashboard/InstitutionShowcase';
+import { motion } from 'framer-motion';
 
 
   const Dashboard = () => {
@@ -29,17 +30,7 @@ import InstitutionShowcase from './../components/dashboard/InstitutionShowcase';
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false); // Modal durumu
     const userId = useSelector((state) => state.user.user?.uid); // Kullanıcı ID'sini alıyoruz
-    const categoryList = useMemo(() => (
-      categories.map((category) => (
-        <li
-          key={category.id}
-          className="p-4 bg-blue-500 text-white shadow-md rounded-lg text-center cursor-pointer hover:bg-blue-600 transition duration-300 w-40 h-14 flex items-center justify-center"
-          onClick={() => handleExamClick(category.id, category.id)}
-        >
-          {category.id}
-        </li>
-      ))
-    ), [categories]);
+    
     useEffect(() => {
       
       const fetchCategoriesAndClasses = async () => {
@@ -127,7 +118,34 @@ import InstitutionShowcase from './../components/dashboard/InstitutionShowcase';
     const handleExamClick = (examId, categoryId) => {
       navigate(`/${categoryId}/${examId}`);
     };
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+};
 
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 10
+    }
+  },
+  hover: {
+    y: -5,
+    scale: 1.03,
+    transition: { duration: 0.2 }
+  }
+};
     return (
       <div className="bg-gray-50">
         <div className="chatbot-container md:block hidden">
@@ -141,29 +159,67 @@ import InstitutionShowcase from './../components/dashboard/InstitutionShowcase';
         <Navbar />
         <Slider />
         
-        <div className="p-6 flex flex-col items-center max-w-6xl mx-auto">
-          <h2 className="text-2xl text-slate-800 font-bold mb-4">İmtahan Kateqoriyaları</h2>
-          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {loading ? (
-    [...Array(4)].map((_, index) => (
-      <li
-        key={index}
-        className="p-4 shadow-lg rounded-lg w-40 h-14 flex items-center justify-center"
-      >
-        <Skeleton width="100%" height="100%" className="rounded-lg" />
-      </li>
-    ))
-  ) : (
-    categoryList // Burada artıq `map()` işləməyəcək, `useMemo` sayəsində cache-dən götürüləcək
-  )}
-          </ul>
-        </div>
-<InstitutionShowcase />
+        <div className="py-12 px-4 sm:px-6 max-w-7xl mx-auto">
+  <div className="text-center mb-10">
+    <h2 
+      
+      className="text-3xl font-bold text-gray-900 mb-3"
+    >
+      İmtahan Kateqoriyaları
+    </h2>
+    <p
+      
+      className="text-lg text-gray-600 max-w-2xl mx-auto"
+    >
+      İstədiyiniz kateqoriyanı seçərək imtahanlara başlaya bilərsiniz
+    </p>
+  </div>
+
+  <motion.ul 
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5 w-full max-w-5xl mx-auto"
+  >
+    {loading ? (
+      [...Array(4)].map((_, index) => (
+        <motion.li 
+          key={index}
+          variants={itemVariants}
+          className="h-20"
+        >
+          <div className="h-full bg-white rounded-xl shadow-sm overflow-hidden">
+            <Skeleton width="100%" height="100%" className="rounded-xl" />
+          </div>
+        </motion.li>
+      ))
+    ) : (
+      categories.map((category) => (
+        <motion.li 
+          key={category.id}
+          variants={itemVariants}
+          whileHover="hover"
+        >
+          <motion.button
+            onClick={() => handleExamClick(category.id, category.id)}
+            className="w-full h-20 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center px-4"
+            whileTap={{ scale: 0.98 }}
+          >
+            <span className="text-lg font-medium text-gray-800 text-center line-clamp-2">
+              {category.id}
+            </span>
+          </motion.button>
+        </motion.li>
+      ))
+    )}
+  </motion.ul>
+</div>
+
         <div className="max-w-6xl mx-auto mb-12">
           <TopRating />
         
           <LatestExams />
-          
+          <InstitutionShowcase />
           {/* <CompletedExams /> */}
           <Suspense fallback={<div>Loading...</div>}>
             <TopUsersLeaderboard />

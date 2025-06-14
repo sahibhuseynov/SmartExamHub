@@ -1,15 +1,38 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { motion } from 'framer-motion';
+import { db } from '../../firebase/config';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { MdArrowForwardIos, MdOutlineArrowBackIosNew } from 'react-icons/md';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { db } from '../../firebase/config';
 import { Link } from 'react-router-dom';
 
 const InstitutionShowcase = () => {
   const [institutions, setInstitutions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const NextArrow = ({ onClick }) => (
+    <button
+      className="absolute top-1/2 -right-6 z-10 cursor-pointer bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg text-gray-800 hover:text-blue-600 transition-all duration-300 opacity-0 group-hover:opacity-100"
+      onClick={onClick}
+      aria-label="Next"
+    >
+      <MdArrowForwardIos className="text-xl" />
+    </button>
+  );
+  
+  const PrevArrow = ({ onClick }) => (
+    <button
+      className="absolute top-1/2 -left-6 z-10 cursor-pointer bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg text-gray-800 hover:text-blue-600 transition-all duration-300 opacity-0 group-hover:opacity-100"
+      onClick={onClick}
+      aria-label="Previous"
+    >
+      <MdOutlineArrowBackIosNew className="text-xl" />
+    </button>
+  );
 
   useEffect(() => {
     const fetchInstitutions = async () => {
@@ -20,12 +43,13 @@ const InstitutionShowcase = () => {
             id: doc.id,
             ...doc.data()
           }))
-          // Filter to only include active institutions
-          .filter(institution => institution.status === 'active');
+          .filter(institution => institution.status === 'active')
+          .sort((a, b) => a.order - b.order);
+        
         setInstitutions(institutionsData);
       } catch (err) {
         console.error('Error fetching institutions:', err);
-        setError('Kurum bilgileri yüklenirken hata oluştu');
+        setError('Təhsil müəssisələri yüklənərkən xəta baş verdi');
       } finally {
         setLoading(false);
       }
@@ -33,89 +57,108 @@ const InstitutionShowcase = () => {
 
     fetchInstitutions();
   }, []);
-console.log('Institutions:', institutions);
-  // Animation variants
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
 
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 }
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    centerMode: false,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
+    responsive: [
+      {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+          centerPadding: "20px",
+        },
+      },
+    ],
   };
 
   return (
-    <section className="py-12 bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            <span className="block">İş Birliği Yaptığımız Kurumlar</span>
-          </h2>
-          <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-            Eğitimde mükemmelliği birlikte inşa ettiğimiz değerli kurumlar
-          </p>
-        </div>
+    <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      <div className="mb-10 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Kurslar</h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Ən yaxşı təhsil təcrübəsini təqdim edən kurslarımız
+        </p>
+      </div>
 
-        {error ? (
-          <div className="text-center text-red-500">{error}</div>
-        ) : (
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5"
-          >
-            {loading
-              ? Array(5)
-                  .fill(0)
-                  .map((_, index) => (
-                    <div key={index} className="flex flex-col items-center">
-                      <Skeleton circle width={120} height={120} />
-                      <Skeleton width={100} height={20} className="mt-4" />
-                    </div>
-                  ))
-               : institutions.map((institution) => (
-              <Link 
-                to={`/institutions/${institution.id}`} 
-                key={institution.id}
-                className="flex flex-col items-center"
-              >
-                <motion.div
-                  variants={item}
-                  whileHover={{ y: -5 }}
-                  className="flex flex-col items-center w-full"
-                >
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur-md transition duration-300"></div>
-                    <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-lg flex items-center justify-center  border-2 border-gray-200 group-hover:border-blue-300 transition duration-300">
-                      {institution.logoUrl ? (
-                        <img
-                          src={institution.logoUrl}
-                          alt={institution.name}
-                          className="w-full h-full object-contain rounded-full"
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-gray-400">
-                          {institution.name.charAt(0)}
-                        </span>
-                      )}
+      {error ? (
+        <div className="text-center py-8 text-red-500 font-medium">{error}</div>
+      ) : (
+        <div className="relative group">
+          <Slider {...sliderSettings}>
+            {loading ? (
+              [...Array(4)].map((_, index) => (
+                <div key={index} className="px-2">
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 h-full">
+                    <div className="p-6 flex flex-col items-center h-full">
+                      <Skeleton circle width={120} height={120} className="mb-5" />
+                      <Skeleton width="80%" height={24} className="mb-3" />
+                      <Skeleton width="60%" height={18} className="mb-4" />
+                      <Skeleton width="100%" height={40} className="rounded-lg" />
                     </div>
                   </div>
-                  <h3 className="mt-4 text-lg font-medium text-gray-900 text-center">
-                    {institution.name}
-                  </h3>
-                </motion.div>
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </div>
+                </div>
+              ))
+            ) : (
+              institutions.map((institution) => (
+                <div key={institution.id} className="px-2">
+                  <Link 
+                    to={`/institutions/${institution.id}`}
+                    className="block h-full"
+                  >
+                    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+                      <div className="p-6 pb-4 flex-grow flex flex-col items-center">
+                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 mb-5 flex items-center justify-center overflow-hidden border-4 border-white shadow-inner">
+                          {institution.logoUrl ? (
+                            <img
+                              src={institution.logoUrl}
+                              alt={institution.name}
+                              className="w-32 h-32 object-contain rounded-full transition-transform duration-300 hover:scale-110"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <span className="text-4xl font-bold text-blue-600">
+                              {institution.name.charAt(0)}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-xl font-semibold text-center text-gray-900 mb-2">
+                         {institution.name.charAt(0).toUpperCase() + institution.name.slice(1)}
+
+                        </h3>
+                        
+                      </div>
+                      <div className="px-6 pb-6 w-full">
+                        <div className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-center py-2 rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all">
+                          Ətraflı
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))
+            )}
+          </Slider>
+        </div>
+      )}
     </section>
   );
 };
