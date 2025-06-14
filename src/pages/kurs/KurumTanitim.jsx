@@ -8,11 +8,15 @@ import { useSelector } from 'react-redux';
 
 export default function KurumTanitim() {
   const [activeFAQ, setActiveFAQ] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const toggleFAQ = (index) => {
     setActiveFAQ(activeFAQ === index ? null : index);
   };
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.user);
+
+  // Simulate content loading
+  setTimeout(() => setIsLoading(false), 1000);
 
   const handleFreeTrialClick = () => {
     if (user) {
@@ -31,44 +35,59 @@ export default function KurumTanitim() {
     }),
   };
 
+  // Loading Animation
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+          <p className="mt-4 text-gray-600">Yüklənir...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="bg-white">
       <Navbar />
       <ChatWithUs />
-      <header>
-        <title>Kurum Platforması - Öz Rəqəmsal Məktəbini Qur</title>
-        <meta name="description" content="Peşəkar imtahan və kurs idarəetmə sistemi" />
-      </header>
-
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 text-white py-24 px-4">
-        <div className="max-w-7xl mx-auto text-center">
+      
+      {/* Hero Section - Enhanced with gradient overlay */}
+      <section className="relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 text-white py-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-black/30"></div>
+        <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeIn}
             custom={0}
           >
-            <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full mb-6">
-              <span className="text-sm font-medium">YENİ NESİL ÖĞRENİM PLATFORMU</span>
+            <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full mb-6">
+              <span className="text-sm font-medium tracking-wider">YENİ NESİL ÖĞRENİM PLATFORMU</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Öz <span className="text-yellow-300 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-yellow-500">Rəqəmsal Məktəbini</span> Qur
+              Öz <span className="text-yellow-300">Rəqəmsal Məktəbini</span> Qur
             </h1>
             <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed">
               Tələbələrin üçün peşəkar imtahanlar yarat, nəticələri anında izlə,
               <br className="hidden md:block" /> və brendinə uyğun sertifikatlar təqdim et!
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button 
-                className="bg-white hover:bg-green-500 hover:text-white text-gray-900 font-bold px-8 py-4 rounded-full text-lg transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              <motion.button 
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white hover:bg-green-500 hover:text-white text-gray-900 font-bold px-8 py-4 rounded-full text-lg transition-all shadow-lg hover:shadow-xl"
                 onClick={handleFreeTrialClick}
               >
                 İndi Pulsuz Yoxla
-              </button>
-              <button className="border-2 border-white/30 hover:border-white/60 text-white font-bold px-8 py-4 rounded-full text-lg transition-all transform hover:scale-[1.02]">
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="border-2 border-white/30 hover:border-white/60 text-white font-bold px-8 py-4 rounded-full text-lg transition-all"
+              >
                 Demo İzlə
-              </button>
+              </motion.button>
             </div>
           </motion.div>
 
@@ -85,15 +104,19 @@ export default function KurumTanitim() {
               "✓ Ətraflı Hesabatlar",
               "✓ 7/24 Dəstək"
             ].map((item, i) => (
-              <span key={i} className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+              <motion.span 
+                key={i} 
+                className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm"
+                whileHover={{ scale: 1.05 }}
+              >
                 <span className="text-green-300">✓</span> {item.split("✓ ")[1]}
-              </span>
+              </motion.span>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Xüsusiyyətlər */}
+      {/* Features Section - Modern card design */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <motion.div
           initial="hidden"
@@ -137,31 +160,35 @@ export default function KurumTanitim() {
           ].map((item, i) => (
             <motion.div
               key={i}
-              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-gray-100 hover:border-blue-100 transition-all group"
+              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md border border-gray-100 hover:border-blue-100 transition-all group relative overflow-hidden"
               initial="hidden"
               animate="visible"
               variants={fadeIn}
               custom={i+1}
+              whileHover={{ y: -10 }}
             >
-              <span className={`text-3xl mb-6 block w-16 h-16 rounded-full ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                {item.icon}
-              </span>
-              <h3 className="text-xl font-bold mb-4">{item.title}</h3>
-              <p className="text-gray-600">{item.desc}</p>
-              <div className="mt-6">
-                <button className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                  Ətraflı məlumat
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <span className={`text-3xl mb-6 block w-16 h-16 rounded-full ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  {item.icon}
+                </span>
+                <h3 className="text-xl font-bold mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+                <div className="mt-6">
+                  <button className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    Ətraflı məlumat
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Demo */}
+      {/* Demo Section - Improved layout */}
       <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
@@ -184,29 +211,44 @@ export default function KurumTanitim() {
                   "Tələbəyə xüsusi performans izləməsi",
                   "Avtomatik qiymətləndirmə və hesabatlar"
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start">
+                  <motion.li 
+                    key={i} 
+                    className="flex items-start"
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    custom={i+1}
+                  >
                     <span className="bg-blue-100 text-blue-600 p-1 rounded-full mr-3 mt-1">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </span>
                     <span>{item}</span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
               <div className="flex flex-wrap gap-4">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+                <motion.button 
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 shadow-md hover:shadow-lg"
+                >
                   Demo İstə
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                   </svg>
-                </button>
-                <button className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+                </motion.button>
+                <motion.button 
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center gap-2"
+                >
                   Video Baxış
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
                   </svg>
-                </button>
+                </motion.button>
               </div>
             </motion.div>
             <motion.div
@@ -215,8 +257,9 @@ export default function KurumTanitim() {
               animate="visible"
               variants={fadeIn}
               custom={1}
+              whileHover={{ scale: 1.01 }}
             >
-              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white">
                 <div className="bg-gray-800 h-8 flex items-center px-4">
                   <div className="flex gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -242,7 +285,7 @@ export default function KurumTanitim() {
         </div>
       </section>
 
-      {/* SSS */}
+      {/* FAQ Section - Enhanced animations */}
       <section className="max-w-4xl mx-auto px-4 py-20">
         <motion.div
           initial="hidden"
@@ -282,29 +325,35 @@ export default function KurumTanitim() {
           ].map((item, index) => (
             <motion.div
               key={index}
-              className="border border-gray-200 rounded-xl overflow-hidden"
+              className="border border-gray-200 rounded-xl overflow-hidden bg-white"
               initial="hidden"
               animate="visible"
               variants={fadeIn}
               custom={index+1}
+              whileHover={{ scale: 1.005 }}
             >
               <button
                 className={`w-full text-left p-6 hover:bg-gray-50 transition-colors font-medium flex justify-between items-center ${activeFAQ === index ? 'bg-gray-50' : ''}`}
                 onClick={() => toggleFAQ(index)}
               >
                 <span className="text-lg">{item.q}</span>
-                <span className={`text-2xl transition-transform ${activeFAQ === index ? 'rotate-180' : ''}`}>
+                <motion.span 
+                  animate={{ rotate: activeFAQ === index ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-2xl"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                </span>
+                </motion.span>
               </button>
               {activeFAQ === index && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="px-6 pb-6 pt-2 bg-white"
+                  className="px-6 pb-6 pt-2"
                 >
                   <p className="text-gray-700">{item.a}</p>
                 </motion.div>
@@ -313,30 +362,42 @@ export default function KurumTanitim() {
           ))}
         </div>
 
+        {/* CTA Section - Enhanced with gradient */}
         <motion.div
-          className="bg-gradient-to-r from-blue-600 to-purple-600 p-10 rounded-2xl text-center shadow-lg"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 p-10 rounded-2xl text-center shadow-lg relative overflow-hidden"
           initial="hidden"
           animate="visible"
           variants={fadeIn}
           custom={3}
         >
-          <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">Hazırsınız?</h3>
-          <p className="mb-6 max-w-2xl mx-auto leading-relaxed text-white/90">
-            3 dəqiqəyə kurum hesabınızı yaradın, ilk imtahanınızı paylaşın və
-            təhsil prosesinizi rəqəmsallaşdırın!
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-white hover:bg-gray-100 text-blue-600 font-bold px-10 py-4 rounded-full text-lg shadow-md hover:shadow-lg transition-all">
-              Pulsuz Qeydiyyat
-            </button>
-            <button className="border-2 border-white/40 hover:border-white/80 text-white font-bold px-10 py-4 rounded-full text-lg hover:bg-white/10 transition-all">
-              Ətraflı Məlumat
-            </button>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5"></div>
+          <div className="relative z-10">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">Hazırsınız?</h3>
+            <p className="mb-6 max-w-2xl mx-auto leading-relaxed text-white/90">
+              3 dəqiqəyə kurum hesabınızı yaradın, ilk imtahanınızı paylaşın və
+              təhsil prosesinizi rəqəmsallaşdırın!
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <motion.button 
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white hover:bg-gray-100 text-blue-600 font-bold px-10 py-4 rounded-full text-lg shadow-md hover:shadow-lg transition-all"
+              >
+                Pulsuz Qeydiyyat
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="border-2 border-white/40 hover:border-white/80 text-white font-bold px-10 py-4 rounded-full text-lg hover:bg-white/10 transition-all"
+              >
+                Ətraflı Məlumat
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       </section>
       
       <Footer />
-    </>
+    </div>
   );
 }
